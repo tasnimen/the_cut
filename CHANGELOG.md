@@ -1,0 +1,23 @@
+# Changelog
+
+All notable project changes will be recorded here. No release has been made.
+
+## Unreleased
+
+- Completed a documentation-only Phase A code audit in `docs/AUDIT.md`: inventoried implemented routes and modules, recorded prioritized findings and exact fixes, assessed the current security gate, and documented keep/refactor decisions. Full and production-only `npm audit` checks reported 0 known vulnerabilities. No application code changed; Phase B awaits user approval.
+
+- Planning milestone: documented requirements, reference-derived design direction, component usage, architecture, roles, security, database outline, image and performance strategy, and next implementation task.
+- Added first static homepage foundation with reusable header/footer, hero, service/team previews, sample review strip, responsive styling, and a temporary local SVG scene.
+- Reworked the homepage into modular sections following the supplied dark navy, teal and gold reference; use supplied salon photography for the hero and team introduction.
+- Added a native-scroll review carousel, accessible controls, reduced-motion aware scroll reveals, local SVG icons, responsive card layouts, and image sizing/preload hints.
+- Used the user-requested `card-image.webp` in service, barber, and sample review cards through a reusable `CardImage`; the repeated image and visible watermark are disclosed.
+- Made the navbar transparent over the hero, consolidated links/actions in a reusable `Button`, added restrained animated border treatment to primary/outline CTAs, and made reviews auto-advance with interaction and reduced-motion pauses.
+- Added graceful handling for empty/single review lists and clarified the pending photo/business-content limitations. Lint/build passed; HTTP checks returned 200 for the page and optimized card image. Current Edge capture was rejected by automatic approval review, so visual/interaction checks remain pending.
+- Removed the navbar's full-width bottom border and added an accessible mobile menu disclosure with Escape, outside-click, link-close, and resize behavior. Desktop/mobile links share one data list. Lint/build pass; the requested Edge visual check was rejected by automatic approval review.
+- Synchronized the design system with implemented tokens/components and added `docs/COMPONENT_GUIDE.md`.
+- Implemented `/services` with a page-specific photo hero, illustrative menu notice, functional category filters, reusable service cards, shared review section/footer, and root-aware shared navigation. Prices and booking actions are not fabricated. At that milestone, `/booking` was still missing; it has since been added as a preview-only form (see the later booking entry below).
+- Recorded Better Auth as the sole required authentication approach; authentication itself remains unimplemented.
+- Implemented `/booking` as a responsive, preview-only flow using shared site components, local hero imagery, illustrative service options, no-preference barber selection, preferred date/time, contact fields, native validation, and a live summary. It explicitly does not send or persist data and does not report booking success because no backend, availability policy, database, or auth integration exists. Lint/build passed; `/`, `/services`, and `/booking` returned HTTP 200. No test script exists, and browser visual review remains pending; see `NEXT_TASK.md` for manual checks and the backend milestone.
+- Rebuilt the Booking page composition to follow the montage: shallow photographic banner, numbered progress rail, three aligned selection steps, and a lower customer-details/summary row before the shared review section and footer. Kept the form preview-only and added `docs/BOOKING_PAGE_AUDIT.md`; browser visual review is still pending.
+- Corrected Booking against the latest embedded reference: removed the large photo banner and duplicate section heading, changed the stepper to compact pills, compacted service choices into rows, added a navigable preference-only calendar, and moved “Review Request” into the summary. Used a request-time date inside Suspense so the response includes the calendar under Next 16 Cache Components. No prices, barber identities, or available time slots were invented. Lint/build and HTTP route checks pass; browser comparison remains pending.
+- Completed browser review of Booking at 1440px, 768px, and 375px and recorded screenshots/findings. It exposed header overlap, undersized text, and cramped side-by-side details/summary at 768px. Preview form interactions and no-request submission behavior were confirmed; fixes and 320/390px follow-up remain pending.
