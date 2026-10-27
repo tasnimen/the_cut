@@ -2,6 +2,7 @@ import Image from "next/image";
 import { ScrollReveal } from "@/components/animations/ScrollReveal";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { BarberCard } from "@/features/landing/components/BarberCard";
+import { ANCHORS, ROUTES } from "@/config/routes";
 
 const barberProfiles = [
   { number: 1, role: "Master Barber", focus: "Classic, considered cuts" },
@@ -11,7 +12,7 @@ const barberProfiles = [
 
 export function BarbersSection() {
   return (
-    <section className="team-section" id="team" aria-labelledby="team-title">
+    <section className="team-section" id={ANCHORS.team} aria-labelledby="team-title">
       <div className="page-shell team-layout">
         <div className="team-intro-visual">
           <Image
@@ -27,11 +28,11 @@ export function BarbersSection() {
             <p className="eyebrow">A good cut starts with a good barber</p>
             <h2 id="team-title">Meet the hands<br />behind <em>the craft.</em></h2>
             <p>Skilled, thoughtful, and always ready to listen. Our team brings care to every detail.</p>
-            <ButtonLink href="#team-profiles" variant="outline">Meet the team</ButtonLink>
+            <ButtonLink href={ROUTES.teamProfiles} variant="outline">Meet the team</ButtonLink>
           </div>
           <span className="team-photo-caption">A PLACE FOR THE CRAFT</span>
         </div>
-        <ScrollReveal className="barber-grid" id="team-profiles" stagger>
+        <ScrollReveal className="barber-grid" id={ANCHORS.teamProfiles} stagger>
           {barberProfiles.map((barber) => <BarberCard key={barber.number} barber={barber} />)}
         </ScrollReveal>
       </div>

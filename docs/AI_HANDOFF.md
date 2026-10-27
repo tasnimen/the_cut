@@ -2,34 +2,89 @@
 
 **Updated:** 2026-10-27
 
-## Current state
+## Resume prompt
 
-- **Phase A code audit completed on 2026-10-27** in `docs/AUDIT.md`; this task changed documentation only. The report records severity, evidence, exact fixes, route/access inventory, security gate status, and keep/refactor decisions. Await the user's `approved` before Phase B; do not begin fixes or rebuild completed features before approval.
+Read `/docs/AI_HANDOFF.md` and `/docs/MASTER_PROMPT.md`. Continue from “Next task,” preserve work marked DONE, and use the project-specific overrides. Read other docs when relevant to the task.
 
-- Project uses Next.js 16.4.3, React 19 and JavaScript. Read the installed guides under `node_modules/next/dist/docs/` before any Next.js changes; `AGENTS.md` explains the local requirement.
-- The homepage is composed from `src/app/page.js`, layout components in `src/components/layout/`, UI/animation components in `src/components/`, and sections/data in `src/features/landing/`.
-- `/services` is composed in `src/app/services/page.js`; `src/features/services/components/ServiceCatalog.jsx` provides client-side category filtering over the shared illustrative service data. Its cards omit direct booking links because the menu and booking backend are not authoritative.
-- `/booking` is composed in `src/app/booking/page.js`; `BookingProgress`, `DatePreferencePicker`, and `BookingForm` under `src/features/booking/components/` follow the latest screenshot's text intro, pill step row, service/barber/calendar columns, details/summary row, reviews, and footer. The calendar records a preferred date only; no availability is shown or checked. The form never sends or stores details. See `docs/BOOKING_PAGE_AUDIT.md`.
-- `docs/DESIGN_SYSTEM.md` reflects actual CSS tokens and behavior; `docs/COMPONENT_GUIDE.md` documents existing components and boundaries.
-- The local salon banners are used in the hero and team intro. The user-requested `public/images/card-image.webp` is reused as a `next/image` source in service, barber, and sample review cards; the repeated image and its visible stock watermark are disclosed. No distinct portrait/service photography is present.
-- The review carousel uses labeled sample entries, responsive native scrolling, touch/keyboard/arrow/dot controls, and a 4.6-second auto-advance. Hover, focus, and pointer interaction pause it; reduced motion disables autoplay and uses nonanimated movement. No authentic reviews are asserted.
-- `Button` is the shared link/action primitive; primary and outline CTAs use a thin animated gold/teal border, with a static style for carousel controls. The header is transparent and positioned over the hero.
-- `SiteHeader` remains a Server Component. It uses `MobileNavigation` for the small interactive menu and shared `siteNavigation` data for desktop/mobile destinations. The full-width bottom border was removed; mobile menu is shown at the 760px content-fit breakpoint and has no opaque panel.
-- Scroll reveal has reduced-motion/no-observer fallbacks. Existing appointment links and navbar destinations resolve to the implemented `/booking` route.
-- Better Auth remains mandatory for the future auth phase. It is not installed or implemented. No API/database/auth integration was added.
-- No Express API, database connection, verified staff roster, availability policy, or booking persistence exists. Service choices and prices remain illustrative. Do not claim that an appointment is available, submitted, or saved.
-- Preserve the existing user deletions and untracked assets shown by `git status`; do not restore starter SVGs or remove their image assets.
+## Current status
+
+- Phase A audit: **DONE** — `docs/AUDIT.md`.
+- Phase B foundations: **DONE** — tokens, Tailwind mappings, fonts, config, environment validation, baseline headers, and Booking layout fixes.
+- Phase C design system: **DONE** — shared primitives/shells, glass/depth recipes, motion runtime, deferred hero canvas, and development-only design-system route.
+- Phase D security/data foundation: **IN PROGRESS, PARTIAL, not DONE** — Better Auth + MongoDB server foundation, route handler, authorization guard, failed-auth audit/burst markers, explicit TOTP lockout, session-bound step-up proof helper, and expanded unit tests exist. External/production/security gate blockers remain.
+- Phase E public pages: **IMPLEMENTED** — About, Gallery, Pricing, and Contact preview routes, metadata, robots, sitemap, navigation, and responsive layout. Site facts and contact delivery remain unverified or deferred.
+- Current application: Next.js 16.4.3 App Router, React 19.3.0, JavaScript/JSX, Tailwind CSS 4.
+- Backend direction: keep future operations in Next.js Server Actions and Route Handlers. No separate Express server. This is the user-selected project direction.
+- Better Auth/DB security foundation: **PARTIAL**. Auth endpoints, pooled MongoDB adapter, session/version authorization, TOTP, auth rate limits, audit events for privileged sessions/denials/failed sign-ins/TOTP/bursts, account lockout, step-up proof, and user-update version bumps for role/status/2FA changes exist. The local no-cookie session endpoint returned HTTP 200; signup/email lifecycle, production auth checks, external notifications, and integration of step-up into privileged mutations remain open.
+
+## Exactly where work stopped
+
+Phase D security hardening resumed after Phase E. Failed auth attempts are pseudonymized and append-audited, a burst event is emitted at repeated-IP thresholds, and successful TOTP verification can issue a ten-minute step-up cookie validated by `requireRecentStepUp(principal)`. Auth remains mounted at `/api/auth/[...all]`; its DB session is authoritative and cookie caching is disabled. Phase D remains partial: no business mutation consumes step-up, and external alert delivery, full email lifecycle, Atlas-backed invalidation, production proxy/origin/cookie checks, and the full security suite remain open. See `docs/SECURITY.md`.
 
 ## Checks and visual status
 
-- `npm.cmd run lint` and `npm.cmd run build` passed after the latest Booking correction. Build output includes `/`, `/services`, `/booking`, and `/_not-found`; `/booking` is partially prerendered, with request-time date data streamed within Suspense.
-- Production HTTP check returned 200 for `/`, `/services`, and `/booking`. Booking response markup includes the compact intro, all three selection-step labels, calendar grid, preview-only notice, and review action.
-- Booking was visually inspected in Chromium at 1440px, 768px, and 375px. The intro overlaps the shared header at every width, several labels/calendar/helper texts are around 8px, and details/summary stay side-by-side at 768px. No horizontal overflow or console errors were observed. Captures are `booking-1440.png`, `booking-768.png`, and `booking-375.png`. Navbar behavior at 320px and other widths remains unverified.
-- No test script is configured. No Lighthouse, bundle, or image-transfer measurements were run.
-- Booking details are not submitted or persisted; there is no booking API to integrate. A test suite is not configured.
-- The booking composition was corrected against the latest embedded screenshot: removed the photo hero/duplicate heading, added a date preference calendar, compacted the service selector, and moved the review action to the summary. Subsequent browser review documented visible issues; see `docs/BOOKING_PAGE_AUDIT.md`. Do not claim visual conformance.
-- No environment variables were introduced; `.env.example` has no secrets.
+- `npm.cmd run lint` — passed after Phase D (one existing `aria-hidden` type warning in `HeroSection.jsx`).
+- `npm.cmd run build` — passed after Phase D; `/api/auth/[...all]` and the existing pages compiled.
+- Current Phase D `npm.cmd test` — 10 tests passed across 3 files; `npm.cmd run lint` passed with the existing HeroSection `aria-hidden` warning; `npm.cmd run build` passed with `/api/auth/[...all]` compiled.
+- Edge/Playwright on the production build and localhost:3000 — nonce CSP present; inline scripts had nonces and no console errors. `/booking` was checked at 1440, 768 and 375px. Development requires a dev-only style exception for the Next overlay.
+- `npm.cmd audit --omit=dev --offline` — found 0 vulnerabilities in installed production dependencies; re-run online before release for current advisories.
+- Production HTTP smoke check: `/`, `/services`, and `/booking` returned 200; `/design-system` returned 404.
+- Phase E `npm.cmd run lint` passed with the existing HeroSection `aria-hidden` warning; `npm.cmd run build` passed.
+- Edge/Playwright against localhost:3000 and the production build at 3001: `/about`, `/gallery`, `/pricing`, and `/contact` returned 200 at 1440/768/375px without horizontal overflow or page errors. Gallery category filtering and dialog Escape close passed.
+- `/robots.txt` and `/sitemap.xml` returned 200; robots disallows `/api/`. The current localhost origin is excluded from sitemap URLs.
+- Development HTTP check at `http://localhost:3000/design-system` returned 200.
+- Phase C npm install completed and reported 0 vulnerabilities.
+- Playwright/Chrome — at 1440, 768, and 375px, the intro begins at or below the header bottom; details/summary use two columns at 1440 and one at 768/375; no horizontal overflow or console errors. Smallest measured booking text was 11px desktop/tablet and 9px mobile progress labels.
+- The booking form remains preview-only and sends/stores nothing. No appointment success is reported.
+- Local `.env` now supplies the server-side MongoDB and Better Auth variables. `GET http://localhost:3000/api/auth/get-session` returned HTTP 200, exercising the local database-backed handler and first-use indexes; signup/session lifecycle and production database behavior remain unverified. No email provider is configured, so verification/reset delivery cannot be exercised.
+- Better Auth DB sessions are selected for this same-origin app; the separate refresh-token requirement is superseded. Auth endpoints have Mongo-backed per-IP rate limits; privileged session creation, permission denials, failed sign-in/TOTP attempts, and burst markers are audited. Nonce CSP is implemented. External alerts, audit coverage for privileged field changes, tested DB session invalidation, sensitive-operation step-up integration, trusted-proxy/production-origin review, and the Section 11.1 attack suite remain open; Phase D is not DONE.
+- Phase C dependencies (`class-variance-authority`, `clsx`, `tailwind-merge`, `motion`, `gsap`, `lenis`, `three`, and `@react-three/fiber`) installed; npm reported 0 vulnerabilities.
 
 ## Next task
 
-Wait for the user's `approved` to begin Phase B. The Phase A report prioritizes booking policy/API dependencies, the recorded Booking visual issues, then shared security/design foundations. The earlier Booking visual corrections are not yet performed. Before backend work, obtain verified business rules (menu/prices/durations, barber roster, hours/timezone, availability, cancellation, and sign-in requirement); do not invent them. Then implement Express/MongoDB booking validation, availability/concurrency enforcement, and mandated Better Auth authorization before connecting the form.
+Continue Phase D verification only: external alert delivery, privileged mutation step-up integration when such mutations exist, Atlas-backed invalidation, full email lifecycle, production cookie/proxy/origin checks, and the Section 11.1 suite remain open. Do not start Phase F until the user reviews this checkpoint and says “continue.” Keep all operations inside Next.js Server Actions/Route Handlers; preserve completed work and do not invent business policies or identities.
+
+## File map
+
+- `src/app/` — root layout, Home, About, Services, Gallery, Pricing, Contact preview, Booking preview, metadata routes.
+- `src/app/design-system/page.js` — development-only shared component preview; production returns 404.
+- `src/config/` — site metadata, route/anchor registry, navigation, permission map, validated server environment.
+- `src/styles/tokens.css` — shared CSS palette and Tailwind theme aliases.
+- `src/app/globals.css` — shared component recipes and responsive styles.
+- `src/components/` — layout, UI primitives, and small animation wrappers.
+- `src/components/three/` — deferred decorative R3F hero field; never business UI.
+- `src/lib/motion/` — shared motion durations, easing curves, and reveal variants.
+- `src/lib/auth/security-events.js` — pseudonymized auth identifiers and signed, session-bound recent-TOTP proof helpers.
+- `src/features/` — landing, services, and preview-only booking modules/data.
+- `src/features/marketing/` — shared public-page hero, illustrative gallery data, filter, and dialog.
+- `docs/AUDIT.md` — Phase A code audit and prioritized fix plan.
+- `docs/BOOKING_PAGE_AUDIT.md` — Booking reference and browser review record.
+- `docs/DECISIONS.md`, `docs/SECURITY.md`, `docs/ROLE_PERMISSIONS.md` — current architecture/security choices and permission map.
+
+## Key decisions and conventions
+
+- JavaScript/JSX only; no `.ts`/`.tsx` or TypeScript configuration.
+- Next.js Server Actions and Route Handlers are the planned backend boundary; do not add Express.
+- Better Auth only; Phase D auth foundation is partial, with no login UI or business operations yet.
+- `src/config/routes.js` owns live URL/anchor values and public access entries. `src/config/navigation.js` owns navigation labels/paths. `src/config/permissions.js` is the role capability source; `src/lib/auth/authorization.js` enforces it for future server operations.
+- `src/config/env.js` is server-only and Zod-validates `NODE_ENV`, site/auth URLs, and server secrets. Do not put secrets in `NEXT_PUBLIC_*`.
+- `/design-system` is development-only, excluded from public navigation, and returns 404 outside development.
+- Services, barbers, reviews, prices, availability, and hours remain illustrative or unverified. The booking calendar collects preferences only.
+- Preserve existing user asset deletions and untracked assets. Do not restore starter SVGs or overwrite existing screenshots.
+
+## Environment and commands
+
+- Environment variable names: `NODE_ENV`, `SITE_URL`, `BETTER_AUTH_URL`, `BETTER_AUTH_SECRET`, `MONGODB_URI`, `MONGODB_DB_NAME`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM`, `MAIL_TO`. Resend SMTP is selected; actual mail configuration is still pending Phase F.
+- Install: `npm.cmd install`.
+- Dev: `npm.cmd run dev` (project server uses port 3000).
+- Lint/build: `npm.cmd run lint`, `npm.cmd run build`.
+- Tests: `npm.cmd test` runs Vitest; current suite covers permission defaults and session-version comparisons. Playwright dependency is installed; no persistent browser auth suite exists.
+- Google font imports are self-hosted by Next at build time and require build-time access to Google Fonts unless cached.
+
+## Known issues and design tokens
+
+- Need verified booking policies, staff identities, authentic reviews, approved card photography, business contact/hours, and deployment-origin/trusted-proxy validation for the implemented nonce CSP.
+- Current principal tokens: background `#041018`, surface `#071923`, raised surface `#0a2029`, border `#174452`, cream text `#f2e8d9`, muted `#9daeb0`, gold `#dba663`, light gold `#f0c487`.
+- Display font: Cormorant Garamond. UI font: Manrope. Both use `next/font` with Latin subsets and `display: swap`.
+- Glass sizes: 10/16/22px blur with opaque fallback; depth levels use named shadow tokens. Tilt is capped at 4 degrees and reduced-motion safe.
+- Smooth scrolling loads Lenis + GSAP/ScrollTrigger after idle and shares one GSAP ticker. R3F gold dust is home-only, deferred until idle/in-view, and skipped for reduced-motion/low-power devices.

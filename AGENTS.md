@@ -12,9 +12,9 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 - Use JavaScript and JSX only. Do not add `.ts` or `.tsx` files or TypeScript configuration.
 - Treat the current source as authoritative; preserve user work and implement only the precise next task recorded in `NEXT_TASK.md`.
-- Better Auth is the only approved authentication system. Use one authoritative Express server and the supported Next.js client; do not implement auth during unrelated tasks.
+- Better Auth is the only approved authentication system. Keep future server operations inside Next.js Server Actions and Route Handlers; do not add a separate Express server or implement auth during unrelated tasks.
 - Before changing Next.js code, read the relevant installed guide under `node_modules/next/dist/docs/`; installed version and feature details may differ from general knowledge.
-- Keep Express as the authority for business operations and authorization once introduced. Never expose database, SMTP, or ImgBB secrets to browser code.
+- Keep Next.js server entry points authoritative for business operations and authorization once introduced. Never expose database, SMTP, or ImgBB secrets to browser code.
 - Treat supplied images as visual references, not as reusable web assets. Record unknowns rather than claiming unsupported details.
 - Update `docs/PROGRESS.md` and `NEXT_TASK.md` after each implementation task. Report only commands actually run.
 - See `docs/DECISIONS.md` for unresolved choices and `docs/REQUIREMENTS.md` for status labels.

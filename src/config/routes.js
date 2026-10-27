@@ -1,0 +1,40 @@
+export const ANCHORS = Object.freeze({
+  story: "story",
+  services: "services",
+  serviceCatalog: "service-catalog",
+  team: "team",
+  teamProfiles: "team-profiles",
+  reviews: "reviews",
+  contact: "contact",
+});
+
+export const ROUTES = Object.freeze({
+  home: "/",
+  about: "/about",
+  story: "/about",
+  homeServices: `/#${ANCHORS.services}`,
+  services: "/services",
+  serviceCatalog: `/services#${ANCHORS.serviceCatalog}`,
+  gallery: "/gallery",
+  pricing: "/pricing",
+  booking: "/booking",
+  contact: "/contact",
+  contactSection: `/#${ANCHORS.contact}`,
+  designSystem: "/design-system",
+  auth: "/api/auth",
+  team: `/#${ANCHORS.team}`,
+  teamProfiles: `/#${ANCHORS.teamProfiles}`,
+  reviews: `/#${ANCHORS.reviews}`,
+});
+
+export const routeRegistry = Object.freeze([
+  Object.freeze({ path: ROUTES.home, access: "public", implemented: true }),
+  Object.freeze({ path: ROUTES.about, access: "public", implemented: true }),
+  Object.freeze({ path: ROUTES.services, access: "public", implemented: true }),
+  Object.freeze({ path: ROUTES.gallery, access: "public", implemented: true }),
+  Object.freeze({ path: ROUTES.pricing, access: "public", implemented: true }),
+  Object.freeze({ path: ROUTES.booking, access: "public", implemented: true }),
+  Object.freeze({ path: ROUTES.contact, access: "public", implemented: true }),
+  Object.freeze({ path: ROUTES.designSystem, access: "development-only", implemented: true }),
+  Object.freeze({ path: ROUTES.auth, access: "public-auth-provider", implemented: true }),
+]);

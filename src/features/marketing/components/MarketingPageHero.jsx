@@ -1,0 +1,25 @@
+import Image from "next/image";
+
+export function MarketingPageHero({ eyebrow, title, image, imagePosition, description, children }) {
+  return (
+    <section className="marketing-hero" aria-labelledby="marketing-page-title">
+      <Image
+        src={image}
+        alt=""
+        aria-hidden="true"
+        fill
+        sizes="100vw"
+        preload
+        className="marketing-hero-image"
+        style={imagePosition ? { objectPosition: imagePosition } : undefined}
+      />
+      <div className="marketing-hero-overlay" aria-hidden="true" />
+      <div className="marketing-hero-content page-shell">
+        <p className="eyebrow">{eyebrow}</p>
+        <h1 id="marketing-page-title">{title}</h1>
+        <p className="marketing-hero-description">{description}</p>
+        {children ? <div className="marketing-hero-actions">{children}</div> : null}
+      </div>
+    </section>
+  );
+}

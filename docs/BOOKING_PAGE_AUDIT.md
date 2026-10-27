@@ -38,4 +38,12 @@
 
 - The review used the running development server on port 3000 because starting a second Next dev server on port 3010 failed with an existing-server lock.
 - Form checks confirmed the summary updates for service, date/time preference, and name. Past dates are disabled; malformed email is invalid; barber selection is limited to “No preference.” A valid sample submission showed the no-send/no-save notice and made no booking request. Footer appointment navigation resolved to `/booking`; no console errors were reported.
-- Visual corrections needed: move the intro below the shared header, raise undersized copy/labels/calendar text to readable sizes, and stack or otherwise provide adequate width for the details and summary at 768px.
+- Visual corrections identified then: move the intro below the shared header, raise undersized copy/labels/calendar text to readable sizes, and stack or otherwise provide adequate width for the details and summary at 768px. These were addressed and rechecked in Phase B below.
+
+## Phase B corrections and recheck (2026-10-27)
+
+- Booking uses the shared `SiteHeader` `flow` variant, which reserves its own height before the compact intro and removes the overlap.
+- Booking labels, panel notes, calendar text, and summary copy were increased. At 375px the compact progress labels remain 9px to fit the five-step row; the smallest other measured booking text is 11px.
+- The details and summary panels remain side-by-side at desktop and stack below 980px, including the 768px tablet width.
+- Playwright/Chrome checked `http://localhost:3000/booking` at 1440px, 768px, and 375px. Header bottom/intro top were 78/78, 73/73, and 68/68px respectively. Details-grid columns were 2, 1, and 1. All widths had no horizontal overflow and no browser console/page errors.
+- New full-page captures are in the ignored `.next/phase-b-booking-1440.png`, `.next/phase-b-booking-768.png`, and `.next/phase-b-booking-375.png` build directory. Existing root captures were not overwritten.

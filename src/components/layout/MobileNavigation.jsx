@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { Icon } from "@/components/ui/Icon";
-import { siteNavigation } from "@/components/layout/navigation";
+import { siteNavigation } from "@/config/navigation";
+import { ROUTES } from "@/config/routes";
 
-export function MobileNavigation({ activePath = "/" }) {
+export function MobileNavigation({ activePath = ROUTES.home }) {
   const [isOpen, setIsOpen] = useState(false);
   const navigationRef = useRef(null);
   const toggleRef = useRef(null);
@@ -58,7 +60,7 @@ export function MobileNavigation({ activePath = "/" }) {
         hidden={!isOpen}
       >
         {siteNavigation.map(([label, href]) => (
-          <a
+          <Link
             href={href}
             key={href}
             className={href === activePath ? "nav-active" : undefined}
@@ -66,7 +68,7 @@ export function MobileNavigation({ activePath = "/" }) {
             onClick={() => setIsOpen(false)}
           >
             {label}
-          </a>
+          </Link>
         ))}
       </nav>
     </div>

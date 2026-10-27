@@ -1,6 +1,6 @@
 # Database outline
 
-**Status: conceptual only. No MongoDB driver, schema, Atlas project, or index exists.** Candidate collections from product requirements; final fields and retention need decisions.
+**Status: MongoDB connection and auth/security indexes implemented and locally exercised through the Better Auth session endpoint; no business data models.** Candidate collections from product requirements; final fields and retention need decisions.
 
 | Collection | Candidate contents / access pattern | Candidate indexes / safeguards |
 |---|---|---|
@@ -16,6 +16,13 @@
 | `loyalty` / `offers` | Only if customer program policy is approved | Customer/date; prevent duplicate redemption per defined policy |
 
 Store money as integer minor units with currency metadata (currency still to confirm). Store dates as UTC instants and apply the documented business timezone for display and opening hours. Define lifecycle/status values and snapshot fields only after booking, price-change, cancellation, and reporting rules are agreed.
+
+## Implemented Phase D foundation
+
+- `src/lib/db/mongo.js` lazily creates one pooled server-only MongoDB client and provides the configured database.
+- First auth initialization creates a unique `user.email` index, unique `session.token` and `rateLimit.key` indexes, TTL indexes on session and verification expiry, and audit query indexes. This behavior has not been run against a live Atlas database.
+- Better Auth owns its `user`, `session`, `account`, `verification`, and `twoFactor` collections through its Mongo adapter. The app adds only an append-only `auditLog` collection in this phase.
+- Do not add booking/service/barber models or persistence until the documented business inputs are confirmed.
 
 ## Booking integrity
 

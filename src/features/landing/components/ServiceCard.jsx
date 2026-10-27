@@ -1,16 +1,18 @@
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { CardImage } from "@/components/ui/CardImage";
+import { TiltSurface } from "@/components/ui/TiltSurface";
 import { sharedCardImage } from "@/features/landing/data/cardImage";
+import { ROUTES } from "@/config/routes";
 
 export function ServiceCard({
   service,
   imageSrc = sharedCardImage.src,
   imageAlt = sharedCardImage.alt,
-  actionHref = "/booking",
+  actionHref = ROUTES.booking,
   actionLabel = "Find your fit",
 }) {
   return (
-    <article className="service-card">
+    <TiltSurface as="article" className="service-card">
       <CardImage src={imageSrc} alt={imageAlt} className="service-card-image" />
       <div>
         <span className="service-number">{service.number} / SERVICE</span>
@@ -22,6 +24,6 @@ export function ServiceCard({
           {actionLabel}
         </ButtonLink>
       ) : null}
-    </article>
+    </TiltSurface>
   );
 }

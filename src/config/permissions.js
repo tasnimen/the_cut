@@ -1,0 +1,50 @@
+export const ROLES = Object.freeze({
+  guest: "GUEST",
+  user: "USER",
+  admin: "ADMIN",
+  superAdmin: "SUPER_ADMIN",
+});
+
+// Scopes: true is an unscoped capability; OWN, LIMITED, and ALL are data scopes.
+export const PERMISSIONS = Object.freeze({
+  publicRead: Object.freeze({ GUEST: true, USER: true, ADMIN: true, SUPER_ADMIN: true }),
+  contactCreate: Object.freeze({ GUEST: true, USER: true, ADMIN: true, SUPER_ADMIN: true }),
+  bookingStart: Object.freeze({ GUEST: true, USER: true, ADMIN: true, SUPER_ADMIN: true }),
+  profileOwn: Object.freeze({ USER: "OWN", ADMIN: "OWN", SUPER_ADMIN: "OWN" }),
+  sessionsOwn: Object.freeze({ USER: "OWN", ADMIN: "OWN", SUPER_ADMIN: "OWN" }),
+  avatarOwn: Object.freeze({ USER: "OWN", ADMIN: "OWN", SUPER_ADMIN: "OWN" }),
+  bookingOwn: Object.freeze({ USER: "OWN", ADMIN: "OWN", SUPER_ADMIN: "OWN" }),
+  ordersOwn: Object.freeze({ USER: "OWN", ADMIN: "OWN", SUPER_ADMIN: "OWN" }),
+  loyaltyOwn: Object.freeze({ USER: "OWN", ADMIN: "OWN", SUPER_ADMIN: "OWN" }),
+  offersRedeemOwn: Object.freeze({ USER: "OWN", ADMIN: "OWN", SUPER_ADMIN: "OWN" }),
+  reviewCreateOwn: Object.freeze({ USER: "OWN" }),
+  bookingsManageAll: Object.freeze({ ADMIN: "ALL", SUPER_ADMIN: "ALL" }),
+  customersRead: Object.freeze({ ADMIN: "LIMITED", SUPER_ADMIN: "ALL" }),
+  barbersManageAll: Object.freeze({ ADMIN: "ALL", SUPER_ADMIN: "ALL" }),
+  servicesManageAll: Object.freeze({ ADMIN: "ALL", SUPER_ADMIN: "ALL" }),
+  productsManageAll: Object.freeze({ ADMIN: "ALL", SUPER_ADMIN: "ALL" }),
+  galleryManageAll: Object.freeze({ ADMIN: "ALL", SUPER_ADMIN: "ALL" }),
+  pricingManageAll: Object.freeze({ ADMIN: "ALL", SUPER_ADMIN: "ALL" }),
+  offersManageAll: Object.freeze({ ADMIN: "ALL", SUPER_ADMIN: "ALL" }),
+  loyaltyRulesManageAll: Object.freeze({ ADMIN: "ALL", SUPER_ADMIN: "ALL" }),
+  reviewsModerateAll: Object.freeze({ ADMIN: "ALL", SUPER_ADMIN: "ALL" }),
+  ordersManageAll: Object.freeze({ ADMIN: "ALL", SUPER_ADMIN: "ALL" }),
+  ordersRefundAll: Object.freeze({ SUPER_ADMIN: "ALL" }),
+  bookingsDeleteAll: Object.freeze({ SUPER_ADMIN: "ALL" }),
+  contactManageAll: Object.freeze({ ADMIN: "ALL", SUPER_ADMIN: "ALL" }),
+  contactDeleteAll: Object.freeze({ SUPER_ADMIN: "ALL" }),
+  operationalReportsAll: Object.freeze({ ADMIN: "ALL", SUPER_ADMIN: "ALL" }),
+  financialReportsAll: Object.freeze({ SUPER_ADMIN: "ALL" }),
+  financialExportAll: Object.freeze({ SUPER_ADMIN: "ALL" }),
+  userAccountsManage: Object.freeze({ ADMIN: "LIMITED", SUPER_ADMIN: "ALL" }),
+  adminAccountsManage: Object.freeze({ SUPER_ADMIN: "ALL" }),
+  rolesManage: Object.freeze({ SUPER_ADMIN: "ALL" }),
+  auditRead: Object.freeze({ SUPER_ADMIN: "ALL" }),
+  businessSettingsManage: Object.freeze({ ADMIN: "ALL", SUPER_ADMIN: "ALL" }),
+  securitySettingsManage: Object.freeze({ SUPER_ADMIN: "ALL" }),
+  otherUsersSessionsManage: Object.freeze({ SUPER_ADMIN: "ALL" }),
+});
+
+export function permissionScope(role, permission) {
+  return PERMISSIONS[permission]?.[role] ?? false;
+}

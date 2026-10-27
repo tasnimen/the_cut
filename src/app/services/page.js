@@ -1,21 +1,20 @@
 import Image from "next/image";
-import { SiteFooter } from "@/components/layout/SiteFooter";
-import { SiteHeader } from "@/components/layout/SiteHeader";
+import { SiteFrame } from "@/components/layout/SiteFrame";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ServiceCatalog } from "@/features/services/components/ServiceCatalog";
 import { ReviewsSection } from "@/features/landing/sections/ReviewsSection";
+import { ANCHORS, ROUTES } from "@/config/routes";
+import { site } from "@/config/site";
 
 export const metadata = {
-  title: "Services | The Cut Barbershop",
-  description: "Explore the illustrative grooming services at The Cut Barbershop. Final menu and pricing are being confirmed.",
+  title: `Services | ${site.name}`,
+  description: `Explore the illustrative grooming services at ${site.name}. Final menu and pricing are being confirmed.`,
 };
 
 export default function ServicesPage() {
   return (
-    <>
-      <SiteHeader activePath="/services" />
-      <main>
+    <SiteFrame activePath={ROUTES.services}>
         <section className="services-hero" aria-labelledby="services-page-title">
           <Image
             src="/images/banner2.png"
@@ -32,12 +31,12 @@ export default function ServicesPage() {
               <p className="eyebrow">Our services</p>
               <h1 id="services-page-title">Expert care<br />for your <em>hair.</em></h1>
               <p>Considered cuts and grooming, shaped around the person in the chair.</p>
-              <ButtonLink href="#service-catalog" variant="outline">Explore the menu</ButtonLink>
+          <ButtonLink href={ROUTES.serviceCatalog} variant="outline">Explore the menu</ButtonLink>
             </div>
           </div>
         </section>
 
-        <section className="section page-shell services-page-section" id="service-catalog" aria-labelledby="service-catalog-title">
+        <section className="section page-shell services-page-section" id={ANCHORS.serviceCatalog} aria-labelledby="service-catalog-title">
           <SectionHeading
             eyebrow="The menu"
             id="service-catalog-title"
@@ -59,8 +58,6 @@ export default function ServicesPage() {
           </div>
         </section>
         <ReviewsSection />
-      </main>
-      <SiteFooter />
-    </>
+    </SiteFrame>
   );
 }

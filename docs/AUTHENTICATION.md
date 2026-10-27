@@ -1,23 +1,30 @@
-# Authentication
+﻿# Authentication
 
-**Status: mandatory direction selected; not implemented.** Better Auth is the only approved authentication system for this project. No Better Auth dependency, server instance, client, auth route, session storage, or user collection exists in the current source. The current homepage does not authenticate users.
+**Status: Better Auth foundation implemented in Phase D; not production-ready.** Better Auth is the only approved authentication system for this project. No login UI exists and no email delivery provider is configured. The local database-backed auth handler smoke check returned HTTP 200.
 
 ## Planned integration
 
-- Express is the sole authoritative Better Auth server, consistent with [the application architecture](ARCHITECTURE.md). The Next.js app will use the supported Better Auth client to call that server. Do not instantiate a second competing Better Auth server in Next.js.
-- Use Better Auth's officially documented MongoDB adapter/configuration when the API and MongoDB foundation are implemented.
-- Configure base URL, trusted origins, cookies, cross-origin credentials, and the Express handler/middleware order for the actual local and production topology. Verify whether body parsing must be mounted after the Better Auth handler in the current official Express guide.
-- Application roles remain `super_admin`, `admin`, and `customer`; enforce resource permissions in Express. Better Auth authenticates identity/session; it does not replace application authorization.
-- Disable public Super Admin registration and document an audited bootstrap path before production.
+- Next.js is the selected server boundary, consistent with [the application architecture](ARCHITECTURE.md). Integrate Better Auth using its supported Next.js server/client approach when authentication is in scope; do not add a separate Express server or custom competing session system.
+- Use Better Auth's officially documented MongoDB adapter/configuration. Current code uses the supported Next.js catch-all Route Handler and MongoDB adapter.
+- Configure base URL, trusted origins, cookie policy, and server/client integration for the actual local and production topology.
+- Application roles are `USER`, `ADMIN`, and `SUPER_ADMIN`, with unauthenticated `GUEST`; enforce resource permissions inside each server entry point. Better Auth authenticates identity/session; it does not replace application authorization.
+- Signup cannot set role/status/sessionVersion; all new accounts default to USER. No public role mutation or Super Admin bootstrap exists. Design an audited, one-time bootstrap before production.
+- Email/password auth requires email verification; delivery is deferred until the Phase F mail layer exists. Admin and Super Admin protected operations require verified, active accounts and TOTP enrollment through the server guard.
+- Auth uses Better Auth's database-backed session and disables its cookie cache so session reads are authoritative. For this same-origin Next.js application, this is the selected session design; the separate JWT/refresh family in the master prompt is superseded. A JWT plugin token may be added later for an external resource server, but it is not a replacement session.
+- Better Auth's Mongo-backed rate limiter is enabled on auth routes. Sign-in/signup/reset/verification endpoints use explicit per-IP path limits; production IP accuracy depends on configuring the hosting proxy chain.
+- Each session is stamped with the user's `sessionVersion`; the server guard compares it with the current database user version. Better Auth's user-update hook increments it when `role`, `status`, or `twoFactorEnabled` changes. Unit tests cover the bump behavior, but Atlas-backed invalidation testing remains outstanding; direct database writes must preserve the same version-bump rule.
+- Privileged session creation, permission denials, failed sign-in/TOTP attempts, and bursts of five failures per observed IP in ten minutes are append-audited. Burst events are in-app audit signals; external notifications and privilege-change event producers remain outstanding.
+- Successful TOTP verification issues a ten-minute session-bound HttpOnly proof cookie. Sensitive server operations must call `requireRecentStepUp(principal)` after authorization; no such operation exists yet. The proof is rejected after expiry or session change.
 
 ## Current actual behavior
 
 | Item | Current state |
 |---|---|
-| Authentication endpoints | None |
-| Session/cookie behavior | None |
-| User migration | Not applicable; no existing user records or auth implementation found |
-| Environment variable names | None required by current source |
-| Verification | No authentication tests or integration checks run |
+| Authentication endpoint | `src/app/api/auth/[...all]/route.js` |
+| Session/cookie behavior | Better Auth DB session, cache disabled; production `__Host-better-auth.session_token`, Secure/HttpOnly/SameSite=Lax/Path=/, no Domain; unit-tested, live response awaits Atlas |
+| Account fields | `role` default USER, `status` default ACTIVE, `sessionVersion` default 0; client signup cannot write these fields |
+| TOTP | Better Auth two-factor plugin configured with account lockout; protected ADMIN/SUPER_ADMIN calls require enrollment; successful verification can issue a ten-minute session-bound step-up proof; changing enrollment bumps `sessionVersion` |
+| Environment variable names | `MONGODB_URI`, optional `MONGODB_DB_NAME`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, optional `SITE_URL` |
+| Verification | Permission/cookie/session-version policy tests pass; local `GET /api/auth/get-session` returned HTTP 200; signup/sign-in and email lifecycle remain unverified |
 
-Before implementing authentication, read current official Better Auth documentation for Express integration, MongoDB adapter and client integration; verify release/peer compatibility and deployment origins; specify migration/backup and test plan. Do not install/configure Better Auth as part of an unrelated homepage task.
+Before production, verify deployment origins/trusted proxies and a live `Set-Cookie` response, configure email delivery and backup/restore, test Mongo-backed limits and user-update version invalidation, add external failed-auth alerts and privilege-change audit producers, integrate step-up into sensitive mutations, and ensure all privileged mutations use the version-bumping path. Do not expose auth/database modules to Client Components.

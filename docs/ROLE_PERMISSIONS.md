@@ -1,18 +1,50 @@
 # Roles and permissions
 
-**Status: initial role model from the user's specification.** Exactly three application roles are intended: `super_admin`, `admin`, and `customer`. Public visitor is unauthenticated, not a fourth stored role. The references show Admin and Customer layouts; no Super Admin layout is supplied.
+**Source of truth:** [`src/config/permissions.js`](../src/config/permissions.js). [`src/lib/auth/policy.js`](../src/lib/auth/policy.js) evaluates it with deny-by-default semantics; [`src/lib/auth/authorization.js`](../src/lib/auth/authorization.js) applies the current Better Auth session and active/verified-account checks. No privileged business route or role mutation exists yet.
 
-| Capability | Public | Customer | Admin | Super Admin |
-|---|---:|---:|---:|---:|
-| Read active public services, barbers, gallery, business contact | Yes | Yes | Yes | Yes |
-| Manage own profile | No | Own only | No, unless explicit support workflow | No, unless explicit support workflow |
-| Create own appointment / read own history | No | Own only | Business management | Business management |
-| Cancel/reschedule appointment | No | Own, within policy | Business scope | Business scope |
-| Manage customers, barbers, services, schedules, appointments | No | No | Yes | Yes |
-| Manage public gallery, reviews, operational business settings | No | Submit review only under policy | Yes | Yes |
-| View business reports | No | No | Permitted business reports | Yes |
-| Assign admin roles / manage admin accounts | No | No | No | Yes |
-| Set system configuration / maintenance mode | No | No | No | Yes |
-| Read audit/security/system/backup/release status | No | No | No (except explicitly permitted operational summaries) | Yes |
+Roles are `GUEST` (unauthenticated; not stored), `USER`, `ADMIN`, and `SUPER_ADMIN`. `OWN` means records scoped to the authenticated actor; `LIMITED` means restricted fields through role-specific DTOs; `ALL` means the whole authorized resource set. A missing role entry is denied.
 
-All rows are server-enforced in Express middleware and service logic. Identify the actor from verified authentication, never a client supplied role/user ID. Enforce ownership on every object operation; prevent IDOR, mass assignment, privilege escalation and public Super Admin registration. Create a controlled bootstrap procedure, with no hidden backdoor. Sensitive role/system actions must be audited. Fine-grained permission names, admin scope, and developer maintenance access remain to be specified before auth implementation.
+| Capability (`PERMISSIONS` key) | GUEST | USER | ADMIN | SUPER_ADMIN |
+|---|---|---|---|---|
+| `publicRead` | Yes | Yes | Yes | Yes |
+| `contactCreate` | Yes | Yes | Yes | Yes |
+| `bookingStart` | Yes | Yes | Yes | Yes |
+| `profileOwn` | — | OWN | OWN | OWN |
+| `sessionsOwn` | — | OWN | OWN | OWN |
+| `avatarOwn` | — | OWN | OWN | OWN |
+| `bookingOwn` | — | OWN | OWN | OWN |
+| `ordersOwn` | — | OWN | OWN | OWN |
+| `loyaltyOwn` | — | OWN | OWN | OWN |
+| `offersRedeemOwn` | — | OWN | OWN | OWN |
+| `reviewCreateOwn` | — | OWN | — | — |
+| `bookingsManageAll` | — | — | ALL | ALL |
+| `customersRead` | — | — | LIMITED | ALL |
+| `barbersManageAll` | — | — | ALL | ALL |
+| `servicesManageAll` | — | — | ALL | ALL |
+| `productsManageAll` | — | — | ALL | ALL |
+| `galleryManageAll` | — | — | ALL | ALL |
+| `pricingManageAll` | — | — | ALL | ALL |
+| `offersManageAll` | — | — | ALL | ALL |
+| `loyaltyRulesManageAll` | — | — | ALL | ALL |
+| `reviewsModerateAll` | — | — | ALL | ALL |
+| `ordersManageAll` | — | — | ALL | ALL |
+| `ordersRefundAll` | — | — | — | ALL (step-up) |
+| `bookingsDeleteAll` | — | — | — | ALL (step-up) |
+| `contactManageAll` | — | — | ALL | ALL |
+| `contactDeleteAll` | — | — | — | ALL |
+| `operationalReportsAll` | — | — | ALL | ALL |
+| `financialReportsAll` | — | — | — | ALL |
+| `financialExportAll` | — | — | — | ALL (step-up) |
+| `userAccountsManage` | — | — | LIMITED | ALL |
+| `adminAccountsManage` | — | — | — | ALL (step-up) |
+| `rolesManage` | — | — | — | ALL (step-up, audit-logged) |
+| `auditRead` | — | — | — | ALL |
+| `businessSettingsManage` | — | — | ALL | ALL |
+| `securitySettingsManage` | — | — | — | ALL (step-up) |
+| `otherUsersSessionsManage` | — | — | — | ALL |
+
+Authorization must be enforced server-side in every Server Action, Route Handler, and data access function. UI visibility is not an authorization boundary. User-owned records must be scoped to the session actor. Do not implement role changes, admin management, or Super Admin bootstrap in this phase.
+
+Developer tooling: `/design-system` is a development-only route in `src/config/routes.js`, gated by the server page with `notFound()` outside development. It is not a role grant and does not appear in public navigation.
+
+Admin and Super Admin authorization also requires TOTP enrollment. A role change/bootstrap flow is intentionally absent. Session/version invalidation after such a change remains future work because there is no privileged role-management operation yet.

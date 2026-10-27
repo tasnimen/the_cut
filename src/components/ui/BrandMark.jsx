@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { site } from "@/config/site";
 
 export function BrandMark() {
   return (
@@ -8,7 +9,7 @@ export function BrandMark() {
         <path d="m19 9 9 5v14l-9 7-9-7V14l9-5Z" />
         <path d="m15 20 8-6-3 10 5-3-8 9 2-8-4 2Z" />
       </svg>
-      <span className="brand-name">THE CUT<small>BARBERSHOP</small></span>
+      <span className="brand-name">{site.brand.main}<small>{site.brand.sub}</small></span>
     </Link>
   );
 }
