@@ -1,14 +1,52 @@
 # AI handoff
 
-**Updated:** 2026-10-28
+Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-## Latest handoff — Phase G booking (2026-10-28)
+**Where I stopped:** Stage 0 complete (CLAUDE.md, .gitattributes, checks). Waiting for the user to commit the snapshot and say "continue". **Next step:** Stage 1a (review/fix Codex defects).
 
-- Phase G is **DONE-LOCAL, not live-ready**. Next.js Route Handlers back public availability and authenticated own-booking create/list/cancel/reschedule. Admin no-show marking requires `bookingsManageAll` (ADMIN/SUPER_ADMIN); Better Auth enforces verified active sessions and admin TOTP. Mongo transactions plus unique `bookingSlot` rows prevent overlapping appointments. Booking operations are rate-limited, audited, and return public DTOs. Confirmation/cancel/reschedule mail runs using `after()`; the reminder worker is callable server-side.
-- Rules used from the user's defaults: America/New_York, USD; Monday–Friday 9am–7pm, Saturday 9am–5pm, Sunday 10am–3pm; 15-minute grid; 5-minute cleanup buffer; 60-minute lead time; 30 days in advance; maximum 3 services and 2 active appointments; cancellation/reschedule cutoff 24 hours; pay at shop/no deposit; no-show after 10 minutes with a review flag at 2; Any barber selects the least-booked eligible barber. Holiday defaults and assumption notes are in `src/config/booking.js`.
-- **Live booking blockers:** existing approved menu has no prices, so price snapshots remain null and booking confirmation is intentionally blocked. Do not invent them. The default roster (names in `src/config/booking.js`) and hours/no-break schedule in `scripts/seed-booking.js` are unverified deployment seed data. Seed has not been run. Confirm roster, hours, barber days off, holiday settings, and service prices before enabling live bookings. Production must use MongoDB transactions (replica set/Atlas).
+## Navbar session, design audit and preflight (2026-10-29)
+
+- Navbar sign-in/out is now driven by the real Better Auth session. `src/features/auth/session-store.js` mirrors `GET /api/auth/get-session` and `POST /api/auth/sign-out`. The header (`HeaderAccountLink.jsx`) and mobile menu show Sign in or Sign out accordingly, and a hidden placeholder avoids layout shift while loading. A failed sign-out keeps the user signed in and shows an alert. Duplicate requests are ignored. `AuthPanel` uses the same store. The session cookie remains HttpOnly and no tokens are exposed.
+- Fixed mojibake in the hero and services text. Header CTA relabelled "Book Appointment". Findings are in `docs/REFERENCE_DESIGN_AUDIT.md`; pages were not visually verified at desktop width.
+- Read-only seed preflight completed against `the_cut` (no `--apply`). Atlas connection works; plan is 6 service inserts and 4 barber inserts with no ambiguity or warnings. No database writes.
+- Checks: `npm test` 232 passed across 18 files; lint 0 errors and the existing HeroSection warning; `npm run build` passed. Live in browser: signed-out state shows Sign in (desktop and mobile list). Signed-in, sign-out success/failure and protected-route behavior were tested only with mocked fetch (new `session-store.test.js`), not with a real login (no test credentials/verified account used).
+
+**Updated:** 2026-10-29
+
+## MongoDB seed preflight connectivity follow-up (2026-10-29)
+
+- Confirmed without displaying values that `NODE_ENV` was `development`, `MONGODB_URI` was present, `MONGODB_DB_NAME` was present, and the effective database was exactly `the_cut`.
+- Installed MongoDB Node driver is 7.7.0. Its `serverSelectionTimeoutMS` applies after MongoDB `mongodb+srv` SRV/TXT lookup; driver source awaits DNS resolution first, so that option alone does not bound the complete `connect()` call. This explains how the prior attempt could wait past the configured server-selection period.
+- Non-destructive DNS diagnostics timed out for the configured MongoDB SRV/TXT lookup and a public DNS control lookup. This runtime's DNS/network path is currently not completing external DNS. This does not establish an Atlas IP allow-list or authentication failure; those were not reached/verified.
+- Added seed-only Mongo options (`connectTimeoutMS: 5000`, `serverSelectionTimeoutMS: 8000`, `socketTimeoutMS: 12000`, `timeoutMS: 15000`) and a 15-second hard watchdog for `MongoClient.connect()`. Shared application Mongo defaults remain unchanged. Connection failures use sanitized categories and never print error messages, URI, or credentials.
+- Confirmed the no-`--apply` path reads only `service` and `barber`; writes are only reachable in the guarded apply branch. Re-ran the read-only preflight: it resolved `the_cut`, then exited at the 15-second deadline with a sanitized DNS/server-selection message. It did not complete collection reads. No seed was run and no database data was modified.
+- Verification: focused tests passed (7/7); `npm.cmd test` passed (228 tests/17 files); lint passed with 0 errors and one existing `HeroSection.jsx` warning; `npm.cmd run build` passed; syntax checks passed.
+- Next action: restore external DNS/network access for this runtime, then rerun the no-flag read-only preflight. Do not use `--apply` until a separate user authorization.
+
+## Seed initialization follow-up (2026-10-29)
+
+- `scripts/seed-booking.js` failed because it requested the CommonJS `@next/env` package's `loadEnvConfig` as a named ESM export. It now uses the package default export through `src/lib/booking/load-seed-environment.js` and explicitly asks `@next/env` to load development files when `NODE_ENV=development`. Focused tests cover the interop shape and mode argument.
+- Investigated `MODULE_TYPELESS_PACKAGE_JSON` separately. Node v24.21.0 emits this advisory because project `.js` modules use ESM syntax while the root package has no `type` field. Adding root `"type":"module"` could change execution for Next configs and scripts, so it was left unchanged; the warning is non-fatal and remains.
+- `npm.cmd test`: 227 passed across 16 files. `npm.cmd run lint`: 0 errors, one existing `HeroSection.jsx` warning. `node --check` passed for the seed entry, loader helper, and test.
+- Confirmed the default branch only reads `service` and `barber`; `applyBookingSeed` is called only when `--apply` is present. Ran the no-flag preflight with development mode: it resolved the target as `the_cut` and stated read-only mode, but the Mongo connection did not return. The process was interrupted before collection results; no write mode was used and no database changes occurred. Do not treat service/barber data as inspected.
+- Next: diagnose why the Atlas connection is pending, then rerun the no-flag read-only preflight after connectivity is available. Do not use `--apply` without a separate explicit authorization.
+
+## Latest update — approved booking catalog and seed guard (2026-10-29)
+
+- User approved Haircut $25/30m; Beard Trim $15/20m; Shave $20/30m; Hair Color $60/60m; Hair Treatment $40/45m; Combo (Haircut + Beard) $35/45m (USD before tax). `src/config/booking-services.js` is shared by display and seed plans. Booking request schemas reject client price/duration fields; the repository reads current Mongo service fields, requires a positive safe integer price, and snapshots price/duration into the booking. Historical snapshots are not changed by service updates.
+- Active target database is identified by the user as `the_cut`. App DB selection is `MONGODB_DB_NAME` if set, otherwise the URI database. `src/lib/db/mongo-config.js` now centralizes the app's existing MongoClient options and database selection. No environment values were read or printed; the target was not independently queried.
+- `scripts/seed-booking.js` now defaults to a read-only preflight and safely loads the existing `.env` at execution time via `@next/env`. It requires `NODE_ENV=development`, resolves exact database `the_cut`, and requires `--apply` plus `ALLOW_THE_CUT_BOOKING_SEED=YES_I_REVIEWED_THE_CUT_DATABASE` for writes. It only reads `service`/`barber`, plans targeted upserts, aborts before writes on ambiguous legacy services or identity mismatch, preserves existing barber schedules, and creates no assumed schedules. It does not touch auth/email/user/session/verification/booking collections. The seed was not run.
+- Existing four barber identities are retained. Real names, availability, weekly schedules, holidays, and working hours still require user confirmation before production booking. Existing app auth/roles and Next.js Route Handler architecture are unchanged; no Express server or role migration was added.
+- Exact dry-run and write PowerShell commands are in `docs/BOOKING_RULES.md`. Phase H and Phase I are not started.
+- Verification (2026-10-29): `npm.cmd test` passed (225 tests/15 files); `npm.cmd run lint` passed with 0 errors and one existing `HeroSection.jsx` warning; `npm.cmd run build` passed and compiled all routes. `node --check` passed for the seed utility and seed core. No database, SMTP, upload, live sign-up, or browser booking test was run.
+
+## Historical Phase G implementation checkpoint (2026-10-28) — superseded by the 2026-10-29 update above
+
+- The booking API/transaction implementation described in this historical entry remains present; its earlier no-price blocker is superseded by the approved catalog in the 2026-10-29 section above. The database itself is not seeded or verified.
+- Historical rule summary from the user's defaults: America/New_York, USD; Monday–Friday 9am–7pm, Saturday 9am–5pm, Sunday 10am–3pm; 15-minute grid; 5-minute cleanup buffer; 60-minute lead time; 30 days in advance; maximum 3 services and 2 active appointments; cancellation/reschedule cutoff 24 hours; pay at shop/no deposit; no-show after 10 minutes with a review flag at 2; Any barber selects the least-booked eligible barber. Holiday defaults and assumption notes are in `src/config/booking.js`.
+- Current launch blockers are approved database service rows (the database has not been checked or seeded) and verified real barber schedules; see the 2026-10-29 update and `NEXT_TASK.md`.
 - Phase H has not started. Phase I media role-session/ImgBB live checks and Phase K configured Turnstile plus production SPF/DKIM/DMARC/domain verification remain carried over.
-- Checks on this pass: `npm.cmd test` passed 215 tests across 14 files; `npm.cmd run lint` passed with one existing HeroSection aria warning; `npm.cmd run build` passed and compiled all booking routes. No `.env` values were read or printed; no live email, booking, seed, or browser test was run.
+- Checks at the 2026-10-28 checkpoint: `npm.cmd test` passed 215 tests across 14 files; `npm.cmd run lint` passed with one existing HeroSection aria warning; `npm.cmd run build` passed and compiled all booking routes. No `.env` values were read or printed; no live email, booking, seed, or browser test was run.
 
 ## Resume prompt
 
@@ -36,7 +74,7 @@ Hydration finding: the reported `/contact` warning is environment-specific. Temp
 
 HMR finding: previous browser logs show refused WebSocket connections to `ws://localhost:3000/_next/hmr`. During follow-up, initial port/HTTP probes found no responding server; Next later reported the existing dev server on port 3000 (PID 10204). An attempted second `next dev` selected 3001, then exited after detecting that server's lock. The server served `/contact` with HTTP 200 after a ~16s first compile; its dev log records slow filesystem detection and initial proxy/contact compilation. A clean Playwright reload produced no new console errors/warnings; a browser WebSocket probe to `/_next/hmr` opened. This verifies the endpoint is now healthy and that the earlier refusal coincided with an unavailable/startup interval; the old terminal was not attached, so whether the prior process stopped, restarted, or was still starting cannot be distinguished. No wrong port or proxy fault was found, and no Next config or app code change was made.
 
-Booking inventory: defined UI behavior is service/barber/date/time preference selection and a preview-only submit; permissions define `bookingStart` for all roles, `bookingOwn` as OWN for signed-in roles, `bookingsManageAll` for ADMIN/SUPER_ADMIN, and `bookingsDeleteAll` for SUPER_ADMIN. The user has not supplied opening hours per weekday, slot length, service durations, max days in advance, cancellation/reschedule cutoff, max active bookings per user, payment timing, or barber-days-off rules. Service durations/prices, staff roster, and availability are also unverified. No booking write path exists to enforce verified-email/session, ownership, role, or concurrency controls.
+Historical preview-only booking inventory superseded by the implemented booking API and repository. Current routes and policy are documented in `docs/BOOKING_RULES.md` and `docs/ROLE_PERMISSIONS.md`.
 
 ## Checks and visual status
 
@@ -56,7 +94,7 @@ Booking inventory: defined UI behavior is service/barber/date/time preference se
 - Development HTTP check at `http://localhost:3000/design-system` returned 200.
 - Phase C npm install completed and reported 0 vulnerabilities.
 - Playwright/Chrome — at 1440, 768, and 375px, the intro begins at or below the header bottom; details/summary use two columns at 1440 and one at 768/375; no horizontal overflow or console errors. Smallest measured booking text was 11px desktop/tablet and 9px mobile progress labels.
-- The booking form remains preview-only and sends/stores nothing. No appointment success is reported.
+- Historical preview-only booking note superseded by the 2026-10-28 Phase G implementation. Booking writes now use authenticated Route Handlers; see the 2026-10-29 handoff.
 - Local MongoDB and Better Auth settings were previously exercised through `GET http://localhost:3000/api/auth/get-session` (HTTP 200), which initializes the database and first-use indexes. Signup/session lifecycle and production database behavior remain unverified. SMTP names are present, but verification/reset delivery is not confirmed; no real mail was sent.
 - Better Auth DB sessions are selected for this same-origin app; the separate refresh-token requirement is superseded. Auth endpoints have Mongo-backed per-IP rate limits; privileged session creation, permission denials, failed sign-in/TOTP attempts, and burst markers are audited. Nonce CSP is implemented. SMTP alert delivery, audit coverage for privileged field changes, tested DB session invalidation, sensitive-operation step-up integration, trusted-proxy/production-origin review, and the Section 11.1 attack suite remain open; Phase D is not DONE.
 - Phase C dependencies (`class-variance-authority`, `clsx`, `tailwind-merge`, `motion`, `gsap`, `lenis`, `three`, and `@react-three/fiber`) installed; npm reported 0 vulnerabilities.
@@ -122,3 +160,8 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - Display font: Cormorant Garamond. UI font: Manrope. Both use `next/font` with Latin subsets and `display: swap`.
 - Glass sizes: 10/16/22px blur with opaque fallback; depth levels use named shadow tokens. Tilt is capped at 4 degrees and reduced-motion safe.
 - Smooth scrolling loads Lenis + GSAP/ScrollTrigger after idle and shares one GSAP ticker. R3F gold dust is home-only, deferred until idle/in-view, and skipped for reduced-motion/low-power devices.
+
+## Seed applied (2026-10-29)
+
+- With the user's explicit "Apply seed" authorization, `npm run seed:booking:dev -- --apply` ran against `the_cut` with the documented opt-in: 6 service and 4 barber inserts, completed without error. Existing schedules and booking snapshots were untouched. Rerunning the read-only preflight now plans only `update` rows for the same 10 records (existing, idempotent). Collection values were not independently read back.
+- Barbers have empty schedules, so no availability exists. Booking stays disabled for production until real names, schedules, holidays and hours are confirmed.

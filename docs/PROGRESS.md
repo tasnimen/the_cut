@@ -1,8 +1,12 @@
 # Progress
 
-**Current state: Phases A–F implemented locally; Phase G booking engine is DONE-LOCAL but not live-ready because approved prices and real staff schedules are unconfigured.** Updated 2026-10-28.
+**Current state: Phases A–F implemented locally; Phase G approved catalog, positive-price validation, and guarded `the_cut` seed code implemented; database is not seeded or verified.** Updated 2026-10-29.
 
 ## Completed
+
+- **Seed connection diagnosis (2026-10-29):** Verified env-variable presence only and resolved effective DB `the_cut`; no values/URI were printed. MongoDB driver 7.7.0 performs `mongodb+srv` SRV/TXT DNS before its server-selection timeout. Configured and public DNS control requests timed out, so the runtime's external DNS path is the evidenced blocker; Atlas allow-list/authentication status remains unknown. Added seed-only connect/selection/socket/operation limits and a 15-second connect watchdog with sanitized errors; app Mongo defaults are unchanged. The read-only preflight exited at the watchdog and did not finish collection reads. No seed/write occurred. Focused tests 7/7, full tests 228/17, lint 0 errors/one pre-existing warning, and build passed.
+
+- **Seed initialization follow-up (2026-10-29):** Fixed the `@next/env` CommonJS interop by consuming its default export and passing an explicit development flag. Added focused tests for loader mode; `npm.cmd test` passed (227 tests/16 files), lint exited 0 with one existing HeroSection warning, and `node --check` passed for the seed files. The default preflight resolved `the_cut` and confirmed read-only mode, but its Mongo connection did not return; it was interrupted before any collection result. No writes or database modifications occurred. Node's separate `MODULE_TYPELESS_PACKAGE_JSON` warning remains because root `.js` ESM modules are auto-detected; root module type was not changed due project-wide tooling impact.
 
 - Initial planning and reference audit are documented in requirements, architecture, permissions, security, data, design, and implementation-roadmap docs.
 - Home (`/`) is implemented as modular sections with shared transparent responsive navigation, hero, service/barber previews, sample review carousel, and footer.
@@ -10,11 +14,11 @@
 - Shared navigation/footer destinations are root-qualified so they work from both routes; active route state is passed into the header.
 - Homepage service-card actions now lead to the implemented `/services` route instead of the pending booking route.
 - The final homepage design is documented in `docs/DESIGN_SYSTEM.md`; reusable component usage and boundaries are described in the new `docs/COMPONENT_GUIDE.md`.
-- Service data is visibly disclosed as illustrative; unknown prices, booking behavior, staff details, and reviews are not presented as verified facts.
+- Approved booking prices and durations are now in the shared public service catalog; database service rows remain pending the guarded user-run seed. Staff schedules and reviews remain unverified.
 - Better Auth is installed as the Phase D authentication foundation; the local Mongo-backed handler returned HTTP 200, while email-backed lifecycle and production database verification remain pending.
-- Booking (`/booking`) now follows the latest supplied screenshot hierarchy: compact text intro, pill-like step row, three selection columns (service list, no-preference barber, preference calendar/time), then customer details beside a live summary, reviews, and footer. It remains a responsive client-side preview; submission explicitly says nothing was sent or saved. See `docs/BOOKING_PAGE_AUDIT.md`.
+- Booking (`/booking`) follows the reference hierarchy and connects to the Phase G availability/booking API. Availability and confirmation require the approved server-side service records in MongoDB and verified barber schedules. See `docs/BOOKING_PAGE_AUDIT.md`.
 - Historical Phase G preview inventory superseded by the 2026-10-28 booking implementation recorded under Current checks.
-- Historical Phase G blocker note superseded: core rules have been supplied and implemented; service pricing and real staff schedules remain explicitly unconfigured.
+- Historical Phase G blocker note superseded: rules and approved service prices are supplied; database service rows and real staff schedules remain unverified.
 - Hydration warning finding: Temp Mail Org injects `data-temp-mail-org` and styles into the contact email input. Clean Playwright showed no injected attribute/style and no hydration warning; do not suppress or change app markup for this environment-specific extension behavior.
 - HMR finding: previous `/_next/hmr` WebSocket refusals coincided with a period when no responding server was observed. Follow-up found the Next dev server on port 3000 (PID 10204); first `/contact` compile took ~16 seconds after a slow-filesystem warning, then returned HTTP 200. Clean Playwright reported no fresh console issues, and a WebSocket probe opened. No wrong-port or proxy fault was found; no Next config change was warranted. Because the original dev terminal was unavailable, it is not possible to distinguish whether that server had stopped, restarted, or was still starting.
 - Phase A static audit is complete in `docs/AUDIT.md`.
@@ -32,8 +36,11 @@
 
 ## Current checks
 
-- **Phase G update (2026-10-28):** Booking now uses timezone-aware New York availability, transactional Mongo create/cancel/reschedule/no-show operations, unique quarter-hour occupancy rows including cleanup buffers, Better Auth verified-user/ownership authorization, public rate limits, audit events, after-response mail, and a callable reminder worker. Development seed script was added but not run. Approved service prices were absent, so they remain null and the API/UI block confirmation until configured. Seed roster/schedules remain assumptions requiring verification. `npm.cmd test`: 215 passed across 14 files; `npm.cmd run lint`: 0 errors with one existing HeroSection warning. `npm.cmd run build` passed; the new booking API routes and `/booking` compiled successfully. No live booking, email, seed, or browser booking run.
-- **Current Phase G status:** DONE-LOCAL, not live-ready. Phase H has not started. Phase I real role sessions and ImgBB test, Phase K configured Turnstile and production email DNS/domain checks remain carryovers.
+- **Phase G follow-up (2026-10-29):** Added approved six-service catalog and prices/durations shared by site UI and seed plan; backend accepts only positive safe integer server-side prices and snapshots current prices at booking creation. Added a safe `the_cut` seed preflight: default is read-only; write requires development mode, exact effective database match, `--apply`, and explicit environment opt-in. It plans only targeted service/barber upserts and stops on legacy/identity ambiguity. Existing barber schedules are preserved; new barbers have empty schedules. The database collections and seed writes were not performed in that implementation task; a later read-only preflight attempt is recorded above. `npm.cmd test` passed 225 tests across 15 files; `npm.cmd run lint` exited 0 with one existing HeroSection warning; `npm.cmd run build` passed and compiled all booking routes (3.3 minutes for compilation).
+- The database name `the_cut` is user-provided, not independently inspected. The app's existing configuration resolves `MONGODB_DB_NAME` over the URI path. No `.env` value was read or printed. Existing authentication, email, and historical booking data are outside the seed's read/write scope.
+
+- **Phase G update (2026-10-28):** Booking now uses timezone-aware New York availability, transactional Mongo create/cancel/reschedule/no-show operations, unique quarter-hour occupancy rows including cleanup buffers, Better Auth verified-user/ownership authorization, public rate limits, audit events, after-response mail, and a callable reminder worker. Development seed script was added but not run. The approved source catalog is now configured; the API/UI block confirmation until database service rows are reconciled and seeded. Seed roster/schedules remain assumptions requiring verification. `npm.cmd test`: 215 passed across 14 files; `npm.cmd run lint`: 0 errors with one existing HeroSection warning. `npm.cmd run build` passed; the new booking API routes and `/booking` compiled successfully. No live booking, email, seed, or browser booking run.
+- **Current Phase G status:** DONE-LOCAL, not live-ready until `the_cut` service records are safely seeded and barber schedules are verified. Phase H has not started. Phase I real role sessions and ImgBB test, Phase K configured Turnstile and production email DNS/domain checks remain carryovers.
 
 - Phase F media/contact: `npm.cmd test` — 201 tests across 11 files passed; `npm.cmd run lint` — 0 errors, one existing `HeroSection.jsx` warning; `npm.cmd run build` passed after network approval to fetch configured Google Fonts. No live browser, ImgBB, or contact email test was run.
 - `npm.cmd run lint` — passed after Phase D changes with one existing `aria-hidden` type warning in `HeroSection.jsx`.
@@ -60,7 +67,7 @@
 ## Remaining limits
 
 - The user-requested card image is one visibly watermarked scissors image reused across service, barber, and review cards; replace it with approved appropriate photos before representing the cards as real content.
-- Current service copy is explicitly illustrative; final service list and prices are not supplied.
+- Approved service list/prices are supplied and implemented. The existing DB is not seeded; production barber names/schedules/hours/holidays still require confirmation.
 - Shop, customer/admin dashboards, and booking APIs remain unimplemented. Contact message submission is implemented in Phase F; About, Gallery, Pricing, and other content remain presentation pages using disclosed concept content. Booking is only a disclosed interface preview.
 - Before enabling real booking, settle the business rules and implement the authoritative Next.js server operation with MongoDB, availability/concurrency validation, and required Better Auth/authorization integration.
 - No verified staff identities, authentic reviews, business hours, or contact channels are available.
@@ -80,4 +87,11 @@
 
 ## Exact next task
 
-Phase G is DONE-LOCAL, not live-ready. Next: configure approved service prices and verify real barber schedules, then perform controlled Atlas transaction/session checks before enabling live bookings. Keep Phase H unstarted until those launch prerequisites are satisfied; Phase I/K carryovers remain separately documented.
+Phase G is implemented locally. Next: review the read-only seed plan for `the_cut`, resolve any ambiguity, then user-authorize a seed only after review and confirm barber schedules. Run controlled Atlas transaction/session checks before enabling live bookings. Keep Phase H unstarted until those launch prerequisites are satisfied; Phase I/K carryovers remain separately documented.
+
+## Navbar session, design audit and preflight (2026-10-29)
+
+- Navbar sign-in/out is now driven by the real Better Auth session. `src/features/auth/session-store.js` mirrors `GET /api/auth/get-session` and `POST /api/auth/sign-out`. The header (`HeaderAccountLink.jsx`) and mobile menu show Sign in or Sign out accordingly, and a hidden placeholder avoids layout shift while loading. A failed sign-out keeps the user signed in and shows an alert. Duplicate requests are ignored. `AuthPanel` uses the same store. The session cookie remains HttpOnly and no tokens are exposed.
+- Fixed mojibake in the hero and services text. Header CTA relabelled "Book Appointment". Findings are in `docs/REFERENCE_DESIGN_AUDIT.md`; pages were not visually verified at desktop width.
+- Read-only seed preflight completed against `the_cut` (no `--apply`). Atlas connection works; plan is 6 service inserts and 4 barber inserts with no ambiguity or warnings. No database writes.
+- Checks: `npm test` 232 passed across 18 files; lint 0 errors and the existing HeroSection warning; `npm run build` passed. Live in browser: signed-out state shows Sign in (desktop and mobile list). Signed-in, sign-out success/failure and protected-route behavior were tested only with mocked fetch (new `session-store.test.js`), not with a real login (no test credentials/verified account used).

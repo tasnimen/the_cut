@@ -1,15 +1,11 @@
-# Next task: configure Phase G booking for launch
+# Next task: confirm barber schedules and run post-seed checks
 
-**Status:** Phase G is DONE-LOCAL, not live-ready. Phase H has not started. Keep existing booking rules and authorization intact; do not invent prices or real barber availability.
+**Status:** The read-only preflight completed on 2026-10-29 against `the_cut`: 6 service inserts and 4 barber inserts, no ambiguity, no warnings. Connectivity is working. Nothing has been written. Phase H and Phase I are not started.
 
-Before enabling bookings:
+Next, in order:
+1. Seed applied 2026-10-29 (6 services, 4 barbers). Verify records in Atlas and the /booking UI.
+2. **User input:** real barber names, weekly schedules, holidays and hours. Barbers are seeded with empty schedules, so no availability appears until these are set.
+3. Run the manual post-seed checks in `docs/TESTING.md`, including a real sign-in and sign-out check of the navbar with a verified test account and the Atlas race tests.
+4. Finish the design pass: compare Home, About, Services, Pricing, Booking and Contact against the references at true desktop width, and resolve the open rows in `docs/REFERENCE_DESIGN_AUDIT.md` (hero headline style, Dhaka vs New York location, pricing tiers vs six-service catalog).
 
-1. Supply approved prices for the four existing services (`the-signature-cut`, `beard-trim`, `the-hot-shave`, `hair-scalp`). Confirmation currently fails closed until every selected service has a configured `priceMinorUnits` value.
-2. Confirm the barber roster, each barber's weekly schedule, lunch breaks, and days off. `scripts/seed-booking.js` includes assumed development roster/schedules and was not run.
-3. Confirm the enabled holiday/early-close settings in `src/config/booking.js`.
-4. On an isolated development database whose configured database name ends in `-dev`, `_dev`, `-development`, or `_development`, run `npm run seed:booking:dev` only when intentionally seeding. In PowerShell, set `$env:NODE_ENV='development'` first. The script also requires an explicit flag. Never point it at production.
-5. Validate transactions and uniqueness on the configured Atlas replica set with approved test accounts before production. No live booking, browser submit, email, or seed test was run in this task.
-
-Implemented routes: public `GET /api/bookings/availability`; verified-user own-scope `GET/POST /api/bookings`; own-scope cancel/reschedule; admin-TOTP no-show marking. Next overall task after booking launch data is supplied: proceed to the documented later project phase (Phase H) without changing Phase I media or Phase K deployment carryovers in this task.
-
-Checks from the current implementation task: `npm.cmd test` — 215 passed across 14 files; `npm.cmd run lint` — zero errors, one pre-existing `HeroSection.jsx` warning; `npm.cmd run build` — see final handoff. No `.env` values were read or printed. No commit was made.
+Checks last run: `npm test` 232 passed (18 files); lint 0 errors, one existing HeroSection warning; `npm run build` passed. No commit was made.

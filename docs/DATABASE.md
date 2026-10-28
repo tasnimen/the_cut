@@ -1,6 +1,22 @@
 # Database outline
 
-**Status: MongoDB connection and auth/security indexes implemented and locally exercised through the Better Auth session endpoint; no business data models.** Candidate collections from product requirements; final fields and retention need decisions.
+## Current implementation update (2026-10-29)
+
+The old candidate-collections and “do not add booking data” statements below describe an earlier planning stage and are superseded here. The application uses the MongoDB Node driver 7 through `src/lib/db/mongo.js`. It reads `MONGODB_URI` and selects `MONGODB_DB_NAME` when configured; otherwise the driver uses the database encoded in the URI. `src/lib/db/mongo-config.js` is shared by the app and seed utility so their connection options/target selection do not diverge.
+
+The user identifies the existing database as exactly `the_cut`. This task did not read environment values, connect to MongoDB, run a dry run, or write data. The seed refuses a resolved database name other than `the_cut`; it does not create/switch to `selon_dev` or another database.
+
+Phase G uses these collections and indexes:
+
+- `service`: stable slug, public name/description, duration, integer USD `priceMinorUnits`, active status, timestamps. Current approved values are documented in `BOOKING_RULES.md` and shared by `src/config/booking-services.js`. Booking rejects prices that are unset, zero, negative, fractional, or unsafe.
+- `barber`: stable slug/name, service slugs, weekly schedule, breaks, days off, active status. Existing schedules are preserved by seed updates; new barber records have empty schedules and are not available until schedules are deliberately configured.
+- `booking`: customer-owned record, server-derived service snapshots, barber, UTC start/end, status, price snapshot, consent and reminder metadata. Current service-price edits do not update existing snapshots.
+- `bookingSlot`: one unique `(barberId, slotStart)` row for each 15-minute occupancy segment including the cleanup buffer, claimed transactionally to stop overlap races.
+- `bookingUserLock`: unique user id row written in the booking transaction to serialize concurrent creates when enforcing the per-user active-booking cap.
+
+The seed reads only the `service` and `barber` collections for a read-only preflight. Actual writes require development mode, the exact `the_cut` target, `--apply`, and `ALLOW_THE_CUT_BOOKING_SEED=YES_I_REVIEWED_THE_CUT_DATABASE`. It only upserts intended service/barber fields; it never drops collections or touches user/session/verification/email/booking/history/settings collections. It aborts the full plan before writes when a legacy service alias or identity mismatch makes matching ambiguous. See [booking rules and exact PowerShell commands](BOOKING_RULES.md).
+
+**Status: MongoDB connection and auth/security indexes exist; Phase G service, barber, booking, bookingSlot, and bookingUserLock persistence is implemented locally. The `the_cut` database was not inspected or seeded by the 2026-10-29 task.**
 
 | Collection | Candidate contents / access pattern | Candidate indexes / safeguards |
 |---|---|---|
@@ -26,7 +42,7 @@ Store money as integer minor units with currency metadata (currency still to con
 
 ## Booking integrity
 
-At booking and rescheduling, the API must revalidate service duration, barber eligibility, working hours, blocked times, and overlap at write time. The implementation must use a database/transaction or slot reservation strategy appropriate to the selected deployment/Atlas tier and prove simultaneous conflicting attempts cannot both succeed. The precise strategy is an open technical design item; do not treat an availability query followed by insert as safe.
+At booking and rescheduling, the API revalidates service duration, barber eligibility, working hours, breaks, days off, lead time, horizon, and overlap at write time. Booking and quarter-hour slot claims use MongoDB transactions and the unique `{ barberId, slotStart }` index. Concurrent repository tests prove one of two identical mock attempts is rejected. Atlas transaction/session integration remains unverified; public availability alone is never a reservation.
 
 ## Operations
 

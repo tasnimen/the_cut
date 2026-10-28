@@ -1,10 +1,10 @@
 # Booking page visual difference audit
 
-## Phase G implementation update (2026-10-28)
+## Phase G implementation update (2026-10-28; prices updated 2026-10-29)
 
 - The former preview-only form is now backed by availability and booking Route Handlers. It renders active service prices from the server, Eastern-time slots, barber choices and customer account identity. Phone remains optional; SMS consent is separate and unchecked. Confirm is disabled unless the selected services have configured prices.
 - Create, cancel, reschedule, list-own, and admin no-show operations use Better Auth authorization and MongoDB transactions. Unique quarter-hour occupancy documents include each service's rounded duration plus the cleanup buffer. Any barber selection favors the eligible barber with the fewest bookings that day and breaks ties by name.
-- The confirmed source menu contains no prices. Existing service cards are illustrative, and booking confirmation stays blocked until approved prices are written to the service records. The development seed script is not run and does not set prices.
+- Approved prices/durations are in the shared catalog: Haircut $25/30m, Beard Trim $15/20m, Shave $20/30m, Hair Color $60/60m, Hair Treatment $40/45m, and Combo $35/45m. Booking uses database values, rejects invalid prices, and stores historical snapshots. Confirmation remains blocked until the uninspected `the_cut` service rows are safely reconciled and seeded. The seed was not run.
 - Rules are in `src/config/booking.js`; assumptions and default roster/schedule caveats are in `docs/AI_HANDOFF.md`. Production needs a transaction-capable Atlas deployment and confirmed barber schedules. No live booking or browser test was run after this backend/UI update.
 - Current checks: tests 215/215 across 14 files; lint zero errors with one existing `HeroSection.jsx` warning; `npm.cmd run build` passed and compiled all booking routes.
 
