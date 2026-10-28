@@ -1,12 +1,13 @@
 import "server-only";
 import nodemailer from "nodemailer";
 import { env, requireEnv } from "@/config/env";
-import { createAuthMailer, createContactMailer } from "@/lib/mail/mailer-core";
+import { createAuthMailer, createBookingMailer, createContactMailer } from "@/lib/mail/mailer-core";
 import { resolveAuthBaseUrl } from "@/lib/auth/base-url";
 
 let transport;
 let authMailer;
 let contactMailer;
+let bookingMailer;
 
 function getTransport() {
   if (transport) return transport;
@@ -44,6 +45,11 @@ function getContactMailer() {
   return contactMailer;
 }
 
+function getBookingMailer() {
+  if (!bookingMailer) bookingMailer = createBookingMailer({ transport: getTransport(), from: requireEnv("MAIL_FROM") });
+  return bookingMailer;
+}
+
 export async function sendVerificationEmail(message) {
   return getAuthMailer().sendVerificationEmail(message);
 }
@@ -58,4 +64,20 @@ export async function sendContactNotification(message) {
 
 export async function sendContactAutoReply(message) {
   return getContactMailer().sendAutoReply(message);
+}
+
+export async function sendBookingConfirmation(message) {
+  return getBookingMailer().sendConfirmation(message);
+}
+
+export async function sendBookingCancellation(message) {
+  return getBookingMailer().sendCancellation(message);
+}
+
+export async function sendBookingReschedule(message) {
+  return getBookingMailer().sendReschedule(message);
+}
+
+export async function sendBookingReminder(message) {
+  return getBookingMailer().sendReminder(message);
 }

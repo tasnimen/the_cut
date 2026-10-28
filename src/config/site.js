@@ -6,9 +6,15 @@ export const site = Object.freeze({
     sub: "BARBERSHOP",
   }),
   description: "Thoughtful barbering, considered grooming, and good company.",
-  locale: "en",
+  locale: "en-US",
+  currency: "USD",
+  timeZone: "America/New_York",
+  phoneCountry: "US",
   location: Object.freeze({
-    city: "Dhaka",
-    country: "Bangladesh",
+    city: "New York",
+    region: "NY",
+    country: "US",
+    postalCode: null,
+    streetAddress: null,
   }),
 });

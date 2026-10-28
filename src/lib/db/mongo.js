@@ -98,6 +98,17 @@ export async function ensureApplicationIndexes(db) {
       db.collection("media").createIndex({ category: 1, createdAt: -1 }, { name: "media_category_created" }),
       db.collection("media").createIndex({ ownerId: 1, category: 1 }, { name: "media_owner_category" }),
       db.collection("contactMessage").createIndex({ status: 1, createdAt: -1 }, { name: "contact_status_created" }),
+      db.collection("service").createIndex({ slug: 1 }, { unique: true, name: "service_slug_unique" }),
+      db.collection("service").createIndex({ active: 1, slug: 1 }, { name: "service_active_slug" }),
+      db.collection("barber").createIndex({ slug: 1 }, { unique: true, name: "barber_slug_unique" }),
+      db.collection("barber").createIndex({ active: 1, name: 1 }, { name: "barber_active_name" }),
+      db.collection("booking").createIndex({ userId: 1, startsAt: -1 }, { name: "booking_user_start" }),
+      db.collection("booking").createIndex({ userId: 1, status: 1, startsAt: 1 }, { name: "booking_user_active" }),
+      db.collection("booking").createIndex({ barberId: 1, startsAt: 1 }, { name: "booking_barber_start" }),
+      db.collection("booking").createIndex({ status: 1, startsAt: 1 }, { name: "booking_status_start" }),
+      db.collection("booking").createIndex({ status: 1, reminderDueAt: 1, startsAt: 1 }, { name: "booking_reminder_due" }),
+      db.collection("bookingSlot").createIndex({ barberId: 1, slotStart: 1 }, { unique: true, name: "booking_slot_barber_start_unique" }),
+      db.collection("bookingSlot").createIndex({ bookingId: 1 }, { name: "booking_slot_booking" }),
     ]).catch((error) => {
       applicationIndexPromise = undefined;
       throw error;

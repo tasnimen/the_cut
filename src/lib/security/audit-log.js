@@ -11,7 +11,7 @@ const auditEventSchema = z.object({
   userAgent: z.string().max(512).nullable().optional(),
 }).strict();
 
-export async function appendAuditEvent(db, input) {
+export async function appendAuditEvent(db, input, options = {}) {
   const event = auditEventSchema.parse(input);
-  await db.collection("auditLog").insertOne({ ...event, createdAt: new Date() });
+  await db.collection("auditLog").insertOne({ ...event, createdAt: new Date() }, options);
 }

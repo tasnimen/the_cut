@@ -25,6 +25,8 @@ export const ROUTES = Object.freeze({
   designSystem: "/design-system",
   auth: "/api/auth",
   mediaApi: "/api/media",
+  bookingsApi: "/api/bookings",
+  bookingAvailabilityApi: "/api/bookings/availability",
   team: `/#${ANCHORS.team}`,
   teamProfiles: `/#${ANCHORS.teamProfiles}`,
   reviews: `/#${ANCHORS.reviews}`,
@@ -43,4 +45,9 @@ export const routeRegistry = Object.freeze([
   Object.freeze({ path: ROUTES.designSystem, access: "development-only", implemented: true }),
   Object.freeze({ path: ROUTES.auth, access: "public-auth-provider", implemented: true }),
   Object.freeze({ path: ROUTES.mediaApi, access: "authenticated-mutation", implemented: true }),
+  Object.freeze({ path: ROUTES.bookingAvailabilityApi, access: "public-rate-limited-read", implemented: true }),
+  Object.freeze({ path: ROUTES.bookingsApi, access: "authenticated-own", implemented: true }),
+  Object.freeze({ path: `${ROUTES.bookingsApi}/[id]/cancel`, access: "authenticated-own", implemented: true }),
+  Object.freeze({ path: `${ROUTES.bookingsApi}/[id]/reschedule`, access: "authenticated-own", implemented: true }),
+  Object.freeze({ path: `${ROUTES.bookingsApi}/[id]/no-show`, access: "admin-step-up", implemented: true }),
 ]);

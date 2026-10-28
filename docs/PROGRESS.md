@@ -1,6 +1,6 @@
-﻿# Progress
+# Progress
 
-**Current state: Phases A–E implemented; Phase D is DONE-LOCAL with carried-over items; Phase F is DONE-LOCAL.** Updated 2026-10-28.
+**Current state: Phases A–F implemented locally; Phase G booking engine is DONE-LOCAL but not live-ready because approved prices and real staff schedules are unconfigured.** Updated 2026-10-28.
 
 ## Completed
 
@@ -13,8 +13,8 @@
 - Service data is visibly disclosed as illustrative; unknown prices, booking behavior, staff details, and reviews are not presented as verified facts.
 - Better Auth is installed as the Phase D authentication foundation; the local Mongo-backed handler returned HTTP 200, while email-backed lifecycle and production database verification remain pending.
 - Booking (`/booking`) now follows the latest supplied screenshot hierarchy: compact text intro, pill-like step row, three selection columns (service list, no-preference barber, preference calendar/time), then customer details beside a live summary, reviews, and footer. It remains a responsive client-side preview; submission explicitly says nothing was sent or saved. See `docs/BOOKING_PAGE_AUDIT.md`.
-- Phase G booking inventory: the preview supports preference selection only. No Express API, booking Route Handler/Server Action, Mongo booking model/schema, or authoritative availability store exists. Permissions define `bookingStart` for all roles, own-booking scope for signed-in roles, ADMIN/SUPER_ADMIN management, and SUPER_ADMIN deletion; Better Auth requires verified active users and admin TOTP for protected operations, but no booking operation currently invokes those checks. Keep the page preview-only.
-- Phase G is blocked on the business rules: weekday opening hours, slot length, service durations, max advance days, cancel/reschedule cutoff hours, max active bookings per user, payment at shop or online, and how barber days off are set. Service durations/prices, roster, and availability are also unverified. Do not implement booking writes or invent rules before answers.
+- Historical Phase G preview inventory superseded by the 2026-10-28 booking implementation recorded under Current checks.
+- Historical Phase G blocker note superseded: core rules have been supplied and implemented; service pricing and real staff schedules remain explicitly unconfigured.
 - Hydration warning finding: Temp Mail Org injects `data-temp-mail-org` and styles into the contact email input. Clean Playwright showed no injected attribute/style and no hydration warning; do not suppress or change app markup for this environment-specific extension behavior.
 - HMR finding: previous `/_next/hmr` WebSocket refusals coincided with a period when no responding server was observed. Follow-up found the Next dev server on port 3000 (PID 10204); first `/contact` compile took ~16 seconds after a slow-filesystem warning, then returned HTTP 200. Clean Playwright reported no fresh console issues, and a WebSocket probe opened. No wrong-port or proxy fault was found; no Next config change was warranted. Because the original dev terminal was unavailable, it is not possible to distinguish whether that server had stopped, restarted, or was still starting.
 - Phase A static audit is complete in `docs/AUDIT.md`.
@@ -31,6 +31,9 @@
 - Development auth-rate-limit recovery: confirmed signup counters are stored in MongoDB `rateLimit` with a 5-per-IP, 3,600-second rolling window. Added an explicitly confirmed reset script guarded by development mode and loopback-only Mongo host checks. It has not been run; see `docs/AUTHENTICATION.md`.
 
 ## Current checks
+
+- **Phase G update (2026-10-28):** Booking now uses timezone-aware New York availability, transactional Mongo create/cancel/reschedule/no-show operations, unique quarter-hour occupancy rows including cleanup buffers, Better Auth verified-user/ownership authorization, public rate limits, audit events, after-response mail, and a callable reminder worker. Development seed script was added but not run. Approved service prices were absent, so they remain null and the API/UI block confirmation until configured. Seed roster/schedules remain assumptions requiring verification. `npm.cmd test`: 215 passed across 14 files; `npm.cmd run lint`: 0 errors with one existing HeroSection warning. `npm.cmd run build` passed; the new booking API routes and `/booking` compiled successfully. No live booking, email, seed, or browser booking run.
+- **Current Phase G status:** DONE-LOCAL, not live-ready. Phase H has not started. Phase I real role sessions and ImgBB test, Phase K configured Turnstile and production email DNS/domain checks remain carryovers.
 
 - Phase F media/contact: `npm.cmd test` — 201 tests across 11 files passed; `npm.cmd run lint` — 0 errors, one existing `HeroSection.jsx` warning; `npm.cmd run build` passed after network approval to fetch configured Google Fonts. No live browser, ImgBB, or contact email test was run.
 - `npm.cmd run lint` — passed after Phase D changes with one existing `aria-hidden` type warning in `HeroSection.jsx`.
@@ -77,4 +80,4 @@
 
 ## Exact next task
 
-Phase F is DONE-LOCAL. Next: Phase I real role-session and ImgBB checks, then Phase K configured Turnstile and production DNS/domain checks. Do not start Phase G before the user provides booking rules: opening hours per weekday, slot length, service durations, maximum days in advance, cancellation/rescheduling cutoff in hours, maximum active bookings per user, payment at the shop or online, and how barber days off are set.
+Phase G is DONE-LOCAL, not live-ready. Next: configure approved service prices and verify real barber schedules, then perform controlled Atlas transaction/session checks before enabling live bookings. Keep Phase H unstarted until those launch prerequisites are satisfied; Phase I/K carryovers remain separately documented.

@@ -1,5 +1,13 @@
 # Booking page visual difference audit
 
+## Phase G implementation update (2026-10-28)
+
+- The former preview-only form is now backed by availability and booking Route Handlers. It renders active service prices from the server, Eastern-time slots, barber choices and customer account identity. Phone remains optional; SMS consent is separate and unchecked. Confirm is disabled unless the selected services have configured prices.
+- Create, cancel, reschedule, list-own, and admin no-show operations use Better Auth authorization and MongoDB transactions. Unique quarter-hour occupancy documents include each service's rounded duration plus the cleanup buffer. Any barber selection favors the eligible barber with the fewest bookings that day and breaks ties by name.
+- The confirmed source menu contains no prices. Existing service cards are illustrative, and booking confirmation stays blocked until approved prices are written to the service records. The development seed script is not run and does not set prices.
+- Rules are in `src/config/booking.js`; assumptions and default roster/schedule caveats are in `docs/AI_HANDOFF.md`. Production needs a transaction-capable Atlas deployment and confirmed barber schedules. No live booking or browser test was run after this backend/UI update.
+- Current checks: tests 215/215 across 14 files; lint zero errors with one existing `HeroSection.jsx` warning; `npm.cmd run build` passed and compiled all booking routes.
+
 **Updated:** 2026-10-27  
 **Reference inspected:** the booking screenshot embedded with the latest user request. The original image binary is not available in the project or its pasted-text attachment folder.  
 **Comparison limit:** The original reference image binary is unavailable. A browser review was later completed against the implementation at 1440px, 768px, and 375px; this confirms rendered behavior at those widths but does not establish pixel-perfect conformance with the unavailable source image.

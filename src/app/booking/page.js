@@ -5,16 +5,17 @@ import { BookingForm } from "@/features/booking/components/BookingForm";
 import { ReviewsSection } from "@/features/landing/sections/ReviewsSection";
 import { ROUTES } from "@/config/routes";
 import { site } from "@/config/site";
+import { businessDate } from "@/lib/booking/time";
 
 export const metadata = {
   title: `Plan a Visit | ${site.name}`,
-  description: "Preview the appointment request flow. Online booking and availability are not connected yet.",
+  description: "Choose a service and an available time for your visit.",
 };
 
 async function BookingFormForToday() {
   await connection();
   const now = new Date();
-  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+  const today = businessDate(now, site.timeZone);
   return <BookingForm today={today} />;
 }
 
@@ -25,7 +26,7 @@ export default function BookingPage() {
         <section className="booking-intro page-shell" aria-labelledby="booking-page-title">
           <p className="eyebrow">Book appointment</p>
           <h1 id="booking-page-title">Schedule Your Visit</h1>
-          <p>Choose your service, barber preference, and preferred visit time.</p>
+          <p>Choose your services, barber, and an available time.</p>
         </section>
 
         <section className="booking-section page-shell" aria-label="Appointment request form">

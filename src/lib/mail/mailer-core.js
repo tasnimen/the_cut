@@ -100,6 +100,31 @@ export function createContactMailer({ transport, from, alertTo, brandName = "The
   });
 }
 
+export function createBookingMailer({ transport, from, brandName = "The Cut Barbershop" }) {
+  const sender = validateAddress(from, "sender");
+
+  async function sendBookingMessage({ to, name, booking, subject, heading, intro }) {
+    const recipient = validateAddress(to, "booking recipient");
+    const safeName = String(name || "there").slice(0, 100);
+    const services = (booking.services || []).map((service) => String(service.name).slice(0, 120)).join(", ");
+    const localStart = String(booking.localStart || "").slice(0, 120);
+    const price = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format((booking.totalPriceMinorUnits || 0) / 100);
+    const details = `Service${booking.services?.length === 1 ? "" : "s"}: ${services}\nBarber: ${String(booking.barber?.name || booking.barberName || "").slice(0, 120)}\nWhen: ${localStart}\nPrice before tax: ${price}`;
+    const text = `Hello ${safeName},\n\n${intro}\n\n${details}\n\n${CANCELLATION_POLICY_TEXT}\n\n${brandName}`;
+    const html = contactEmailDocument(brandName, heading, `<p>Hello ${escapeHtml(safeName)},</p><p>${escapeHtml(intro)}</p><div style="padding:16px;border-left:3px solid #dba663;background:#0a2029;white-space:pre-line">${escapeHtml(details)}</div><p>${escapeHtml(CANCELLATION_POLICY_TEXT)}</p>`);
+    await transport.sendMail({ from: sender, to: recipient, subject, text, html });
+  }
+
+  return Object.freeze({
+    sendConfirmation: (message) => sendBookingMessage({ ...message, subject: "Booking confirmed | The Cut Barbershop", heading: "Your visit is confirmed", intro: "Your appointment is confirmed. We look forward to seeing you." }),
+    sendCancellation: (message) => sendBookingMessage({ ...message, subject: "Booking cancelled | The Cut Barbershop", heading: "Your booking was cancelled", intro: "Your appointment has been cancelled." }),
+    sendReschedule: (message) => sendBookingMessage({ ...message, subject: "Booking rescheduled | The Cut Barbershop", heading: "Your visit is rescheduled", intro: "Your appointment time has been updated." }),
+    sendReminder: (message) => sendBookingMessage({ ...message, subject: "Appointment reminder | The Cut Barbershop", heading: "A reminder about your visit", intro: "This is a reminder about your appointment tomorrow." }),
+  });
+}
+
+export const CANCELLATION_POLICY_TEXT = "You can cancel or reschedule free up to 24 hours before your appointment. After that, contact the shop for help.";
+
 // Deliberately omit the transport error from failure hooks and logs.
 export function scheduleMailDelivery({ schedule, send, onFailure }) {
   schedule(async () => {

@@ -166,7 +166,7 @@ h2 { margin-bottom: 0; color: var(--text); font-size: clamp(32px, 4vw, 47px); le
 .booking-input-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .booking-label { min-width: 0; display: grid; align-content: start; gap: 6px; color: var(--text-label); font-size: 12px; }
 .booking-label > span { color: var(--gold); }
-.booking-label input { width: 100%; min-height: 37px; padding: 0 9px; border: 1px solid var(--border); border-radius: 3px; color: var(--text); background: var(--background); color-scheme: dark; font: inherit; }
+.booking-label input, .booking-label select { width: 100%; min-height: 37px; padding: 0 9px; border: 1px solid var(--border); border-radius: 3px; color: var(--text); background: var(--background); color-scheme: dark; font: inherit; }
 .booking-label input:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 2px; border-color: var(--gold); }
 .booking-phone-field { grid-column: 1 / -1; }
 .booking-optional { margin-left: 5px; color: var(--muted-soft) !important; font-size: 10px; }
@@ -183,6 +183,9 @@ h2 { margin-bottom: 0; color: var(--text); font-size: clamp(32px, 4vw, 47px); le
 .booking-summary-note { margin: 8px 0 0; padding-top: 8px; border-top: 1px solid var(--border-soft); color: var(--muted); font-size: 11px; line-height: 1.5; }
 .booking-submit { width: 100%; justify-content: center; margin-top: 10px; }
 .booking-status { margin: 10px 0 0; padding: 8px 9px; border: 1px solid var(--border-warm); color: var(--text); background: var(--surface-raised); font-size: 12px; line-height: 1.5; }
+.booking-sms-consent { display: flex; align-items: flex-start; gap: 8px; margin-top: 12px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+.booking-sms-consent input { flex: 0 0 auto; margin-top: 2px; accent-color: var(--gold); }
+.booking-status a { color: var(--gold-light); }
 
 /* Team / barber cards */
 .team-section { padding-block: 66px 74px; border-block: 1px solid var(--border-team); background: var(--surface-team); }

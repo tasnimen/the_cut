@@ -1,6 +1,14 @@
 # Roles and permissions
 
-**Source of truth:** [`src/config/permissions.js`](../src/config/permissions.js). [`src/lib/auth/policy.js`](../src/lib/auth/policy.js) evaluates it with deny-by-default semantics; [`src/lib/auth/authorization.js`](../src/lib/auth/authorization.js) applies the current Better Auth session and active/verified-account checks. No privileged business route or role mutation exists yet.
+**Source of truth:** [`src/config/permissions.js`](../src/config/permissions.js). [`src/lib/auth/policy.js`](../src/lib/auth/policy.js) evaluates it with deny-by-default semantics; [`src/lib/auth/authorization.js`](../src/lib/auth/authorization.js) applies the current Better Auth session and active/verified-account checks. Booking admin operations are listed below; unrelated role mutation/bootstrap remains unimplemented.
+
+## Phase G booking routes
+
+- `GET /api/bookings/availability`: public, rate-limited read; only active service/barber/slot DTOs are returned.
+- `GET /api/bookings` and `POST /api/bookings`: `bookingOwn`; verified ACTIVE Better Auth session required, records are scoped to the current user.
+- `POST /api/bookings/[id]/cancel` and `/reschedule`: `bookingOwn`; booking lookup includes current user ownership.
+- `POST /api/bookings/[id]/no-show`: `bookingsManageAll` (ADMIN/SUPER_ADMIN with the existing admin TOTP requirement).
+- Mutations additionally apply per-IP rate limits, strict schemas, audit logging, and transaction-protected data operations. There is no guest booking path.
 
 Roles are `GUEST` (unauthenticated; not stored), `USER`, `ADMIN`, and `SUPER_ADMIN`. `OWN` means records scoped to the authenticated actor; `LIMITED` means restricted fields through role-specific DTOs; `ALL` means the whole authorized resource set. A missing role entry is denied.
 
