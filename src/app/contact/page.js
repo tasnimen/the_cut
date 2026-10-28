@@ -3,19 +3,23 @@ import { ButtonLink } from "@/components/ui/ButtonLink";
 import { ROUTES } from "@/config/routes";
 import { site } from "@/config/site";
 import { MarketingPageHero } from "@/features/marketing/components/MarketingPageHero";
+import { ContactForm } from "@/components/contact/ContactForm";
+import { createContactFormTicket } from "@/lib/contact/contact-core";
+import { env, requireEnv } from "@/config/env";
 
 export const metadata = {
   title: `Contact | ${site.name}`,
-  description: "Contact details and message delivery for The Cut are being prepared; service information is available to preview.",
+  description: "Send a message to The Cut Barbershop and ask about the services on offer.",
   alternates: { canonical: ROUTES.contact },
   openGraph: { title: `Contact | ${site.name}`, description: "Get in touch with The Cut Barbershop.", type: "website" },
 };
 
 export default function ContactPage() {
+  const formTicket = createContactFormTicket({ secret: requireEnv("BETTER_AUTH_SECRET") });
   return (
     <SiteFrame activePath={ROUTES.contact}>
       <MarketingPageHero
-        description="We’d be glad to hear from you. Confirmed contact details will be shared here soon."
+        description="Send a message to the team and we’ll get back to you as soon as we can."
         eyebrow="Get in touch"
         image="/images/banner1.png"
         imagePosition="right center"
@@ -25,12 +29,13 @@ export default function ContactPage() {
         <div>
           <p className="eyebrow">Contact information</p>
           <h2 id="contact-title">We’re getting the details <em>in place.</em></h2>
-          <p>Phone, email, address, and opening hours are being confirmed before publication.</p>
-          <p>Message sending is not available yet. In the meantime, you can explore the example service menu.</p>
+          <p>Phone, email, address, and opening hours are still being confirmed before publication.</p>
+          <p>Use the message form below for questions and follow-up requests.</p>
           <ButtonLink href={ROUTES.services} variant="outline">Explore services</ButtonLink>
         </div>
         <div className="contact-preview-image" role="img" aria-label="Concept image of a barbershop interior" />
       </section>
+      <ContactForm captchaSiteKey={env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""} formTicket={formTicket} />
     </SiteFrame>
   );
 }

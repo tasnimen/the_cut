@@ -1,9 +1,9 @@
-import Image from "next/image";
+import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 
 export function MarketingPageHero({ eyebrow, title, image, imagePosition, description, children }) {
   return (
     <section className="marketing-hero" aria-labelledby="marketing-page-title">
-      <Image
+      <ImageWithFallback
         src={image}
         alt=""
         aria-hidden="true"

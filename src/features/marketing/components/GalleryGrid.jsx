@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { galleryItems } from "@/features/marketing/data/gallery";
 
@@ -41,7 +41,7 @@ export function GalleryGrid() {
         {visibleItems.map((item) => (
           <figure className={`gallery-card gallery-card--${item.shape}`} key={item.id}>
             <button className="gallery-card-button" onClick={() => setSelectedItem(item)} type="button">
-              <Image alt={item.alt} className="gallery-card-image" fill sizes="(max-width: 760px) 100vw, 50vw" src={item.image} />
+              <ImageWithFallback alt={item.alt} className="gallery-card-image" fill sizes="(max-width: 760px) 100vw, 50vw" src={item.image} />
               <span className="gallery-card-open">View image</span>
             </button>
             <figcaption>
@@ -61,7 +61,7 @@ export function GalleryGrid() {
         {selectedItem ? (
           <div className="gallery-dialog-content">
             <button aria-label="Close image" className="gallery-dialog-close" onClick={() => setSelectedItem(null)} type="button">Close</button>
-            <Image alt={selectedItem.alt} className="gallery-dialog-image" fill sizes="90vw" src={selectedItem.image} />
+            <ImageWithFallback alt={selectedItem.alt} className="gallery-dialog-image" fill sizes="90vw" src={selectedItem.image} />
             <p>{selectedItem.title}</p>
           </div>
         ) : null}

@@ -1,0 +1,84 @@
+- generic [active] [ref=f6e1]:
+  - banner [ref=f6e2]:
+    - generic [ref=f6e3]:
+      - link "The Cut Barbershop home" [ref=f6e4] [cursor=pointer]:
+        - /url: /
+        - generic [ref=f6e9]:
+          - text: THE CUT
+          - generic [ref=f6e10]: BARBERSHOP
+      - navigation "Main navigation" [ref=f6e11]:
+        - link "Home" [ref=f6e12] [cursor=pointer]:
+          - /url: /
+        - link "About" [ref=f6e13] [cursor=pointer]:
+          - /url: /about
+        - link "Services" [ref=f6e14] [cursor=pointer]:
+          - /url: /services
+        - link "Gallery" [ref=f6e15] [cursor=pointer]:
+          - /url: /gallery
+        - link "Pricing" [ref=f6e16] [cursor=pointer]:
+          - /url: /pricing
+        - link "Contact" [ref=f6e17] [cursor=pointer]:
+          - /url: /contact
+      - generic [ref=f6e18]:
+        - link "Sign in" [ref=f6e19] [cursor=pointer]:
+          - /url: /sign-in
+        - link "Book a chair" [ref=f6e20] [cursor=pointer]:
+          - /url: /booking
+  - main [ref=f6e24]:
+    - region [ref=f6e25]:
+      - paragraph [ref=f6e26]: The Cut Barbershop
+      - heading "Make yourself at home." [level=1] [ref=f6e27]
+      - paragraph [ref=f6e28]: Create an account to keep your details together.
+      - generic [ref=f6e29]:
+        - generic [ref=f6e30]:
+          - generic [ref=f6e31]: Name
+          - textbox "Name" [ref=f6e32]
+        - generic [ref=f6e33]:
+          - generic [ref=f6e34]: Email
+          - textbox "Email" [ref=f6e35]
+        - generic [ref=f6e36]:
+          - generic [ref=f6e37]: Password
+          - textbox "Password" [ref=f6e38]
+        - button "Create account" [ref=f6e39] [cursor=pointer]
+      - paragraph [ref=f6e41]:
+        - text: Already have an account?
+        - link "Sign in" [ref=f6e42] [cursor=pointer]:
+          - /url: /sign-in
+  - contentinfo [ref=f6e43]:
+    - generic [ref=f6e44]:
+      - generic [ref=f6e45]:
+        - generic [ref=f6e46]:
+          - link "The Cut Barbershop home" [ref=f6e47] [cursor=pointer]:
+            - /url: /
+            - generic [ref=f6e52]:
+              - text: THE CUT
+              - generic [ref=f6e53]: BARBERSHOP
+          - paragraph [ref=f6e54]: Good grooming.Better company.
+        - generic [ref=f6e55]:
+          - heading "Explore" [level=2] [ref=f6e56]
+          - link "Our story" [ref=f6e57] [cursor=pointer]:
+            - /url: /about
+          - link "Services" [ref=f6e58] [cursor=pointer]:
+            - /url: /services
+          - link "Gallery" [ref=f6e59] [cursor=pointer]:
+            - /url: /gallery
+          - link "Pricing" [ref=f6e60] [cursor=pointer]:
+            - /url: /pricing
+          - link "Our barbers" [ref=f6e61] [cursor=pointer]:
+            - /url: /#team
+          - link "Contact" [ref=f6e62] [cursor=pointer]:
+            - /url: /contact
+        - generic [ref=f6e63]:
+          - heading "Find us" [level=2] [ref=f6e64]
+          - generic [ref=f6e65]: Dhaka, Bangladesh
+          - generic [ref=f6e66]: Opening hours to be confirmed
+        - generic [ref=f6e67]:
+          - paragraph [ref=f6e68]: A little time for you
+          - heading "Come on in." [level=2] [ref=f6e69]
+          - link "Book an appointment" [ref=f6e70] [cursor=pointer]:
+            - /url: /booking
+      - generic [ref=f6e74]:
+        - generic [ref=f6e75]: © The Cut Barbershop
+        - generic [ref=f6e76]: Made for the love of a good cut.
+        - generic [ref=f6e77]: Policies to be published
+  - alert [ref=f6e78]

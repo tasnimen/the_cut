@@ -1,0 +1,90 @@
+- generic [active] [ref=f6e1]:
+  - banner [ref=f6e2]:
+    - generic [ref=f6e3]:
+      - link "The Cut Barbershop home" [ref=f6e4] [cursor=pointer]:
+        - /url: /
+        - generic [ref=f6e9]:
+          - text: THE CUT
+          - generic [ref=f6e10]: BARBERSHOP
+      - generic [ref=f6e11]:
+        - link "Book a chair" [ref=f6e12] [cursor=pointer]:
+          - /url: /booking
+        - button "Open menu" [ref=f6e17] [cursor=pointer]
+  - main [ref=f6e20]:
+    - region [ref=f6e21]:
+      - generic [ref=f6e24]:
+        - paragraph [ref=f6e25]: Get in touch
+        - heading [level=1] [ref=f6e26]:
+          - text: Let’s start
+          - emphasis [ref=f6e27]: a conversation.
+        - paragraph [ref=f6e28]: Send a message to the team and we’ll get back to you as soon as we can.
+    - region [ref=f6e29]:
+      - generic [ref=f6e30]:
+        - paragraph [ref=f6e31]: Contact information
+        - heading [level=2] [ref=f6e32]:
+          - text: We’re getting the details
+          - emphasis [ref=f6e33]: in place.
+        - paragraph [ref=f6e34]: Phone, email, address, and opening hours are still being confirmed before publication.
+        - paragraph [ref=f6e35]: Use the message form below for questions and follow-up requests.
+        - link "Explore services" [ref=f6e36] [cursor=pointer]:
+          - /url: /services
+      - img "Concept image of a barbershop interior" [ref=f6e40]
+    - region [ref=f6e41]:
+      - generic [ref=f6e42]:
+        - paragraph [ref=f6e43]: Send a message
+        - heading [level=2] [ref=f6e44]:
+          - text: A note to
+          - emphasis [ref=f6e45]: the team.
+        - paragraph [ref=f6e46]: Share a question or tell us what you need. Your message is saved for the team to follow up.
+      - generic [ref=f6e47]:
+        - generic [aria-hidden] [ref=f6e48]:
+          - text: Leave this field empty
+          - textbox [ref=f6e49]
+        - generic [ref=f6e50]:
+          - text: Your name
+          - textbox "Your name" [ref=f6e51]
+        - generic [ref=f6e52]:
+          - text: Email address
+          - textbox "Email address" [ref=f6e53]
+        - generic [ref=f6e54]:
+          - text: How can we help?
+          - textbox "How can we help?" [ref=f6e55]
+        - button "Send message" [ref=f6e56]
+  - contentinfo [ref=f6e60]:
+    - generic [ref=f6e61]:
+      - generic [ref=f6e62]:
+        - generic [ref=f6e63]:
+          - link "The Cut Barbershop home" [ref=f6e64] [cursor=pointer]:
+            - /url: /
+            - generic [ref=f6e69]:
+              - text: THE CUT
+              - generic [ref=f6e70]: BARBERSHOP
+          - paragraph [ref=f6e71]: Good grooming.Better company.
+        - generic [ref=f6e72]:
+          - heading "Explore" [level=2] [ref=f6e73]
+          - link "Our story" [ref=f6e74] [cursor=pointer]:
+            - /url: /about
+          - link "Services" [ref=f6e75] [cursor=pointer]:
+            - /url: /services
+          - link "Gallery" [ref=f6e76] [cursor=pointer]:
+            - /url: /gallery
+          - link "Pricing" [ref=f6e77] [cursor=pointer]:
+            - /url: /pricing
+          - link "Our barbers" [ref=f6e78] [cursor=pointer]:
+            - /url: /#team
+          - link "Contact" [ref=f6e79] [cursor=pointer]:
+            - /url: /contact
+        - generic [ref=f6e80]:
+          - heading "Find us" [level=2] [ref=f6e81]
+          - generic [ref=f6e82]: Dhaka, Bangladesh
+          - generic [ref=f6e83]: Opening hours to be confirmed
+        - generic [ref=f6e84]:
+          - paragraph [ref=f6e85]: A little time for you
+          - heading "Come on in." [level=2] [ref=f6e86]
+          - link "Book an appointment" [ref=f6e87] [cursor=pointer]:
+            - /url: /booking
+      - generic [ref=f6e91]:
+        - generic [ref=f6e92]: © The Cut Barbershop
+        - generic [ref=f6e93]: Made for the love of a good cut.
+        - generic [ref=f6e94]: Policies to be published
+  - button "Open Next.js Dev Tools" [ref=f6e100] [cursor=pointer]

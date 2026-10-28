@@ -23,6 +23,7 @@ export function SiteHeader({ activePath = ROUTES.home, variant = "overlay" }) {
           ))}
         </nav>
         <div className="header-actions">
+          <Link className="header-account-link" href={ROUTES.signIn}>Sign in</Link>
           <ButtonLink href={ROUTES.booking} size="small">
             Book a chair
           </ButtonLink>

@@ -50,6 +50,12 @@ export async function ensureSecurityIndexes(db) {
           { expireAfterSeconds: 0, name: 'verification_expiry_ttl' },
         ),
       db
+        .collection('emailVerificationToken')
+        .createIndex({ tokenHash: 1 }, { unique: true, name: 'email_verification_token_unique' }),
+      db
+        .collection('emailVerificationToken')
+        .createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0, name: 'email_verification_token_expiry_ttl' }),
+      db
         .collection('rateLimit')
         .createIndex(
           { key: 1 },
@@ -82,4 +88,20 @@ export async function ensureSecurityIndexes(db) {
     });
   }
   await indexPromise;
+}
+
+let applicationIndexPromise;
+
+export async function ensureApplicationIndexes(db) {
+  if (!applicationIndexPromise) {
+    applicationIndexPromise = Promise.all([
+      db.collection("media").createIndex({ category: 1, createdAt: -1 }, { name: "media_category_created" }),
+      db.collection("media").createIndex({ ownerId: 1, category: 1 }, { name: "media_owner_category" }),
+      db.collection("contactMessage").createIndex({ status: 1, createdAt: -1 }, { name: "contact_status_created" }),
+    ]).catch((error) => {
+      applicationIndexPromise = undefined;
+      throw error;
+    });
+  }
+  await applicationIndexPromise;
 }

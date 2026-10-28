@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { ScrollReveal } from "@/components/animations/ScrollReveal";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { BarberCard } from "@/features/landing/components/BarberCard";
@@ -15,7 +15,7 @@ export function BarbersSection() {
     <section className="team-section" id={ANCHORS.team} aria-labelledby="team-title">
       <div className="page-shell team-layout">
         <div className="team-intro-visual">
-          <Image
+          <ImageWithFallback
             src="/images/banner2.png"
             alt=""
             aria-hidden="true"

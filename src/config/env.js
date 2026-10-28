@@ -8,6 +8,17 @@ const envSchema = z.object({
   MONGODB_DB_NAME: z.string().min(1).optional(),
   BETTER_AUTH_SECRET: z.string().min(32).optional(),
   BETTER_AUTH_URL: z.string().url().optional(),
+  IMGBB_API_KEY: z.preprocess((value) => value === "" ? undefined : value, z.string().min(1).optional()),
+  TURNSTILE_SECRET_KEY: z.preprocess((value) => value === "" ? undefined : value, z.string().min(1).optional()),
+  NEXT_PUBLIC_TURNSTILE_SITE_KEY: z.preprocess((value) => value === "" ? undefined : value, z.string().min(1).optional()),
+  SMTP_HOST: z.preprocess((value) => value === "" ? undefined : value, z.string().trim().min(1).optional()),
+  SMTP_PORT: z.preprocess((value) => value === "" ? undefined : value, z.coerce.number().int().min(1).max(65535).optional()),
+  SMTP_USER: z.preprocess((value) => value === "" ? undefined : value, z.string().min(1).optional()),
+  SMTP_PASS: z.preprocess((value) => value === "" ? undefined : value, z.string().min(1).optional()),
+  MAIL_FROM: z.preprocess((value) => value === "" ? undefined : value, z.string().trim().min(1).max(320).optional()),
+  MAIL_TO: z.preprocess((value) => value === "" ? undefined : value, z.string().trim().min(1).max(320).optional()),
+}).refine((values) => Boolean(values.TURNSTILE_SECRET_KEY) === Boolean(values.NEXT_PUBLIC_TURNSTILE_SITE_KEY), {
+  message: "TURNSTILE_SECRET_KEY and NEXT_PUBLIC_TURNSTILE_SITE_KEY must be configured together",
 });
 
 const parsedEnv = envSchema.safeParse(process.env);

@@ -4,11 +4,18 @@ import { mongodbAdapter } from "@better-auth/mongo-adapter";
 import { twoFactor } from "better-auth/plugins";
 import { createAuthMiddleware } from "better-auth/api";
 import { getIP } from "@better-auth/core/utils/ip";
+import { after } from "next/server";
 import { env, requireEnv } from "@/config/env";
 import { getSessionCookieOptions } from "@/lib/auth/cookies";
 import { ensureSecurityIndexes, getMongo } from "@/lib/db/mongo";
 import { appendAuditEvent } from "@/lib/security/audit-log";
-import { bumpSessionVersionForSecurityUpdate } from "@/lib/auth/session-version";
+import { bumpSessionVersionAfterPasswordChange, bumpSessionVersionForSecurityUpdate } from "@/lib/auth/session-version";
+import { AUTH_RATE_LIMIT_POLICY } from "@/lib/auth/request-security";
+import { getAuthFailureWindowStart, queueAuthFailureAlert } from "@/lib/auth/failure-bursts";
+import { registerEmailVerificationToken } from "@/lib/auth/email-verification-tokens";
+import { resolveAuthBaseUrl } from "@/lib/auth/base-url";
+import { sendFailedAuthAlert, sendVerificationEmail } from "@/lib/mail/mailer";
+import { scheduleMailDelivery } from "@/lib/mail/mailer-core";
 import {
   createStepUpToken,
   hashAuthIdentifier,
@@ -24,7 +31,7 @@ export async function getAuth() {
     authPromise = (async () => {
       const { client, db } = await getMongo();
       await ensureSecurityIndexes(db);
-      const baseURL = env.BETTER_AUTH_URL || env.SITE_URL || requireEnv("BETTER_AUTH_URL");
+      const baseURL = resolveAuthBaseUrl(env);
       return betterAuth({
         appName: "The Cut Barbershop",
         baseURL,
@@ -34,6 +41,26 @@ export async function getAuth() {
         emailAndPassword: {
           enabled: true,
           requireEmailVerification: true,
+        },
+        emailVerification: {
+          sendOnSignUp: true,
+          sendOnSignIn: true,
+          expiresIn: 60 * 60,
+          autoSignInAfterVerification: false,
+          sendVerificationEmail: async ({ user, url, token }) => {
+            await registerEmailVerificationToken(db, token, requireEnv("BETTER_AUTH_SECRET"));
+            scheduleMailDelivery({
+              schedule: after,
+              send: () => sendVerificationEmail({ to: user.email, name: user.name, url }),
+              onFailure: () => appendAuditEvent(db, {
+                actorId: null,
+                action: "auth.email_verification.delivery_failed",
+                targetType: "AuthIdentity",
+                targetId: hashAuthIdentifier(user.email, requireEnv("BETTER_AUTH_SECRET")),
+                outcome: "failure",
+              }),
+            });
+          },
         },
         user: {
           additionalFields: {
@@ -55,6 +82,11 @@ export async function getAuth() {
         },
         hooks: {
           after: createAuthMiddleware(async (ctx) => {
+            if (ctx.path === "/change-password" && ctx.context.returned && !(ctx.context.returned.statusCode >= 400)) {
+              const userId = ctx.context.session?.user?.id;
+              if (userId) await bumpSessionVersionAfterPasswordChange(db, userId);
+            }
+
             if (isFailedAuthResult(ctx.path, ctx.context.returned)) {
               let actorId = ctx.context.session?.user?.id || null;
               const identifierHash = hashAuthIdentifier(ctx.body?.email, requireEnv("BETTER_AUTH_SECRET"));
@@ -74,20 +106,40 @@ export async function getAuth() {
                 userAgent: ctx.request?.headers.get("user-agent")?.slice(0, 512) || null,
               });
               if (ip) {
+                const now = new Date();
                 const recentFailures = await db.collection("auditLog").countDocuments({
                   action: { $in: ["auth.sign_in.failed", "auth.two_factor.failed"] },
                   ip,
-                  createdAt: { $gte: new Date(Date.now() - 10 * 60 * 1000) },
+                  createdAt: { $gte: getAuthFailureWindowStart(now), $lte: now },
                 }, { limit: 6 });
-                if (recentFailures >= 5 && recentFailures % 5 === 0) {
-                  await appendAuditEvent(db, {
-                    actorId: null,
-                    action: "security.auth_failure.burst",
-                    targetType: "AuthSource",
-                    targetId: hashAuthIdentifier(ip, requireEnv("BETTER_AUTH_SECRET")),
-                    outcome: "failure",
+                if (recentFailures >= 5) {
+                  const alert = {
                     ip,
                     userAgent: ctx.request?.headers.get("user-agent")?.slice(0, 512) || null,
+                    occurredAt: new Date(),
+                  };
+                  await queueAuthFailureAlert({
+                    count: recentFailures,
+                    schedule: after,
+                    recordBurst: () => appendAuditEvent(db, {
+                      actorId: null,
+                      action: "security.auth_failure.burst",
+                      targetType: "AuthSource",
+                      targetId: hashAuthIdentifier(ip, requireEnv("BETTER_AUTH_SECRET")),
+                      outcome: "failure",
+                      ip,
+                      userAgent: alert.userAgent,
+                    }),
+                    send: () => sendFailedAuthAlert(alert),
+                    onDeliveryFailure: () => appendAuditEvent(db, {
+                      actorId: null,
+                      action: "security.auth_failure.alert_delivery_failed",
+                      targetType: "AuthSource",
+                      targetId: hashAuthIdentifier(ip, requireEnv("BETTER_AUTH_SECRET")),
+                      outcome: "failure",
+                      ip,
+                      userAgent: alert.userAgent,
+                    }),
                   });
                 }
               }
@@ -115,20 +167,7 @@ export async function getAuth() {
             }
           }),
         },
-        rateLimit: {
-          enabled: true,
-          storage: "database",
-          window: 60,
-          max: 100,
-          customRules: {
-            "/sign-in/*": { window: 60, max: 5 },
-            "/sign-up/*": { window: 3600, max: 5 },
-            "/request-password-reset": { window: 3600, max: 3 },
-            "/reset-password*": { window: 3600, max: 5 },
-            "/send-verification-email": { window: 3600, max: 3 },
-            "/verify-email*": { window: 3600, max: 10 },
-          },
-        },
+        rateLimit: AUTH_RATE_LIMIT_POLICY,
         databaseHooks: {
           user: {
             update: {

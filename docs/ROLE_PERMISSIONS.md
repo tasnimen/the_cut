@@ -12,6 +12,7 @@ Roles are `GUEST` (unauthenticated; not stored), `USER`, `ADMIN`, and `SUPER_ADM
 | `profileOwn` | — | OWN | OWN | OWN |
 | `sessionsOwn` | — | OWN | OWN | OWN |
 | `avatarOwn` | — | OWN | OWN | OWN |
+| `mediaAvatarOwn` | — | OWN | OWN | OWN |
 | `bookingOwn` | — | OWN | OWN | OWN |
 | `ordersOwn` | — | OWN | OWN | OWN |
 | `loyaltyOwn` | — | OWN | OWN | OWN |
@@ -23,6 +24,10 @@ Roles are `GUEST` (unauthenticated; not stored), `USER`, `ADMIN`, and `SUPER_ADM
 | `servicesManageAll` | — | — | ALL | ALL |
 | `productsManageAll` | — | — | ALL | ALL |
 | `galleryManageAll` | — | — | ALL | ALL |
+| `mediaGalleryManageAll` | — | — | ALL | ALL |
+| `mediaProductsManageAll` | — | — | ALL | ALL |
+| `mediaBarbersManageAll` | — | — | ALL | ALL |
+| `mediaServicesManageAll` | — | — | ALL | ALL |
 | `pricingManageAll` | — | — | ALL | ALL |
 | `offersManageAll` | — | — | ALL | ALL |
 | `loyaltyRulesManageAll` | — | — | ALL | ALL |

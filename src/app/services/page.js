@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { SiteFrame } from "@/components/layout/SiteFrame";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -16,7 +16,7 @@ export default function ServicesPage() {
   return (
     <SiteFrame activePath={ROUTES.services}>
         <section className="services-hero" aria-labelledby="services-page-title">
-          <Image
+          <ImageWithFallback
             src="/images/banner2.png"
             alt=""
             aria-hidden="true"

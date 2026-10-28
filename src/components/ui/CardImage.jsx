@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 
 export function CardImage({
   src,
@@ -10,7 +10,7 @@ export function CardImage({
 
   return (
     <div className={`card-image-frame ${className}`.trim()}>
-      <Image src={src} alt={alt} fill sizes={sizes} className="card-image" />
+      <ImageWithFallback src={src} alt={alt} fill sizes={sizes} className="card-image" />
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { SiteFrame } from "@/components/layout/SiteFrame";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { ROUTES } from "@/config/routes";
@@ -32,7 +32,7 @@ export default function AboutPage() {
       </MarketingPageHero>
       <section className="marketing-story page-shell" aria-labelledby="about-story-title">
         <div className="marketing-story-image">
-          <Image alt="Concept image of a barbershop interior" fill sizes="(max-width: 760px) 100vw, 45vw" src="/images/banner1.png" />
+          <ImageWithFallback alt="Concept image of a barbershop interior" fill sizes="(max-width: 760px) 100vw, 45vw" src="/images/banner1.png" />
         </div>
         <div className="marketing-story-copy">
           <p className="eyebrow">What we believe</p>

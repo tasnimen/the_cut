@@ -5,13 +5,14 @@ export function proxy(request) {
   const isDevelopment = process.env.NODE_ENV === "development";
   const directives = [
     "default-src 'self'",
-    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDevelopment ? " 'unsafe-eval'" : ""}`,
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://challenges.cloudflare.com${isDevelopment ? " 'unsafe-eval'" : ""}`,
     `style-src 'self' 'nonce-${nonce}'`,
     `style-src-elem ${isDevelopment ? "'self' 'unsafe-inline'" : `'self' 'nonce-${nonce}'`}`,
     "style-src-attr 'unsafe-inline'",
     "img-src 'self' data: blob: https://i.ibb.co",
     "font-src 'self' data:",
-    "connect-src 'self' https://api.imgbb.com",
+    "connect-src 'self' https://api.imgbb.com https://challenges.cloudflare.com",
+    "frame-src https://challenges.cloudflare.com",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",

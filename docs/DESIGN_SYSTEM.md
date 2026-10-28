@@ -36,6 +36,7 @@ All recurring CSS colors now use named custom properties in `src/styles/tokens.c
 - `SmoothScrollProvider` dynamically loads Lenis, GSAP, and ScrollTrigger after idle, synchronizes Lenis to the GSAP ticker, and skips setup under reduced motion.
 - Home hero gold dust is the only R3F element. Its canvas is dynamically imported with SSR disabled, loads after idle and when in view, uses a CSS-token color, and falls back to a static low-power/reduced-motion treatment.
 - `/design-system` is registered as `development-only`, excluded from navigation, and calls Next `notFound()` outside development. It is a component preview, not an admin or public marketing route.
+- `/sign-in` and `/sign-up` use the shared `AuthPanel` client form inside the flow header/footer shell. The form surface uses named palette, border, and depth tokens; labels, focus rings, pending/error/status states, and touch-size inputs follow shared control patterns. Auth pages are noindex and only submit to same-origin Better Auth endpoints.
 
 ## Typography
 

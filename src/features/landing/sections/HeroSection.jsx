@@ -1,4 +1,4 @@
-﻿import Image from 'next/image';
+import { ImageWithFallback } from '@/components/ui/ImageWithFallback';
 import { ButtonLink } from '@/components/ui/ButtonLink';
 import { HeroDepth } from '@/components/three/HeroDepth';
 import { ANCHORS, ROUTES } from '@/config/routes';
@@ -7,7 +7,7 @@ import { site } from '@/config/site';
 export function HeroSection() {
   return (
     <section className="hero" id={ANCHORS.story} aria-labelledby="hero-title">
-      <Image
+      <ImageWithFallback
         src="/images/banner1.png"
         alt=""
         aria-hidden="true"

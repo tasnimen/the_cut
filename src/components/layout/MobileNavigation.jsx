@@ -70,6 +70,10 @@ export function MobileNavigation({ activePath = ROUTES.home }) {
             {label}
           </Link>
         ))}
+        <div className="mobile-nav-account-links">
+          <Link href={ROUTES.signIn} onClick={() => setIsOpen(false)}>Sign in</Link>
+          <Link href={ROUTES.signUp} onClick={() => setIsOpen(false)}>Create account</Link>
+        </div>
       </nav>
     </div>
   );
