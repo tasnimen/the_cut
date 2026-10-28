@@ -7,7 +7,7 @@ import { ANCHORS, ROUTES } from "@/config/routes";
 export function ServicesSection() {
   return (
     <section className="section page-shell services-section" id={ANCHORS.services} aria-labelledby="services-title">
-      <SectionHeading eyebrow="The good stuff" id="services-title" aside="Shared sample image Â· service photos pending">
+      <SectionHeading eyebrow="The good stuff" id="services-title" aside="Shared sample image · service photos pending">
         Care for your <em>kind of style.</em>
       </SectionHeading>
       <ScrollReveal className="service-grid" stagger>

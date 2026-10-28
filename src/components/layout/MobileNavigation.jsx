@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Icon } from "@/components/ui/Icon";
+import { useSessionNav } from "@/components/layout/HeaderAccountLink";
 import { siteNavigation } from "@/config/navigation";
 import { ROUTES } from "@/config/routes";
 
@@ -10,6 +11,7 @@ export function MobileNavigation({ activePath = ROUTES.home }) {
   const [isOpen, setIsOpen] = useState(false);
   const navigationRef = useRef(null);
   const toggleRef = useRef(null);
+  const { status, signingOut, error, handleSignOut } = useSessionNav();
 
   useEffect(() => {
     if (!isOpen) return undefined;
@@ -71,8 +73,24 @@ export function MobileNavigation({ activePath = ROUTES.home }) {
           </Link>
         ))}
         <div className="mobile-nav-account-links">
-          <Link href={ROUTES.signIn} onClick={() => setIsOpen(false)}>Sign in</Link>
-          <Link href={ROUTES.signUp} onClick={() => setIsOpen(false)}>Create account</Link>
+          {status === "authenticated" ? (
+            <button
+              type="button"
+              className="mobile-nav-signout"
+              disabled={signingOut}
+              onClick={async () => { if (await handleSignOut()) setIsOpen(false); }}
+            >
+              {signingOut ? "Signing out…" : "Sign out"}
+            </button>
+          ) : status === "loading" ? (
+            <span aria-hidden="true" style={{ minHeight: 40 }} />
+          ) : (
+            <>
+              <Link href={ROUTES.signIn} onClick={() => setIsOpen(false)}>Sign in</Link>
+              <Link href={ROUTES.signUp} onClick={() => setIsOpen(false)}>Create account</Link>
+            </>
+          )}
+          {error ? <p className="header-account-error" role="alert">{error}</p> : null}
         </div>
       </nav>
     </div>

@@ -27,10 +27,10 @@ export function HeroSection() {
             More than a<br />
             <em>haircut.</em>
           </h1>
-          <p className="hero-subtitle">Itâ€™s a lifestyle.</p>
+          <p className="hero-subtitle">It’s a lifestyle.</p>
           <p className="hero-description">
             Good grooming starts with good conversation. Settle in, take your
-            time, and leave feeling like yourself â€” only sharper.
+            time, and leave feeling like yourself — only sharper.
           </p>
           <div className="hero-actions">
             <ButtonLink href={ROUTES.booking}>Book an appointment</ButtonLink>
@@ -44,7 +44,7 @@ export function HeroSection() {
         </div>
         <div className="hero-caption">
           <span>THE CUT</span>
-          <span>DHAKA Â· BANGLADESH</span>
+          <span>DHAKA · BANGLADESH</span>
         </div>
       </div>
     </section>

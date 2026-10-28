@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ROUTES } from "@/config/routes";
+import { markSignedIn, signOut as signOutSession } from "@/features/auth/session-store";
 
 export function AuthPanel({ mode }) {
   const isSignUp = mode === "sign-up";
@@ -56,6 +57,7 @@ export function AuthPanel({ mode }) {
         setMessage("If this address can be registered, check your inbox for a verification link. If you need another link, try signing in with this address.");
       } else {
         setUser(result.user || null);
+        markSignedIn(result.user || null);
         setMessage("You are signed in.");
       }
     } catch {
@@ -69,24 +71,14 @@ export function AuthPanel({ mode }) {
     setBusy(true);
     setMessage("");
     setError("");
-    try {
-      const response = await fetch(`${ROUTES.auth}/sign-out`, {
-        method: "POST",
-        credentials: "same-origin",
-        headers: { "content-type": "application/json" },
-        body: "{}",
-      });
-      if (!response.ok) {
-        setError("We couldn't end this session. Try again.");
-        return;
-      }
+    const ok = await signOutSession();
+    if (ok) {
       setUser(null);
       setMessage("You are signed out.");
-    } catch {
-      setError("We couldn't reach the sign-in service. Try again.");
-    } finally {
-      setBusy(false);
+    } else {
+      setError("We couldn't end this session. Try again.");
     }
+    setBusy(false);
   }
 
   if (user) {

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { BrandMark } from '@/components/ui/BrandMark';
 import { ButtonLink } from '@/components/ui/ButtonLink';
+import { HeaderAccountLink } from '@/components/layout/HeaderAccountLink';
 import { MobileNavigation } from '@/components/layout/MobileNavigation';
 import { siteNavigation } from '@/config/navigation';
 import { ROUTES } from '@/config/routes';
@@ -23,9 +24,9 @@ export function SiteHeader({ activePath = ROUTES.home, variant = "overlay" }) {
           ))}
         </nav>
         <div className="header-actions">
-          <Link className="header-account-link" href={ROUTES.signIn}>Sign in</Link>
+          <HeaderAccountLink />
           <ButtonLink href={ROUTES.booking} size="small">
-            Book a chair
+            Book Appointment
           </ButtonLink>
           <MobileNavigation activePath={activePath} />
         </div>
