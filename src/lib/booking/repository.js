@@ -78,7 +78,7 @@ export function createBookingRepository({ client, db, config = BOOKING_CONFIG, c
     const option = availability.slots.find((slot) => slot.startsAt === startsAt.toISOString());
     if (!option) throw new BookingError("slot_unavailable", 409);
     const serviceRecords = await db.collection("service").find({ slug: { $in: serviceSlugs }, active: true }, { session }).toArray();
-    if (serviceRecords.some((service) => !Number.isInteger(service.priceMinorUnits) || service.priceMinorUnits < 0)) {
+    if (serviceRecords.some((service) => !Number.isSafeInteger(service.priceMinorUnits) || service.priceMinorUnits <= 0)) {
       throw new BookingError("price_not_configured", 409);
     }
     const barberRecord = await db.collection("barber").findOne({ _id: new ObjectId(option.barberId), active: true }, { session });
@@ -111,9 +111,8 @@ export function createBookingRepository({ client, db, config = BOOKING_CONFIG, c
         if (!customer) throw new BookingError("account_unavailable", 401);
         // Serialize this user's concurrent create attempts so the active-booking cap
         // cannot be exceeded by two transactions that both read the same count.
-        const customerLock = await db.collection("user").updateOne({ id: principal.id }, { $inc: { bookingMutationVersion: 1 } }, { session });
-        if (!customerLock.matchedCount) throw new BookingError("account_unavailable", 401);
-      const activeCount = await db.collection(BOOKING_COLLECTION).countDocuments({ userId: principal.id, status: { $in: ACTIVE_STATUSES } }, { session });
+        await db.collection("bookingUserLock").updateOne({ userId: principal.id }, { $inc: { version: 1 } }, { upsert: true, session });
+        const activeCount = await db.collection(BOOKING_COLLECTION).countDocuments({ userId: principal.id, status: { $in: ACTIVE_STATUSES } }, { session });
         if (activeCount >= config.maximumActiveBookingsPerUser) throw new BookingError("active_booking_limit", 409);
         const { option, barberRecord, services, durationMinutes } = await chooseSlot(session, { serviceSlugs, startsAt: start, barber, now });
         const bookingId = new ObjectId();

@@ -1,6 +1,7 @@
 import { BOOKING_CONFIG } from "@/config/booking";
 import { getLocalDayRange, isValidLocalDate } from "@/lib/booking/time";
 import { calculateBookingDuration, generateCandidateSlots } from "@/lib/booking/rules";
+import { BookingServiceFieldsSchema } from "@/lib/booking/booking-model";
 
 export class BookingError extends Error {
   constructor(code, status = 400) {
@@ -17,6 +18,9 @@ export async function loadBookingOptions(db, { localDate, serviceSlugs, barber =
     throw new BookingError("invalid_services", 400);
   }
   const services = await db.collection("service").find({ slug: { $in: serviceSlugs }, active: true }, { session }).toArray();
+  if (services.length !== serviceSlugs.length || services.some((service) => !BookingServiceFieldsSchema.safeParse(service).success)) {
+    throw new BookingError("service_unavailable", 409);
+  }
   const serviceBySlug = new Map(services.map((service) => [service.slug, service]));
   const orderedServices = serviceSlugs.map((slug) => serviceBySlug.get(slug));
   if (orderedServices.some((service) => !service)) throw new BookingError("service_unavailable", 400);
@@ -79,7 +83,7 @@ export async function loadBookingOptions(db, { localDate, serviceSlugs, barber =
     localDate,
     timeZone: config.timeZone,
     durationMinutes: calculateBookingDuration(orderedServices),
-    bookable: orderedServices.every((service) => Number.isInteger(service.priceMinorUnits) && service.priceMinorUnits >= 0),
+    bookable: orderedServices.every((service) => Number.isSafeInteger(service.priceMinorUnits) && service.priceMinorUnits > 0),
     services: orderedServices.map(toServiceOption),
     barbers: visibleBarbers,
     slots: slots.map(({ startsAt, label, durationMinutes, barberId, barberSlug, barberName }) => ({ startsAt, label, durationMinutes, barberId, barberSlug, barberName })),
@@ -91,7 +95,7 @@ function toServiceOption(service) {
     slug: service.slug,
     name: service.name,
     durationMinutes: service.durationMinutes,
-    priceMinorUnits: Number.isInteger(service.priceMinorUnits) ? service.priceMinorUnits : null,
+    priceMinorUnits: Number.isSafeInteger(service.priceMinorUnits) && service.priceMinorUnits > 0 ? service.priceMinorUnits : null,
     currency: "USD",
   });
 }

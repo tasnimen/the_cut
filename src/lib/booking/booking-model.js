@@ -15,12 +15,20 @@ export const ServiceRecordSchema = z.object({
   name: z.string().trim().min(1).max(120),
   description: z.string().trim().max(500),
   durationMinutes: z.number().int().positive().max(480),
-  priceMinorUnits: z.number().int().nonnegative().nullable(),
+  priceMinorUnits: z.number().safe().int().positive().nullable(),
   currency: z.literal("USD"),
   active: z.boolean(),
   createdAt: z.date(),
   updatedAt: z.date(),
 }).strict();
+
+export const BookingServiceFieldsSchema = ServiceRecordSchema.pick({
+  slug: true,
+  name: true,
+  durationMinutes: true,
+  currency: true,
+  active: true,
+}).extend({ priceMinorUnits: z.unknown() });
 
 export const BarberRecordSchema = z.object({
   slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(100),
@@ -38,7 +46,7 @@ export const BookingServiceSnapshotSchema = z.object({
   slug: z.string().max(100),
   name: z.string().max(120),
   durationMinutes: z.number().int().positive(),
-  priceMinorUnits: z.number().int().nonnegative(),
+  priceMinorUnits: z.number().safe().int().positive(),
   currency: z.literal("USD"),
 }).strict();
 

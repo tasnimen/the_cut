@@ -1,17 +1,12 @@
 import 'server-only';
-import { MongoClient } from 'mongodb';
 import { env, requireEnv } from '@/config/env';
+import { createConfiguredMongoClient, selectConfiguredDatabase } from '@/lib/db/mongo-config';
 
 const globalForMongo = globalThis;
 
 export async function getMongo() {
   if (!globalForMongo.mongoClientPromise) {
-    const client = new MongoClient(requireEnv('MONGODB_URI'), {
-      appName: 'the-cut-next',
-      maxPoolSize: 10,
-      minPoolSize: 0,
-      serverSelectionTimeoutMS: 8000,
-    });
+    const client = createConfiguredMongoClient(requireEnv('MONGODB_URI'));
     globalForMongo.mongoClientPromise = client.connect().catch((error) => {
       globalForMongo.mongoClientPromise = undefined;
       throw error;
@@ -19,7 +14,7 @@ export async function getMongo() {
   }
 
   const client = await globalForMongo.mongoClientPromise;
-  const db = client.db(env.MONGODB_DB_NAME || undefined);
+  const db = selectConfiguredDatabase(client, env.MONGODB_DB_NAME);
   return { client, db };
 }
 
@@ -109,6 +104,7 @@ export async function ensureApplicationIndexes(db) {
       db.collection("booking").createIndex({ status: 1, reminderDueAt: 1, startsAt: 1 }, { name: "booking_reminder_due" }),
       db.collection("bookingSlot").createIndex({ barberId: 1, slotStart: 1 }, { unique: true, name: "booking_slot_barber_start_unique" }),
       db.collection("bookingSlot").createIndex({ bookingId: 1 }, { name: "booking_slot_booking" }),
+      db.collection("bookingUserLock").createIndex({ userId: 1 }, { unique: true, name: "booking_user_lock_unique" }),
     ]).catch((error) => {
       applicationIndexPromise = undefined;
       throw error;

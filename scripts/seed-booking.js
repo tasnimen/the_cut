@@ -1,47 +1,100 @@
-import { loadEnvConfig } from "@next/env";
-import { MongoClient } from "mongodb";
+import { createConfiguredMongoClient, resolveConfiguredDatabaseName, selectConfiguredDatabase } from "../src/lib/db/mongo-config.js";
+import { loadSeedEnvironment } from "../src/lib/booking/load-seed-environment.js";
+import {
+  applyBookingSeed,
+  planBookingSeed,
+  validateBookingSeedGuards,
+  BookingSeedAmbiguityError,
+  BookingSeedGuardError,
+  BOOKING_SEED_OPT_IN_NAME,
+} from "../src/lib/booking/seed-core.js";
 
-loadEnvConfig(process.cwd());
+loadSeedEnvironment(process.cwd());
 
-if (process.env.NODE_ENV !== "development" || !process.argv.includes("--confirm-dev-booking-seed")) {
-  throw new Error("Seed blocked. Run only in development with --confirm-dev-booking-seed.");
+const apply = process.argv.includes("--apply");
+const unknownArguments = process.argv.slice(2).filter((argument) => argument !== "--apply");
+let client;
+let writePhaseStarted = false;
+const CONNECT_WATCHDOG_MS = 15_000;
+
+function safeMongoFailure(error) {
+  if (error?.code === 18 || error?.codeName === "AuthenticationFailed") return "MongoDB authentication failed.";
+  if (["ENOTFOUND", "EAI_AGAIN", "ETIMEOUT", "SERVFAIL", "ESERVFAIL"].includes(error?.code)) {
+    return `MongoDB DNS resolution failed (${error.code}).`;
+  }
+  if (error?.name === "MongoServerSelectionError") return "MongoDB server selection timed out or no server was reachable.";
+  if (error?.name === "MongoParseError" || error?.name === "MongoInvalidArgumentError") {
+    return "MongoDB connection configuration was rejected.";
+  }
+  if (["ECONNREFUSED", "ECONNRESET", "ECONNABORTED", "ETIMEDOUT"].includes(error?.code)) {
+    return `MongoDB network connection failed (${error.code}).`;
+  }
+  return "MongoDB configuration or connection failed; details were suppressed to protect credentials.";
 }
-if (!/(?:^|[-_])dev(?:elopment)?$/i.test(process.env.MONGODB_DB_NAME || "")) {
-  throw new Error("Seed blocked. MONGODB_DB_NAME must end with '-dev', '_dev', '-development', or '_development'.");
-}
-if (!process.env.MONGODB_URI) throw new Error("Seed blocked. MONGODB_URI is not configured.");
 
-const names = ["Daniel Carter", "James Miller", "Robert Wilson", "Michael Brown"];
-const serviceDefinitions = [
-  ["the-signature-cut", "The Signature Cut", 30],
-  ["beard-trim", "Beard Trim", 30],
-  ["the-hot-shave", "The Hot Shave", 30],
-  ["hair-scalp", "Hair & Scalp", 45],
-];
-const schedule = {
-  monday: { open: "09:00", close: "19:00" }, tuesday: { open: "09:00", close: "19:00" },
-  wednesday: { open: "09:00", close: "19:00" }, thursday: { open: "09:00", close: "19:00" },
-  friday: { open: "09:00", close: "19:00" }, saturday: { open: "09:00", close: "17:00" },
-  sunday: { open: "10:00", close: "15:00" },
-};
-const now = new Date();
-const client = new MongoClient(process.env.MONGODB_URI, { appName: "the-cut-dev-booking-seed", serverSelectionTimeoutMS: 8000 });
 try {
-  await client.connect();
-  const db = client.db(process.env.MONGODB_DB_NAME);
-  for (const [slug, name, durationMinutes] of serviceDefinitions) {
-    await db.collection("service").updateOne({ slug }, { $setOnInsert: {
-      slug, name, description: "", durationMinutes, priceMinorUnits: null, currency: "USD", active: true, createdAt: now, updatedAt: now,
-    } }, { upsert: true });
+  if (unknownArguments.length) throw new Error("Unsupported option. Omit flags for a read-only dry run; use --apply only for approved writes.");
+  const uri = process.env.MONGODB_URI;
+  if (!uri) throw new Error("MONGODB_URI is not configured.");
+
+  // Mirrors getMongo(): MONGODB_DB_NAME overrides the database encoded in the URI.
+  const targetDatabaseName = await resolveConfiguredDatabaseName(uri, process.env.MONGODB_DB_NAME);
+  validateBookingSeedGuards({
+    nodeEnv: process.env.NODE_ENV,
+    databaseName: targetDatabaseName,
+    optIn: process.env.ALLOW_THE_CUT_BOOKING_SEED,
+    apply,
+  });
+
+  console.log("WARNING: this is the existing 'the_cut' database. Service changes affect the application using this data.");
+  console.log(`Verified target database: ${targetDatabaseName}`);
+  console.log(apply ? "Mode: apply approved service/barber upserts." : "Mode: read-only dry run; no records will be changed.");
+
+  client = createConfiguredMongoClient(uri, {
+    connectTimeoutMS: 5_000,
+    serverSelectionTimeoutMS: 8_000,
+    socketTimeoutMS: 12_000,
+    timeoutMS: 15_000,
+  });
+  const connectWatchdog = setTimeout(() => {
+    process.stderr.write("Seed refused: MongoDB connection exceeded the 15-second DNS/server-selection deadline. Check DNS/network and Atlas network access. No database writes occurred.\n");
+    process.exit(1);
+  }, CONNECT_WATCHDOG_MS);
+  try {
+    await client.connect();
+  } finally {
+    clearTimeout(connectWatchdog);
   }
-  for (const name of names) {
-    const slug = name.toLowerCase().replaceAll(" ", "-");
-    await db.collection("barber").updateOne({ slug }, { $setOnInsert: {
-      slug, name, active: true, serviceSlugs: serviceDefinitions.map(([serviceSlug]) => serviceSlug),
-      weeklySchedule: schedule, breaks: {}, daysOff: [], createdAt: now, updatedAt: now,
-    } }, { upsert: true });
+  const db = selectConfiguredDatabase(client, process.env.MONGODB_DB_NAME);
+  if (db.databaseName !== "the_cut") throw new Error("MongoDB target changed during preflight; refusing to continue.");
+
+  const [existingServices, existingBarbers] = await Promise.all([
+    db.collection("service").find({}, { projection: { _id: 1, slug: 1, name: 1 } }).toArray(),
+    db.collection("barber").find({}, { projection: { _id: 1, slug: 1, name: 1, weeklySchedule: 1, breaks: 1, daysOff: 1 } }).toArray(),
+  ]);
+  const plan = planBookingSeed({ existingServices, existingBarbers });
+
+  for (const { kind, service } of plan.services) console.log(`Service ${kind}: ${service.slug} — ${service.name}`);
+  for (const { kind, barber } of plan.barbers) console.log(`Barber ${kind}: ${barber.slug} — ${barber.name}`);
+
+  if (apply) {
+    writePhaseStarted = true;
+    await applyBookingSeed(db, plan);
+    console.log("Approved service and barber upserts completed. Existing schedules and booking snapshots were preserved.");
+  } else {
+    console.log(`To authorize writes, set ${BOOKING_SEED_OPT_IN_NAME} to its documented opt-in value and rerun with --apply.`);
   }
-  console.log("Development booking seed completed. Service prices remain unset until approved.");
+} catch (error) {
+  if (error instanceof BookingSeedAmbiguityError) {
+    console.error(`Seed preflight stopped: ${error.message} No database writes were made.`);
+  } else if (error instanceof BookingSeedGuardError) {
+    console.error(`Seed refused: ${error.message}`);
+  } else if (writePhaseStarted) {
+    console.error("Seed stopped during targeted upserts. Some intended upserts may have completed; rerun a dry run before deciding whether to retry.");
+  } else {
+    console.error(`Seed refused: ${safeMongoFailure(error)} No credentials or connection details were printed.`);
+  }
+  process.exitCode = 1;
 } finally {
-  await client.close();
+  if (client) await client.close().catch(() => {});
 }
