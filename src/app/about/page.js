@@ -2,8 +2,10 @@ import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { getImage } from "@/lib/images/server";
 import { SiteFrame } from "@/components/layout/SiteFrame";
 import { ButtonLink } from "@/components/ui/ButtonLink";
+import { CtaBanner } from "@/components/ui/CtaBanner";
 import { ROUTES } from "@/config/routes";
 import { site } from "@/config/site";
+import { BarbersSection } from "@/features/landing/sections/BarbersSection";
 import { MarketingPageHero } from "@/features/marketing/components/MarketingPageHero";
 
 export const metadata = {
@@ -24,8 +26,8 @@ export default function AboutPage() {
   return (
     <SiteFrame activePath={ROUTES.about}>
       <MarketingPageHero
-        description="A good cut is personal. The experience around it should be, too."
-        eyebrow="About The Cut"
+        description="We are a community built on craftsmanship, style, and respect. A good cut is personal, and the experience around it should be, too."
+        eyebrow="About us"
         image={getImage("hero-about")}
         title={<>The story behind<br /><em>The Cut.</em></>}
       >
@@ -57,6 +59,8 @@ export default function AboutPage() {
           ))}
         </div>
       </section>
+      <BarbersSection />
+      <CtaBanner />
     </SiteFrame>
   );
 }
