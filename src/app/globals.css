@@ -826,3 +826,5 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 4; pointer-event
 .dash-day input[type="time"]:focus-visible { border-color: var(--gold); outline: 2px solid var(--gold-light); outline-offset: 2px; }
 .dash-day .dash-field-error { grid-column: 1 / -1; }
 @media (max-width: 720px) { .dash-day { grid-template-columns: minmax(0, 1fr); } }
+.dash-day--hours { grid-template-columns: 150px minmax(0, 1fr); }
+@media (max-width: 720px) { .dash-day--hours { grid-template-columns: minmax(0, 1fr); } }

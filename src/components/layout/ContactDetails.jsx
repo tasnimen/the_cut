@@ -1,15 +1,15 @@
-import { BOOKING_CONFIG } from "@/config/booking";
-import { site } from "@/config/site";
+import { getBookingConfig, getSiteSettings } from "@/lib/catalog/source";
 import { formatAddress, formatOpeningHours, mailtoHref, mapsHref, socialLinks, telHref } from "@/lib/site/contact";
 
 // Renders only what config/site.js provides; opening hours come from config/booking.js.
-export function ContactDetails({ className = "" }) {
+export async function ContactDetails({ className = "" }) {
+  const [site, config] = await Promise.all([getSiteSettings(), getBookingConfig()]);
   const phone = telHref(site.contact.phone);
   const email = mailtoHref(site.contact.email);
   const address = formatAddress(site.location);
   const maps = mapsHref(site.location);
   const social = socialLinks(site.social);
-  const hours = formatOpeningHours(BOOKING_CONFIG.openingHours);
+  const hours = formatOpeningHours(config.openingHours);
 
   return (
     <div className={`contact-details ${className}`.trim()}>

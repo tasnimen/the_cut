@@ -22,7 +22,7 @@ export const DASHBOARD_NAV = Object.freeze({
     item("Gallery", "/admin/gallery", "image"),
     item("Messages", "/admin/messages", "inbox"),
     item("Reports", "/admin/reports", "chart"),
-    item("Settings", "/admin/settings", "settings"),
+    item("Settings", "/admin/settings", "settings", true),
   ]),
   superAdmin: Object.freeze([
     item("Overview", "/super-admin", "dashboard", true),

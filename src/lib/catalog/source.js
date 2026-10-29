@@ -1,6 +1,7 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
 import { BOOKING_CONFIG } from "@/config/booking";
+import { site } from "@/config/site";
 import { BOOKING_SERVICES } from "@/config/booking-services";
 import { TEAM_PROFILES } from "@/config/team-profiles";
 import { PRICING_PACKAGES } from "@/config/pricing-packages";
@@ -8,6 +9,7 @@ import { getMongo } from "@/lib/db/mongo";
 import { normalizePublicBarbers } from "@/lib/catalog/barbers";
 import { mergeBookingConfig, normalizeHolidays } from "@/lib/catalog/holidays";
 import { normalizePackages, normalizeServices, resolveCatalog } from "@/lib/catalog/normalize";
+import { SETTING_KEYS, docsToMap, mergeSiteSettings, normalizeHours } from "@/lib/catalog/settings";
 import { createCooldown } from "@/lib/utils/cooldown";
 import { CATALOG_REVALIDATE_SECONDS, CATALOG_TAGS } from "@/lib/catalog/tags";
 
@@ -15,7 +17,7 @@ const DB_COOLDOWN_MS = 30_000;
 const servicesCooldown = createCooldown({ ms: DB_COOLDOWN_MS });
 const packagesCooldown = createCooldown({ ms: DB_COOLDOWN_MS });
 const barbersCooldown = createCooldown({ ms: DB_COOLDOWN_MS });
-const holidaysCooldown = createCooldown({ ms: DB_COOLDOWN_MS });
+const settingsCooldown = createCooldown({ ms: DB_COOLDOWN_MS });
 
 // Public catalog reads: MongoDB first (cached, tagged), file data as the fallback.
 // A failed query throws inside the cached function, so failures are never cached; resolveCatalog then
@@ -45,13 +47,14 @@ const loadBarberDocuments = unstable_cache(
   { tags: [CATALOG_TAGS.barbers], revalidate: CATALOG_REVALIDATE_SECONDS },
 );
 
-const loadHolidaysDocument = unstable_cache(
+// All business settings (hours, closed dates, contact, social) in one cached read.
+const loadSettingDocuments = unstable_cache(
   async () => {
     const { db } = await getMongo();
-    return db.collection("siteSetting").findOne({ key: "holidays" }, { projection: { _id: 0, value: 1 } });
+    return db.collection("siteSetting").find({ key: { $in: SETTING_KEYS } }, { projection: { _id: 0, key: 1, value: 1 } }).limit(10).toArray();
   },
-  ["catalog-holidays-v1"],
-  { tags: [CATALOG_TAGS.holidays], revalidate: CATALOG_REVALIDATE_SECONDS },
+  ["catalog-settings-v1"],
+  { tags: [CATALOG_TAGS.settings], revalidate: CATALOG_REVALIDATE_SECONDS },
 );
 
 const loadPackageDocuments = unstable_cache(
@@ -75,14 +78,23 @@ export function getPublicBarbers() {
   return resolveCatalog({ fetchDocuments: () => barbersCooldown(loadBarberDocuments), normalize: normalizePublicBarbers, fileData: TEAM_PROFILES });
 }
 
-// The booking policy with closed dates from the database (file defaults when unset or unreachable).
-// Pass the result to the booking engine and to anything that lists closures, so they always agree.
-export async function getBookingConfig() {
-  let document = null;
+async function loadSettingsMap() {
   try {
-    document = await holidaysCooldown(loadHolidaysDocument);
+    return docsToMap(await settingsCooldown(loadSettingDocuments));
   } catch {
-    document = null;
+    return {};
   }
-  return mergeBookingConfig(BOOKING_CONFIG, normalizeHolidays(document?.value, BOOKING_CONFIG.holidays));
+}
+
+// The booking policy with the saved opening hours and closed dates (file defaults when unset or
+// unreachable). Pass the result to the booking engine and to anything that lists hours or closures,
+// so they always agree.
+export async function getBookingConfig() {
+  const map = await loadSettingsMap();
+  return mergeBookingConfig({ ...BOOKING_CONFIG, openingHours: normalizeHours(map.hours, BOOKING_CONFIG.openingHours) }, normalizeHolidays(map.holidays, BOOKING_CONFIG.holidays));
+}
+
+// Public contact details, social links and address (database over the file defaults in config/site.js).
+export async function getSiteSettings() {
+  return mergeSiteSettings(await loadSettingsMap(), site);
 }

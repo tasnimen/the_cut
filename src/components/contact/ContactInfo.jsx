@@ -1,11 +1,11 @@
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
-import { site } from "@/config/site";
-import { getBookingConfig } from "@/lib/catalog/source";
+import { getBookingConfig, getSiteSettings } from "@/lib/catalog/source";
 import { getImage } from "@/lib/images/server";
 import { formatAddress, formatClosures, formatOpeningHours, mailtoHref, mapsHref, socialLinks, telHref, timeZoneLabel } from "@/lib/site/contact";
 
 // Contact information card. Renders only the fields filled in config/site.js; if none are, one neutral line.
-export function ContactInfoCard() {
+export async function ContactInfoCard() {
+  const site = await getSiteSettings();
   const phone = telHref(site.contact.phone);
   const email = mailtoHref(site.contact.email);
   const address = formatAddress(site.location);
@@ -61,7 +61,8 @@ export async function OpeningHoursCard() {
 }
 
 // Styled map card (no embed, no API key). The Google Maps button exists only when an address is set.
-export function MapCard() {
+export async function MapCard() {
+  const site = await getSiteSettings();
   const backdrop = getImage("contact-map-backdrop");
   const address = formatAddress(site.location);
   const maps = mapsHref(site.location);
