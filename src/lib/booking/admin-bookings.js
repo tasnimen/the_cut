@@ -58,3 +58,60 @@ export function summarizeDay(bookings) {
   const currency = bookings[0]?.currency ?? "USD";
   return { counts, total: bookings.length, active: counts.pending + counts.confirmed, expected: formatMoney(revenue, currency) };
 }
+
+// ---- Search and filters for the "all bookings" screen (I-12) ----
+
+export const SEARCH_PAGE_SIZE = 25;
+const SEARCH_MAX_LENGTH = 60;
+const ID_PATTERN = /^[a-f\d]{24}$/i;
+const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, (char) => `\\${char}`);
+const firstValue = (value) => (Array.isArray(value) ? value[0] : value);
+
+// Reads the URL query into a safe filter object. Unknown or malformed values are dropped, never passed on.
+export function parseBookingFilters(params = {}, { isValidDate, statuses = Object.keys(ADMIN_STATUS_LABELS) } = {}) {
+  const text = String(firstValue(params.q) ?? "").replace(/[\u0000-\u001f\u007f]/g, " ").trim().slice(0, SEARCH_MAX_LENGTH);
+  const status = String(firstValue(params.status) ?? "");
+  const barber = String(firstValue(params.barber) ?? "");
+  const from = String(firstValue(params.from) ?? "");
+  const to = String(firstValue(params.to) ?? "");
+  const page = Number.parseInt(String(firstValue(params.page) ?? "1"), 10);
+  const validDate = (value) => (isValidDate ? isValidDate(value) : /^\d{4}-\d{2}-\d{2}$/.test(value));
+  return {
+    q: text,
+    status: statuses.includes(status) ? status : "",
+    barber: ID_PATTERN.test(barber) ? barber : "",
+    from: validDate(from) ? from : "",
+    to: validDate(to) ? to : "",
+    page: Number.isInteger(page) ? Math.max(1, Math.min(page, 1000)) : 1,
+  };
+}
+
+// MongoDB query for the filters. `range` converts a local date to its UTC day range (injected so this stays pure).
+export function buildBookingQuery(filters, { range, toObjectId }) {
+  const query = {};
+  if (filters.status) query.status = filters.status;
+  if (filters.barber) query.barberId = filters.barber;
+  if (filters.from || filters.to) {
+    query.startsAt = {};
+    if (filters.from) query.startsAt.$gte = range(filters.from).start;
+    if (filters.to) query.startsAt.$lt = range(filters.to).end;
+  }
+  if (filters.q) {
+    const or = [{ customerName: { $regex: escapeRegex(filters.q), $options: "i" } }];
+    const digits = filters.q.replace(/\D/g, "");
+    if (digits.length >= 3) or.push({ phoneE164: { $regex: escapeRegex(digits) } });
+    if (ID_PATTERN.test(filters.q)) or.push({ _id: toObjectId(filters.q) });
+    query.$or = or;
+  }
+  return query;
+}
+
+// URL query string for a filter set (empty values omitted), e.g. to link to another page of results.
+export function filtersToQueryString(filters, overrides = {}) {
+  const merged = { ...filters, ...overrides };
+  const params = new URLSearchParams();
+  for (const key of ["q", "status", "barber", "from", "to"]) if (merged[key]) params.set(key, merged[key]);
+  if (merged.page > 1) params.set("page", String(merged.page));
+  const text = params.toString();
+  return text ? `?${text}` : "";
+}

@@ -6,7 +6,7 @@ import { BOOKING_COLLECTION, BOOKING_SLOT_COLLECTION, ACTIVE_BOOKING_STATUSES } 
 import { BookingError, loadBookingOptions } from "@/lib/booking/availability";
 import { normalizeUsPhone } from "@/lib/booking/input";
 import { reservationSlotStarts, calculateBookingDuration } from "@/lib/booking/rules";
-import { adminAllowedActions } from "@/lib/booking/admin-bookings";
+import { adminAllowedActions, buildBookingQuery, SEARCH_PAGE_SIZE } from "@/lib/booking/admin-bookings";
 import { businessDate, formatBookingDateTime, getLocalDayRange, isValidLocalDate } from "@/lib/booking/time";
 import { transitionBooking } from "@/lib/booking/state-machine";
 import { appendAuditEvent } from "@/lib/security/audit-log";
@@ -244,6 +244,23 @@ export function createBookingRepository({ client, db, config = BOOKING_CONFIG, c
         .limit(300)
         .toArray();
       return records.map(publicBooking);
+    },
+
+    // Admin: search and filter all bookings, newest appointment first, one page at a time.
+    // The filters come from parseBookingFilters (already validated); the caller authorized bookingsManageAll.
+    async adminSearch({ filters }) {
+      const query = buildBookingQuery(filters, { range: (date) => getLocalDayRange(date, config.timeZone), toObjectId: (value) => new ObjectId(value) });
+      const [total, records] = await Promise.all([
+        db.collection(BOOKING_COLLECTION).countDocuments(query),
+        db.collection(BOOKING_COLLECTION).find(query, { projection: { userId: 0 } }).sort({ startsAt: -1, _id: -1 }).skip((filters.page - 1) * SEARCH_PAGE_SIZE).limit(SEARCH_PAGE_SIZE).toArray(),
+      ]);
+      return { bookings: records.map(publicBooking), total, page: filters.page, pageSize: SEARCH_PAGE_SIZE, pages: Math.max(1, Math.ceil(total / SEARCH_PAGE_SIZE)) };
+    },
+
+    // Admin: barbers for the filter drop-down (id as stored on bookings, and name).
+    async adminBarberOptions() {
+      const barbers = await db.collection("barber").find({}, { projection: { name: 1 } }).sort({ name: 1 }).toArray();
+      return barbers.map((barber) => ({ id: String(barber._id), name: barber.name }));
     },
 
     // Admin: confirm, complete or cancel one booking (no-show goes through markNoShow). Returns the booking

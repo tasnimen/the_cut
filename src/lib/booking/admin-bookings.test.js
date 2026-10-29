@@ -44,3 +44,53 @@ describe("adminErrorMessage", () => {
     expect(adminErrorMessage("weird_internal_code")).not.toMatch(/weird/);
   });
 });
+
+import { buildBookingQuery, filtersToQueryString, parseBookingFilters } from "@/lib/booking/admin-bookings";
+
+describe("parseBookingFilters", () => {
+  it("keeps valid values and drops anything malformed", () => {
+    const filters = parseBookingFilters({ q: "  sam\u0000  ", status: "confirmed", barber: "a".repeat(24), from: "2026-11-01", to: "2026-13-45", page: "3" });
+    expect(filters).toEqual({ q: "sam", status: "confirmed", barber: "a".repeat(24), from: "2026-11-01", to: "2026-13-45", page: 3 });
+    const strict = parseBookingFilters({ status: "deleted", barber: "x", from: "2026-13-45", page: "-4" }, { isValidDate: (v) => v === "2026-11-01" });
+    expect(strict).toMatchObject({ status: "", barber: "", from: "", page: 1 });
+  });
+  it("uses the first value of repeated params and caps the search length and page", () => {
+    const filters = parseBookingFilters({ q: ["one", "two"], page: "99999" });
+    expect(filters.q).toBe("one");
+    expect(filters.page).toBe(1000);
+    expect(parseBookingFilters({ q: "x".repeat(500) }).q).toHaveLength(60);
+  });
+  it("ignores objects smuggled in as values", () => {
+    expect(parseBookingFilters({ status: { $ne: "" }, barber: { $gt: "" } })).toMatchObject({ status: "", barber: "" });
+  });
+});
+
+describe("buildBookingQuery", () => {
+  const deps = { range: (date) => ({ start: new Date(`${date}T05:00:00Z`), end: new Date(`${date}T23:59:59Z`) }), toObjectId: (value) => `oid:${value}` };
+  it("builds exact filters and a date range", () => {
+    const query = buildBookingQuery({ q: "", status: "no_show", barber: "b1", from: "2026-11-01", to: "2026-11-30", page: 1 }, deps);
+    expect(query).toMatchObject({ status: "no_show", barberId: "b1" });
+    expect(query.startsAt.$gte).toEqual(new Date("2026-11-01T05:00:00Z"));
+    expect(query.startsAt.$lt).toEqual(new Date("2026-11-30T23:59:59Z"));
+  });
+  it("escapes regex characters in the search and adds phone and id matches only when they make sense", () => {
+    const query = buildBookingQuery({ q: "a.b(c", status: "", barber: "", from: "", to: "", page: 1 }, deps);
+    expect(query.$or).toHaveLength(1);
+    expect(query.$or[0].customerName.$regex).toBe("a\\.b\\(c");
+    const phone = buildBookingQuery({ q: "(555) 010-1234", status: "", barber: "", from: "", to: "", page: 1 }, deps);
+    expect(phone.$or.some((clause) => clause.phoneE164?.$regex === "5550101234")).toBe(true);
+    const id = buildBookingQuery({ q: "a".repeat(24), status: "", barber: "", from: "", to: "", page: 1 }, deps);
+    expect(id.$or.some((clause) => clause._id === `oid:${"a".repeat(24)}`)).toBe(true);
+  });
+  it("returns an empty query for no filters", () => {
+    expect(buildBookingQuery({ q: "", status: "", barber: "", from: "", to: "", page: 1 }, deps)).toEqual({});
+  });
+});
+
+describe("filtersToQueryString", () => {
+  it("omits empty values and page 1", () => {
+    expect(filtersToQueryString({ q: "sam", status: "", barber: "", from: "", to: "", page: 1 })).toBe("?q=sam");
+    expect(filtersToQueryString({ q: "sam", status: "", barber: "", from: "", to: "", page: 1 }, { page: 3 })).toBe("?q=sam&page=3");
+    expect(filtersToQueryString({ q: "", status: "", barber: "", from: "", to: "", page: 1 })).toBe("");
+  });
+});

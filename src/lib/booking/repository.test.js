@@ -6,6 +6,7 @@ import { createBookingRepository } from "@/lib/booking/repository";
 
 function matches(document, query = {}) {
   return Object.entries(query).every(([key, expected]) => {
+    if (key === "$or") return expected.some((clause) => matches(document, clause));
     const actual = document[key];
     if (expected && typeof expected === "object" && !(expected instanceof Date) && !(expected instanceof ObjectId)) {
       if ("$in" in expected && !expected.$in.some((value) => String(value) === String(actual))) return false;
@@ -13,6 +14,7 @@ function matches(document, query = {}) {
       if ("$gte" in expected && !(actual >= expected.$gte)) return false;
       if ("$lt" in expected && !(actual < expected.$lt)) return false;
       if ("$lte" in expected && !(actual <= expected.$lte)) return false;
+      if ("$regex" in expected && !new RegExp(expected.$regex, expected.$options).test(String(actual ?? ""))) return false;
       return true;
     }
     return String(actual) === String(expected);
@@ -31,10 +33,12 @@ function bookingDb() {
     const rows = data[name] || (data[name] = []);
     return {
       find(query) {
-        let result = rows.filter((row) => matches(row, query));
+        const result = rows.filter((row) => matches(row, query));
+        let skipped = 0;
+        let max = Infinity;
         return {
-          sort() { return this; }, skip() { return this; }, limit() { return this; },
-          async toArray() { return result; },
+          sort() { return this; }, skip(count) { skipped = count; return this; }, limit(count) { max = count; return this; },
+          async toArray() { return result.slice(skipped, skipped + max); },
         };
       },
       async countDocuments(query) { return rows.filter((row) => matches(row, query)).length; },
@@ -172,5 +176,49 @@ describe("admin booking changes", () => {
     const result = await repository.adminChangeStatus({ principal: admin, bookingId: id, to: "no_show" });
     expect(result.customerId).toBe("customer-1");
     expect(data.booking[0].status).toBe("no_show");
+  });
+});
+
+describe("admin booking search", () => {
+  function many(count) {
+    const { db, client, data } = bookingDb();
+    const barberA = String(data.barber[0]._id);
+    for (let index = 0; index < count; index += 1) {
+      data.booking.push({ _id: new ObjectId(), userId: "u" + index, customerName: index === 3 ? "Sam (VIP)" : "Customer " + index, phoneE164: "+1555010" + String(1000 + index), status: index % 2 ? "cancelled" : "confirmed", startsAt: new Date(Date.UTC(2027, 3, 5, 14, index)), endsAt: new Date(Date.UTC(2027, 3, 5, 14, index + 30)), createdAt: new Date(), services: [], barberId: index < 5 ? barberA : "other", barberName: "Alex", totalPriceMinorUnits: 2500, currency: "USD" });
+    }
+    return { repository: createBookingRepository({ client, db }), barberA, data };
+  }
+  const base = { q: "", status: "", barber: "", from: "", to: "", page: 1 };
+
+  it("pages results and reports the total", async () => {
+    const { repository } = many(30);
+    const first = await repository.adminSearch({ filters: base });
+    expect(first).toMatchObject({ total: 30, pages: 2, page: 1, pageSize: 25 });
+    expect(first.bookings).toHaveLength(25);
+    const second = await repository.adminSearch({ filters: { ...base, page: 2 } });
+    expect(second.bookings).toHaveLength(5);
+  });
+
+  it("filters by status, barber and date range", async () => {
+    const { repository, barberA } = many(10);
+    expect((await repository.adminSearch({ filters: { ...base, status: "cancelled" } })).total).toBe(5);
+    expect((await repository.adminSearch({ filters: { ...base, barber: barberA } })).total).toBe(5);
+    expect((await repository.adminSearch({ filters: { ...base, from: "2027-04-06" } })).total).toBe(0);
+    expect((await repository.adminSearch({ filters: { ...base, from: "2027-04-05", to: "2027-04-05" } })).total).toBe(10);
+  });
+
+  it("searches name (case-insensitive, special characters safe), phone and booking id without exposing user ids", async () => {
+    const { repository, data } = many(10);
+    expect((await repository.adminSearch({ filters: { ...base, q: "sam (v" } })).bookings.map((b) => b.customerName)).toEqual(["Sam (VIP)"]);
+    expect((await repository.adminSearch({ filters: { ...base, q: ".*" } })).total).toBe(0);
+    expect((await repository.adminSearch({ filters: { ...base, q: "555 0101002" } })).total).toBe(1);
+    const found = await repository.adminSearch({ filters: { ...base, q: String(data.booking[4]._id) } });
+    expect(found.total).toBe(1);
+    expect(JSON.stringify(found)).not.toMatch(/"u4"/);
+  });
+
+  it("lists barbers for the filter", async () => {
+    const { repository } = many(1);
+    expect(await repository.adminBarberOptions()).toEqual([{ id: expect.any(String), name: "Alex" }]);
   });
 });
