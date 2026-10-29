@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** I-5 complete (catalog data layer). **Next step:** I-15 (services CRUD) on the owner's ok.
+**Where I stopped:** I-15 complete (services editor). **Next step:** I-16 on the owner's ok.
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -345,3 +345,9 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - Not done on purpose: seeding `pricingPackage` (I-16 creates it), admin screens (I-15, I-16), `displayOrder`/`category`/`icon` on the existing service documents (the I-15 editor will set them).
 - Delete candidate (owner): `src/features/landing/data/services.js` is no longer imported by anything.
 - **Where I stopped:** I-5 complete. **Next step:** I-15 (services CRUD) on the owner's ok.
+
+## Unit I-15 done (2026-10-29): services editor
+- New: `lib/catalog/{service-input,admin-services}.js`, `app/admin/services/{page,new/page,[slug]/page,actions}.js(x)`, `features/dashboard/services/{ServiceForm,ServiceActiveToggle}.jsx`, `consumeUserRateLimit`, audit `details`, toasts, form/badge CSS, "Services" enabled in the admin sidebar. Details and the reusable admin write pattern in `docs/SECURITY.md`.
+- Not built on purpose: hard delete (hide instead), service images (images come from the image slots; per-service overrides arrive with I-27), seeding of display fields (the first save of a legacy document stores them).
+- Checks: `npm test` 342 passed / 39 files; lint clean. Build passed (compiled; it took 42 min because a dev server was running at the same time: stop `npm run dev` before `npm run build`). **Not run live with an Admin session** (no credentials); owner steps are in `docs/TESTING.md`.
+- **Where I stopped:** I-15 complete. **Next step:** I-16 (pricing packages CRUD) on the owner's ok.

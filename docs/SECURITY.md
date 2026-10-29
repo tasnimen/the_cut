@@ -21,6 +21,14 @@
 - The reset page is `noindex` with `referrer: no-referrer` so the token in the URL is not leaked.
 - Not tested live against a real mailbox (a real send would use the production SMTP provider).
 
+## Admin write pattern and the services editor (I-15, 2026-10-29)
+
+Pattern every admin write follows (reuse it in later units): the page calls `requireDashboardAccess("admin")`; each Server Action calls `requirePrincipal(<permission>)` itself (session, status, role, session version, TOTP enrolment, denial audit), then a per-admin rate limit (`consumeUserRateLimit`, 30 per minute for services), then strict Zod parsing of **only the known form keys** (unknown keys are ignored; the schemas are `.strict()`), then the repository write, an audit event, and `revalidateCatalog()`. Errors shown to the user are generic.
+
+- Services editor (`/admin/services`, `/new`, `/[slug]`): permission `servicesManageAll` (ADMIN and SUPER_ADMIN). Price is entered in dollars and converted to integer cents (max $9,999.99, must be positive); duration 5 to 480 minutes; slug (create only) lowercase letters, numbers, hyphens, unique (the database unique index also enforces it); the slug and the `currency` field can never be changed by an edit. No hard delete: services are hidden instead, so booking history and barber assignments stay intact.
+- Audit: `catalog.service.created`, `.updated` (with changed fields, e.g. `priceMinorUnits: 2500->3000`; names and descriptions only as "changed"), `.activated`, `.deactivated`. `appendAuditEvent` now accepts an optional `details` map of short strings (max 12 keys).
+- Tests: `service-input.test.js` (price parsing, mass assignment, slug rules), `admin-services.test.js` (create, duplicate, update, not found, hide/show, audit), `actions.test.js` (permission checked on every call, denied writes nothing, rate limit stops before the database, slug argument validated, form keys ignored). **Not run live:** the editor with a real Admin session (the assistant has no admin credentials); manual steps are in `docs/TESTING.md`.
+
 ## Two-step verification for admins (I-3, 2026-10-29)
 
 - Enrolment page `/two-factor` (guard `requireEnrolmentAccess`, pure rule `decideEnrolmentAccess`): guests go to sign-in and return; customers and suspended accounts get 404; already-enrolled admins go to their dashboard; page is `noindex`, `no-store`, disallowed in `robots.txt`.

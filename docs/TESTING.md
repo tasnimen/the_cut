@@ -40,3 +40,7 @@ Dry run (read-only): `$env:NODE_ENV='development'; npm run seed:admins:dev`. App
 ## Admin TOTP (I-3)
 
 Manual live check once an Admin exists (after `npm run seed:admins:dev`): sign in as the Admin, open `/admin` (redirects to `/two-factor`), enter the password, add the setup key to an authenticator app, save the backup codes, enter the 6-digit code, then sign in again: the sign-in page asks for the code, a wrong code is refused, a backup code works once, and `/admin` opens. Automated coverage is in `src/lib/auth/two-factor-flow.test.js`.
+
+## Services editor (I-15)
+
+Manual check as an enrolled Admin (dev database): open `/admin/services` (six services, order, prices); open one, change the price (for example 25 to 26), save: a toast appears, then `/services` and `/pricing`-linked booking lists show the new price within seconds (restore it afterwards); hide a service and confirm it disappears from `/services`, the home page and `/booking`, then show it again; create `test-service` and confirm a duplicate identifier is refused; sign out and confirm `/admin/services` is a 404; as a customer account confirm `/admin/services` is a 404. Check `auditLog` for `catalog.service.*` events. Automated coverage: `src/lib/catalog/*.test.js`, `src/app/admin/services/actions.test.js`.

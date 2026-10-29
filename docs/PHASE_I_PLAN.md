@@ -42,7 +42,7 @@
 | I-12 | All bookings: search, filter, pagination | M |
 | I-13 | Walk-in booking | M |
 | I-14 | Customers list (limited fields) | S |
-| I-15 | Services CRUD (name, price, duration, active, order, image) | M |
+| I-15 (done 2026-10-29, image field deferred to the image-slot work in I-27) | Services CRUD (name, price, duration, active, order) | M |
 | I-16 | Pricing packages CRUD | S |
 | I-17 | Barbers CRUD with schedule editor | L |
 | I-18 | Holidays and closed dates, business settings UI | M |
