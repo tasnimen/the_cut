@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { deleteGalleryItemAction, setGalleryActiveAction, updateGalleryItemAction } from "@/app/admin/gallery/actions";
 import { GALLERY_CATEGORIES } from "@/lib/gallery/gallery-input";
+import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
+import { IMAGE_PRESETS } from "@/config/images";
 import { notify } from "@/lib/toast/notify";
 
 function toastFor(result) {
@@ -50,7 +51,7 @@ export function GalleryItemCard({ item }) {
 
   return (
     <li className={`dash-gallery-item${item.active ? "" : " is-hidden"}`}>
-      <Image className="dash-gallery-thumb" src={item.thumbUrl} alt={item.alt} width={240} height={180} referrerPolicy="no-referrer" />
+      <ImageWithFallback className="dash-gallery-thumb" src={item.thumbUrl} alt={item.alt} width={IMAGE_PRESETS.thumb.width} height={IMAGE_PRESETS.thumb.height} sizes={IMAGE_PRESETS.thumb.sizes} referrerPolicy="no-referrer" />
       <div className="dash-gallery-body">
         {mode === "edit" ? (
           <form className="dash-form" onSubmit={save} noValidate>
