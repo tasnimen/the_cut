@@ -2,6 +2,7 @@ import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { getImage } from "@/lib/images/server";
 import { SiteFrame } from "@/components/layout/SiteFrame";
 import { ButtonLink } from "@/components/ui/ButtonLink";
+import { CtaBanner } from "@/components/ui/CtaBanner";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ServiceCatalog } from "@/features/services/components/ServiceCatalog";
 import { services } from "@/features/landing/data/services";
@@ -10,7 +11,7 @@ import { site } from "@/config/site";
 
 export const metadata = {
   title: `Services | ${site.name}`,
-  description: `Explore the illustrative grooming services at ${site.name}. Final menu and pricing are being confirmed.`,
+  description: `Haircuts, beard trims, shaves, color and treatments at ${site.name}. Prices in USD, before tax.`,
 };
 
 export default function ServicesPage() {
@@ -31,7 +32,7 @@ export default function ServicesPage() {
             <div className="services-hero-copy">
               <p className="eyebrow">Our services</p>
               <h1 id="services-page-title">Expert care<br />for your <em>hair.</em></h1>
-              <p>Considered cuts and grooming, shaped around the person in the chair.</p>
+              <p>Premium grooming services designed to keep you looking sharp, confident, and fresh.</p>
           <ButtonLink href={ROUTES.serviceCatalog} variant="outline">Explore the menu</ButtonLink>
             </div>
           </div>
@@ -41,12 +42,11 @@ export default function ServicesPage() {
           <SectionHeading
             eyebrow="The menu"
             id="service-catalog-title"
-            aside="Prices in USD, before tax"
           >
             Find your <em>kind of care.</em>
           </SectionHeading>
           <p className="service-menu-disclosure">
-            Prices are in USD before tax and are paid at the shop.
+            Prices are in USD, before tax. Payment is at the shop.
           </p>
           <ServiceCatalog images={Object.fromEntries(services.map((service) => [service.slug, getImage(`service-${service.slug}`)]))} />
         </section>
@@ -55,9 +55,10 @@ export default function ServicesPage() {
           <div>
             <p className="eyebrow">A little more time for you</p>
             <h2>Good grooming starts with a conversation.</h2>
-            <p>The online booking flow and confirmed service details are still being prepared.</p>
+            <p>Book online in a few steps: choose your services, your barber, and a time that suits you.</p>
           </div>
         </section>
+        <CtaBanner />
     </SiteFrame>
   );
 }

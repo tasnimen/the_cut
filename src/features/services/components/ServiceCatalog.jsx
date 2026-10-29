@@ -7,10 +7,12 @@ import { services } from "@/features/landing/data/services";
 import { bookingHrefForService } from "@/lib/booking/preselect";
 
 const categories = [
-  { id: "all", label: "All services" },
-  { id: "hair", label: "Hair" },
+  { id: "all", label: "All Services" },
+  { id: "haircut", label: "Haircut" },
   { id: "beard", label: "Beard" },
   { id: "shave", label: "Shave" },
+  { id: "color", label: "Color" },
+  { id: "treatment", label: "Treatment" },
 ];
 
 export function ServiceCatalog({ images = {} }) {
@@ -21,7 +23,7 @@ export function ServiceCatalog({ images = {} }) {
 
   return (
     <>
-      <div className="service-category-list" role="group" aria-label="Filter illustrative services">
+      <div className="service-category-list" role="group" aria-label="Filter services">
         {categories.map((category) => (
           <button
             className={`service-category${activeCategory === category.id ? " is-active" : ""}`}
