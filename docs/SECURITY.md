@@ -2,6 +2,10 @@
 
 **Status: Phases D and F are DONE-LOCAL with carryovers; Phase G is DONE-LOCAL but not live-ready.** This is not a security certification. For this same-origin app, Better Auth's DB-backed session is selected and the separate access/refresh-token requirement is superseded; see [decisions](DECISIONS.md).
 
+## Email verification flag (2026-10-29)
+
+`AUTH_REQUIRE_EMAIL_VERIFICATION` (default `false`) controls Better Auth `requireEmailVerification`, verification-mail sending, and the `emailVerified` check in `src/lib/auth/authorization.js` (`verification-policy.js`). With it off, an account can be created with an address the registrant does not own; all other protections stay. Turn it on before launch if that risk is unacceptable.
+
 ## Phase G booking controls (updated 2026-10-29)
 
 - Better Auth is mandatory for booking ownership reads and mutations; authorization checks verified email, ACTIVE status, session version, role, and admin TOTP. Customer operations scope Mongo queries to the session user. No-show is restricted to `bookingsManageAll`.

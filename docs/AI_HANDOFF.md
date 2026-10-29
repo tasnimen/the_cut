@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** Stage 1 complete. **Next step:** Stage 2A.
+**Where I stopped:** 2A complete. **Next step:** 2B toasts.
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -184,3 +184,9 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - Removed unused `defaultServiceDurations` and `barberNames` from `config/booking.js` (they contradicted the catalog: beard-trim 30 vs 20, combo 60 vs 45). Added policy-value and lead/window tests to `rules.test.js`.
 - Stage 1 full checks: `npm test` 235 passed / 19 files; `npm run lint` 0 problems; `npm run build` passed.
 - **Where I stopped:** Stage 1 complete. **Next step:** Stage 2A (disable email verification behind `AUTH_REQUIRE_EMAIL_VERIFICATION=false`) after the user says "continue".
+
+## Stage 2A done (2026-10-29)
+- Flag `AUTH_REQUIRE_EMAIL_VERIFICATION` (env.js, default false; `.env.example`). `server.js` uses it for `requireEmailVerification` and `sendOnSignUp/SignIn`; `authorization.js` uses `isEmailVerificationSatisfied` (`lib/auth/verification-policy.js` + test). `AuthPanel` shows "signed in" after sign-up when a session exists, generic sign-in failure text; BookingForm text no longer says "verified". Docs: DECISIONS, SECURITY, ROLE_PERMISSIONS, AUTHENTICATION.
+- Existing local users with `emailVerified=false` can now sign in. Dev server must be restarted to pick up the new flag default (none needed in .env).
+- Targeted: `src/lib/auth` 192 tests passed; eslint on touched folders clean. Live sign-up not tested yet (2D).
+- **Where I stopped:** 2A complete. **Next step:** 2B (sonner toasts).

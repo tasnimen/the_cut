@@ -5,7 +5,7 @@
 ## Phase G booking routes
 
 - `GET /api/bookings/availability`: public, rate-limited read; only active service/barber/slot DTOs are returned.
-- `GET /api/bookings` and `POST /api/bookings`: `bookingOwn`; verified ACTIVE Better Auth session required, records are scoped to the current user.
+- `GET /api/bookings` and `POST /api/bookings`: `bookingOwn`; ACTIVE Better Auth session required (verified email only when `AUTH_REQUIRE_EMAIL_VERIFICATION=true`), records are scoped to the current user.
 - `POST /api/bookings/[id]/cancel` and `/reschedule`: `bookingOwn`; booking lookup includes current user ownership.
 - `POST /api/bookings/[id]/no-show`: `bookingsManageAll` (ADMIN/SUPER_ADMIN with the existing admin TOTP requirement).
 - Mutations additionally apply per-IP rate limits, strict schemas, audit logging, and transaction-protected data operations. There is no guest booking path.

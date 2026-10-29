@@ -30,3 +30,5 @@
 | Verification | Permission/cookie/session-version policy tests pass; local `GET /api/auth/get-session` returned HTTP 200; signup/sign-in and email lifecycle remain unverified |
 
 Before production, verify deployment origins/trusted proxies and a live `Set-Cookie` response, configure email delivery and backup/restore, test Mongo-backed limits and user-update version invalidation, add external failed-auth alerts and privilege-change audit producers, integrate step-up into sensitive mutations, and ensure all privileged mutations use the version-bumping path. Do not expose auth/database modules to Client Components.
+
+**Email verification:** off by default (`AUTH_REQUIRE_EMAIL_VERIFICATION=false`); sign-up signs the user in. See `docs/DECISIONS.md`.
