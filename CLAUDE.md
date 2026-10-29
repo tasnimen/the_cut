@@ -15,6 +15,7 @@ Next.js 16.4.3 App Router (breaking changes: read node_modules/next/dist/docs be
 - `src/features/{landing,marketing,services,booking,auth}`; auth client store: `features/auth/session-store.js`
 - `src/config`: env.js (zod), routes.js, navigation.js, permissions.js, booking.js, booking-services.js (approved catalog)
 - `src/lib/{auth,booking,db}`; `scripts/seed-booking.js`; tokens in `src/styles/tokens.css`, globals in `src/app/globals.css`
+- Images: slots in `src/config/images.js`, read via `getImage(slot)` (`src/lib/images/server.js`); photo list in `docs/IMAGE_SLOTS.md`
 - Docs: docs/*.md; handoff docs/AI_HANDOFF.md, NEXT_TASK.md, docs/PROGRESS.md, docs/REFERENCE_DESIGN_AUDIT.md
 
 ## Conventions

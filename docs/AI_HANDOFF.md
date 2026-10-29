@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** forgot-password unit complete. **Next step:** U2 images after the user's ok, then Stage 3.
+**Where I stopped:** U2a (image slots) complete. **Next step:** U2b rewiring after the user's ok, then Stage 3.
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -244,3 +244,10 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - Live (temporary prod server on :3002, stopped): sign-in link works; unknown address gives the generic message and toast; `?error=INVALID_TOKEN` shows "Link not valid"; bogus token shows the failure toast. A real email to a real inbox was NOT sent: the user should request a reset for their own account once and confirm the mail arrives and the link works.
 - Contact details: the user left them blank again (`config/site.js` unchanged). Standard-package question still unanswered (options A change price to $35, B add a $40 service, C stop package preselect).
 - **Where I stopped:** forgot-password unit complete. **Next step:** U2 images (needs the user's ok), then Stage 3 services page.
+
+## U2a done (2026-10-29): image slot system (no component rewiring yet)
+- `src/config/images.js` (34 slots: heroes, services, barbers, about, gallery, offers, products), pure resolver `lib/images/resolve.js` (override from ImgBB `https://i.ibb.co/` only, else `public/images/<file>.(webp|avif|jpg|jpeg|png)`, else fallback), server helper `getImage(slot)` (`lib/images/server.js`). `docs/IMAGE_SLOTS.md` (generated table with sizes, search phrases, fallbacks, source/license column) and `docs/IMAGE_CREDITS.md`.
+- Tests `resolve.test.js` (5) pass; eslint on touched folders clean. Not yet used by any component; the pages still hard-code `/images/...` paths.
+- Findings: `banner1.png` 1.7 MB and `banner2.png` 2.1 MB are over the 200 KB budget; `card-image.webp` is a watermarked stock illustration (replace before launch); no per-service, barber or gallery photos exist; barber portraits must be the real barbers.
+- **U2b (next, needs the user's ok):** rewire hero, page heroes, service cards, barbers, about, gallery, footer to `getImage`; priority only on the hero LCP image; blur placeholders and sizes; hide the sample reviews section until real data; decoration with tokens (gold dividers, glow, grain, hover zoom). Compressing the two banners to WebP needs sharp (installed) and the user's ok to replace the files.
+- **Where I stopped:** U2a complete. **Next step:** U2b after the user says ok, then Stage 3 services page.
