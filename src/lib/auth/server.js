@@ -6,6 +6,8 @@ import { createAuthMiddleware } from "better-auth/api";
 import { getIP } from "@better-auth/core/utils/ip";
 import { after } from "next/server";
 import { env, requireEnv } from "@/config/env";
+import { userIdFilter } from "@/lib/db/user-filter";
+import { emailVerificationAuthOptions } from "@/lib/auth/verification-policy";
 import { getSessionCookieOptions } from "@/lib/auth/cookies";
 import { ensureSecurityIndexes, getMongo } from "@/lib/db/mongo";
 import { appendAuditEvent } from "@/lib/security/audit-log";
@@ -32,19 +34,16 @@ export async function getAuth() {
       const { client, db } = await getMongo();
       await ensureSecurityIndexes(db);
       const baseURL = resolveAuthBaseUrl(env);
+      const verificationOptions = emailVerificationAuthOptions(env.AUTH_REQUIRE_EMAIL_VERIFICATION);
       return betterAuth({
         appName: "The Cut Barbershop",
         baseURL,
         secret: requireEnv("BETTER_AUTH_SECRET"),
         trustedOrigins: baseURL ? [baseURL] : [],
         database: mongodbAdapter(db, { client }),
-        emailAndPassword: {
-          enabled: true,
-          requireEmailVerification: env.AUTH_REQUIRE_EMAIL_VERIFICATION,
-        },
+        emailAndPassword: verificationOptions.emailAndPassword,
         emailVerification: {
-          sendOnSignUp: env.AUTH_REQUIRE_EMAIL_VERIFICATION,
-          sendOnSignIn: env.AUTH_REQUIRE_EMAIL_VERIFICATION,
+          ...verificationOptions.emailVerification,
           expiresIn: 60 * 60,
           autoSignInAfterVerification: false,
           sendVerificationEmail: async ({ user, url, token }) => {
@@ -181,14 +180,14 @@ export async function getAuth() {
             create: {
               before: async (session) => {
                 const user = await db.collection("user").findOne(
-                  { id: session.userId },
+                  userIdFilter(session.userId),
                   { projection: { sessionVersion: 1 } },
                 );
                 return { data: { ...session, sessionVersion: Number(user?.sessionVersion ?? 0) } };
               },
               after: async (session, context) => {
                 const user = await db.collection("user").findOne(
-                  { id: session.userId },
+                  userIdFilter(session.userId),
                   { projection: { role: 1 } },
                 );
                 if (!["ADMIN", "SUPER_ADMIN"].includes(user?.role)) return;

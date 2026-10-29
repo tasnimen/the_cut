@@ -1,3 +1,4 @@
+import { userIdFilter } from "@/lib/db/user-filter";
 import "server-only";
 import { BOOKING_CONFIG } from "@/config/booking";
 import { formatBookingDateTime } from "@/lib/booking/time";
@@ -31,7 +32,7 @@ export async function runDueBookingReminders({ db, sendReminder, now = new Date(
     }, { $set: { reminderClaimedAt: now } }, { returnDocument: "after" });
     if (!claimed) continue;
 
-    const user = await db.collection("user").findOne({ id: booking.userId }, { projection: { email: 1 } });
+    const user = await db.collection("user").findOne(userIdFilter(booking.userId), { projection: { email: 1 } });
     try {
       if (!user?.email) throw new Error("booking_reminder_recipient_missing");
       await sendReminder({

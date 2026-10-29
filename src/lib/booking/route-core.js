@@ -1,3 +1,4 @@
+import { userIdFilter } from "@/lib/db/user-filter";
 import "server-only";
 import { after } from "next/server";
 import { AuthorizationError, requirePrincipal } from "@/lib/auth/authorization";
@@ -55,7 +56,7 @@ export async function createBooking(request) {
     const booking = await repository.create({ principal, serviceSlugs: parsed.data.serviceSlugs, startsAt: parsed.data.startsAt, barber: parsed.data.barber, phone: parsed.data.phone, smsConsent: parsed.data.smsConsent });
     after(async () => {
       try {
-        const user = await db.collection("user").findOne({ id: principal.id }, { projection: { email: 1 } });
+        const user = await db.collection("user").findOne(userIdFilter(principal.id), { projection: { email: 1 } });
         if (!user?.email) throw new Error("recipient unavailable");
         await sendBookingConfirmation({ to: user.email, name: booking.customerName, booking });
       } catch {
@@ -92,7 +93,7 @@ export async function mutateBooking(request, { params }, operation) {
     } else booking = await repository.markNoShow({ principal, bookingId: id });
     if (operation !== "no-show") after(async () => {
       try {
-        const user = await db.collection("user").findOne({ id: principal.id }, { projection: { email: 1 } });
+        const user = await db.collection("user").findOne(userIdFilter(principal.id), { projection: { email: 1 } });
         if (!user?.email) throw new Error("recipient unavailable");
         const send = operation === "cancel" ? sendBookingCancellation : sendBookingReschedule;
         await send({ to: user.email, name: booking.customerName, booking });

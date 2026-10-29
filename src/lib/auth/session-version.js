@@ -1,3 +1,4 @@
+import { userIdFilter } from "@/lib/db/user-filter";
 export function isSessionVersionCurrent(sessionVersion, currentUserVersion) {
   return Number.isInteger(sessionVersion)
     && Number.isInteger(currentUserVersion)
@@ -13,14 +14,14 @@ export async function bumpSessionVersionForSecurityUpdate(db, update, context) {
   if (typeof userId !== "string") return false;
 
   const currentUser = await db.collection("user").findOne(
-    { id: userId },
+    userIdFilter(userId),
     { projection: Object.fromEntries(changedFields.map((field) => [field, 1])) },
   );
   if (!currentUser) return false;
   if (changedFields.every((field) => currentUser[field] === update[field])) return;
 
   const result = await db.collection("user").updateOne(
-    { id: userId },
+    userIdFilter(userId),
     { $inc: { sessionVersion: 1 } },
   );
   if (result.matchedCount !== 1) return false;
@@ -29,7 +30,7 @@ export async function bumpSessionVersionForSecurityUpdate(db, update, context) {
 export async function bumpSessionVersionAfterPasswordChange(db, userId) {
   if (typeof userId !== "string" || userId.length === 0) return false;
   const result = await db.collection("user").updateOne(
-    { id: userId },
+    userIdFilter(userId),
     { $inc: { sessionVersion: 1 } },
   );
   return result.matchedCount === 1;

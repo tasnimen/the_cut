@@ -1,3 +1,4 @@
+import { userIdFilter } from "@/lib/db/user-filter";
 import "server-only";
 import { ObjectId } from "mongodb";
 import { BOOKING_CONFIG } from "@/config/booking";
@@ -107,7 +108,7 @@ export function createBookingRepository({ client, db, config = BOOKING_CONFIG, c
       if (!Number.isFinite(start.getTime())) throw new BookingError("invalid_start_time", 400);
       const now = clock();
       return transaction(async (session) => {
-        const customer = await db.collection("user").findOne({ id: principal.id }, { session, projection: { id: 1, name: 1 } });
+        const customer = await db.collection("user").findOne(userIdFilter(principal.id), { session, projection: { id: 1, name: 1 } });
         if (!customer) throw new BookingError("account_unavailable", 401);
         // Serialize this user's concurrent create attempts so the active-booking cap
         // cannot be exceeded by two transactions that both read the same count.
@@ -243,14 +244,14 @@ export function createBookingRepository({ client, db, config = BOOKING_CONFIG, c
           throw new BookingError("late_arrival_grace_not_elapsed", 409);
         }
         transitionBooking(booking.status, "no_show");
-        const customer = await db.collection("user").findOne({ id: booking.userId }, { session, projection: { noShowCount: 1, adminReviewFlaggedAt: 1 } });
+        const customer = await db.collection("user").findOne(userIdFilter(booking.userId), { session, projection: { noShowCount: 1, adminReviewFlaggedAt: 1 } });
         if (!customer) throw new BookingError("account_unavailable", 409);
         const previousCount = Number.isInteger(customer.noShowCount) ? customer.noShowCount : 0;
         const nextCount = previousCount + 1;
         const setFields = nextCount >= config.noShowReviewThreshold
           ? { adminReviewRequired: true, adminReviewFlaggedAt: customer.adminReviewFlaggedAt || nowDate }
           : {};
-        await db.collection("user").updateOne({ id: booking.userId }, { $inc: { noShowCount: 1 }, ...(Object.keys(setFields).length ? { $set: setFields } : {}) }, { session });
+        await db.collection("user").updateOne(userIdFilter(booking.userId), { $inc: { noShowCount: 1 }, ...(Object.keys(setFields).length ? { $set: setFields } : {}) }, { session });
         await db.collection(BOOKING_COLLECTION).updateOne({ _id: id, status: "confirmed" }, { $set: { status: "no_show", noShowAt: nowDate, updatedAt: nowDate } }, { session });
         await db.collection(BOOKING_SLOT_COLLECTION).deleteMany({ bookingId: id }, { session });
         await appendAuditEvent(db, bookingAudit({ actorId: principal.id, bookingId: id, action: "booking.no_show" }), { session });
