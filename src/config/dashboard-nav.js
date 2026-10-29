@@ -8,7 +8,7 @@ const item = (label, href, icon, enabled = false) => Object.freeze({ label, href
 export const DASHBOARD_NAV = Object.freeze({
   user: Object.freeze([
     item("Overview", "/user", "dashboard", true),
-    item("Appointments", "/user/appointments", "calendar"),
+    item("Appointments", "/user/appointments", "calendar", true),
     item("Profile", "/user/profile", "users"),
     item("Security", "/user/security", "shield"),
   ]),

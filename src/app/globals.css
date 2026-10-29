@@ -828,3 +828,15 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 4; pointer-event
 @media (max-width: 720px) { .dash-day { grid-template-columns: minmax(0, 1fr); } }
 .dash-day--hours { grid-template-columns: 150px minmax(0, 1fr); }
 @media (max-width: 720px) { .dash-day--hours { grid-template-columns: minmax(0, 1fr); } }
+
+/* Customer appointments (I-8) */
+.dash-appointment-list { display: grid; gap: 14px; }
+.dash-appointment { display: grid; gap: 14px; padding: 16px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-muted); }
+.dash-appointment-main { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.dash-appointment-when { margin: 0; color: var(--gold-light); font-size: 12px; font-weight: 600; letter-spacing: .04em; }
+.dash-appointment-what { margin: 4px 0; color: var(--text); font-family: var(--font-display); font-size: 22px; }
+.dash-appointment p.dash-muted { margin: 0; font-size: 12px; line-height: 1.6; }
+.dash-appointment-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 18px; }
+.dash-confirm { display: grid; gap: 10px; padding: 12px 14px; border: 1px solid var(--border-warm); border-radius: 6px; }
+.dash-confirm p { margin: 0; color: var(--text-soft); font-size: 13px; }
+.dash-reschedule { display: grid; gap: 10px; padding-top: 6px; border-top: 1px solid var(--border-soft); }

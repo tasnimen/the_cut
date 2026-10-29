@@ -43,10 +43,10 @@ describe("paths and landing", () => {
     expect(areaForPath("/booking")).toBeNull();
   });
 
-  it("lands admins on their dashboards and customers on the public site until the user dashboard exists", () => {
+  it("lands admins on their dashboards and customers on their account page", () => {
     expect(landingPathFor("SUPER_ADMIN")).toBe("/super-admin");
     expect(landingPathFor("ADMIN")).toBe("/admin");
-    expect(landingPathFor("USER")).toBe("/");
+    expect(landingPathFor("USER")).toBe("/user");
     expect(landingPathFor(undefined)).toBe("/");
   });
 });

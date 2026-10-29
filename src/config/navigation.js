@@ -17,8 +17,8 @@ const ALL_ACCOUNTS = Object.freeze(["USER", "ADMIN", "SUPER_ADMIN"]);
 // flip them to true when the page exists. Server checks stay the authority on every route.
 export const accountMenu = Object.freeze([
   Object.freeze({ label: "Book Appointment", href: ROUTES.booking, roles: ALL_ACCOUNTS, enabled: true }),
-  Object.freeze({ label: "My Account", href: "/user", roles: ALL_ACCOUNTS, enabled: false }),
-  Object.freeze({ label: "My Appointments", href: "/user/appointments", roles: ALL_ACCOUNTS, enabled: false }),
+  Object.freeze({ label: "My Account", href: "/user", roles: ALL_ACCOUNTS, enabled: true }),
+  Object.freeze({ label: "My Appointments", href: "/user/appointments", roles: ALL_ACCOUNTS, enabled: true }),
   Object.freeze({ label: "My Profile", href: "/user/profile", roles: ALL_ACCOUNTS, enabled: false }),
   Object.freeze({ label: "Admin Dashboard", href: "/admin", roles: Object.freeze(["ADMIN", "SUPER_ADMIN"]), enabled: true }),
   Object.freeze({ label: "Super Admin", href: "/super-admin", roles: Object.freeze(["SUPER_ADMIN"]), enabled: true }),

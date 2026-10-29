@@ -9,8 +9,8 @@ export const DASHBOARD_AREAS = Object.freeze({
   superAdmin: Object.freeze({ key: "superAdmin", path: ROUTES.superAdmin, roles: Object.freeze(["SUPER_ADMIN"]), requiresTwoFactor: true, guestsGoToSignIn: false }),
 });
 
-// Customers keep landing on the public site until the user dashboard has real content (unit I-8).
-export const USER_DASHBOARD_ENABLED = false;
+// The customer dashboard has real content since unit I-8, so signed-in customers land there.
+export const USER_DASHBOARD_ENABLED = true;
 
 export function landingPathFor(role) {
   if (role === "SUPER_ADMIN") return ROUTES.superAdmin;
