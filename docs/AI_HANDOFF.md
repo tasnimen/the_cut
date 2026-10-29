@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** U1 fixes 1-3 complete. **Next step:** forgot-password unit, then U2, then Stage 3.
+**Where I stopped:** forgot-password unit complete. **Next step:** U2 images after the user's ok, then Stage 3.
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -237,3 +237,10 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - TODO list: newsletter (hidden), policies/privacy/terms text, Cancel/Reschedule and "My appointments" (Phase I dashboard), search and Shop, "Watch our story" video, owner contact details.
 - Checks: `npm test` 262 passed / 26 files; lint exit 0; build passed. Live-checked on a temporary production server (port 3002, stopped): preselect, hostile query values, pricing/services links, footer hours, focus trap, 375 px sizes.
 - **Where I stopped:** U1 fixes 1-3 complete. **Next step:** forgot password unit (user's choice), then U2 images, then Stage 3 services page.
+
+## Forgot-password unit done (2026-10-29)
+- Pages `/forgot-password`, `/reset-password` (token validated by shape, `noindex`, `no-referrer`), forms in `features/auth/components`, link on the sign-in form, toasts (`passwordReset*`), routes in `config/routes.js`. Better Auth: `sendResetPassword` (background mail via `scheduleMailDelivery`), `resetPasswordTokenExpiresIn` 1 h, `revokeSessionsOnPasswordReset`, `onPasswordReset` (sessionVersion bump + audit). `createAuthMailer.sendPasswordResetEmail` checks origin and escapes HTML.
+- Tests: `password-reset.test.js` (mock transport: mail sent once, token resets, old password rejected, replay rejected, unknown address answers identically and sends nothing, wrong-origin link refused). Full checks: `npm test` 265 passed / 27 files; lint exit 0; build passed.
+- Live (temporary prod server on :3002, stopped): sign-in link works; unknown address gives the generic message and toast; `?error=INVALID_TOKEN` shows "Link not valid"; bogus token shows the failure toast. A real email to a real inbox was NOT sent: the user should request a reset for their own account once and confirm the mail arrives and the link works.
+- Contact details: the user left them blank again (`config/site.js` unchanged). Standard-package question still unanswered (options A change price to $35, B add a $40 service, C stop package preselect).
+- **Where I stopped:** forgot-password unit complete. **Next step:** U2 images (needs the user's ok), then Stage 3 services page.

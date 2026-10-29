@@ -14,6 +14,13 @@
 - Not present: password reset (no `sendResetPassword` configured, no UI); password-based per-account lockout (only IP rate limits, the failed-auth burst alert and TOTP lockout exist). Auth uses database sessions with one cookie; there is no separate refresh token.
 - Live 429 was simulated by stubbing the response (a real 429 needs five failed sign-ins and triggers the owner alert email).
 
+## Password reset (2026-10-29)
+
+- Flow: `/forgot-password` posts to Better Auth `/request-password-reset` (per-IP limit 3/hour, existing custom rule); the response is identical for known and unknown addresses (tested); mail is sent in the background through Nodemailer and only to the account address; link host must equal the configured auth origin; token expires in one hour and is single-use (tested replay). `/reset-password` posts to `/reset-password` (limit 5/hour).
+- On reset: all sessions are revoked (`revokeSessionsOnPasswordReset`), `sessionVersion` is bumped, and `auth.password_reset.completed` is audited; delivery failures are audited as `auth.password_reset.delivery_failed`.
+- The reset page is `noindex` with `referrer: no-referrer` so the token in the URL is not leaked.
+- Not tested live against a real mailbox (a real send would use the production SMTP provider).
+
 ## Phase G booking controls (updated 2026-10-29)
 
 - Better Auth is mandatory for booking ownership reads and mutations; authorization checks verified email, ACTIVE status, session version, role, and admin TOTP. Customer operations scope Mongo queries to the session user. No-show is restricted to `bookingsManageAll`.

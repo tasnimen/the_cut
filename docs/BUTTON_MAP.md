@@ -36,7 +36,7 @@
 | Booking | Cancel / Reschedule | — | API exists, no UI | TODO: part of the Phase I user dashboard |
 | Sign in / Sign up | Submit | Sign in / Create account | Better Auth, toasts, callbackUrl | works |
 | Sign in / Sign up | Switch link | Create account / Sign in | other auth page | works |
-| Sign in | Forgot password | — | not built | next unit (not shown until built) |
+| Sign in | Forgot your password? | link | `/forgot-password` → mail → `/reset-password` | works (mock-transport test; live: unknown address, bad token) |
 | Footer | Explore links (6) | Our story … Contact | existing routes | works |
 | Footer | CTA | Book an appointment | `/booking` | works |
 | Footer | Find us | New York, NY + hours + optional tel/mailto/Maps/social | `ContactDetails` | works |
@@ -57,3 +57,7 @@
 ## U1 fixes 1-3 (2026-10-29)
 
 Done: preselect (`lib/booking/preselect.js`, validated against the catalog on the server), contact config + `ContactDetails` (footer and contact page), mobile menu focus trap, 44 px targets on touch/mobile. Decisions applied: newsletter hidden, policies link hidden, Cancel/Reschedule deferred to Phase I dashboard, stepper skipped. Forgot password is the next unit.
+
+## Forgot password (2026-10-29)
+
+New: `/forgot-password`, `/reset-password`, Better Auth `sendResetPassword`/`onPasswordReset`, `sendPasswordResetEmail` (Nodemailer). Not sent live to a real address in testing.
