@@ -862,3 +862,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 4; pointer-event
 /* Admin bookings (I-11) */
 .dash-date-form { align-items: end; max-width: 420px; }
 .dash-row-actions { flex-wrap: wrap; }
+
+/* Admin all-bookings search (I-12) */
+.dash-filter-form { max-width: none; }
+.dash-pager { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 16px; }

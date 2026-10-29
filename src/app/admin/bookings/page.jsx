@@ -47,6 +47,7 @@ export default async function AdminBookingsPage({ searchParams }) {
           <span className="dash-row-actions">
             <Link className="button button-small button-outline" href={`/admin/bookings?date=${addLocalCalendarDays(date, -1)}`}><span>Previous day</span></Link>
             {isToday ? null : <Link className="button button-small button-outline" href="/admin/bookings"><span>Today</span></Link>}
+            <Link className="button button-small button-outline" href="/admin/bookings/all"><span>All bookings</span></Link>
             <Link className="button button-small button-outline" href={`/admin/bookings?date=${addLocalCalendarDays(date, 1)}`}><span>Next day</span></Link>
           </span>
         )}
