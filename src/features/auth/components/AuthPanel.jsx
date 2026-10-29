@@ -12,6 +12,7 @@ export function AuthPanel({ mode, callbackPath = ROUTES.home }) {
   const router = useRouter();
   const isSignUp = mode === "sign-up";
   const [busy, setBusy] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [user, setUser] = useState(null);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -136,17 +137,24 @@ export function AuthPanel({ mode, callbackPath = ROUTES.home }) {
           <span>Email</span>
           <input autoComplete="email" maxLength={320} name="email" required type="email" />
         </label>
-        <label className="auth-field">
-          <span>Password</span>
-          <input
+        <div className="auth-field">
+          <label htmlFor="auth-password">Password</label>
+          <span className="auth-password">
+            <input
+            id="auth-password"
             autoComplete={isSignUp ? "new-password" : "current-password"}
             maxLength={128}
             minLength={isSignUp ? 10 : 1}
             name="password"
             required
-            type="password"
-          />
-        </label>
+            type={showPassword ? "text" : "password"}
+            />
+            <button className="auth-password-toggle" type="button" aria-pressed={showPassword} onClick={() => setShowPassword((value) => !value)}>
+              {showPassword ? "Hide" : "Show"}
+            </button>
+          </span>
+          {isSignUp ? <small className="auth-hint">Use at least 10 characters.</small> : null}
+        </div>
         {error ? <p className="auth-error" role="alert">{error}</p> : null}
         {message ? <p className="auth-message" role="status">{message}</p> : null}
         <button className="button auth-submit" type="submit" disabled={busy}>

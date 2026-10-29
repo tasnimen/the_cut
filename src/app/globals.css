@@ -532,7 +532,8 @@ h2 { margin-bottom: 0; color: var(--text); font-size: clamp(32px, 4vw, 47px); le
 .mobile-nav-account-links a { justify-content: center; min-height: 40px; border: 1px solid var(--border-warm); border-radius: 999px; color: var(--gold-light); font-size: 10px; }
 
 .auth-page { min-height: 66vh; display: grid; place-items: center; padding-block: 54px 76px; }
-.auth-card { width: min(100%, 480px); padding: clamp(24px, 5vw, 42px); border: 1px solid var(--border-warm); border-radius: 8px; background: linear-gradient(145deg, var(--glass-surface-md), var(--surface)); box-shadow: var(--depth-shadow-2); }
+.auth-card { position: relative; width: min(100%, 480px); padding: clamp(24px, 5vw, 42px); border: 1px solid var(--border-warm); border-radius: 8px; background: linear-gradient(145deg, var(--glass-surface-md), var(--surface)); backdrop-filter: blur(18px); box-shadow: var(--depth-shadow-2), var(--glow-gold); }
+.auth-card h1::after { content: ""; display: block; width: 120px; height: 1px; margin-top: 14px; background: var(--gold-line); }
 .auth-card h1 { margin: 0; color: var(--text); font-size: clamp(42px, 8vw, 58px); line-height: .98; }
 .auth-description { margin: 15px 0 26px; color: var(--muted); font-size: 12px; }
 .auth-description strong { color: var(--text); font-weight: 600; }
@@ -546,7 +547,7 @@ h2 { margin-bottom: 0; color: var(--text); font-size: clamp(32px, 4vw, 47px); le
 .auth-switch a { color: var(--gold-light); text-decoration: underline; text-underline-offset: 3px; }
 .auth-message, .auth-error { margin: 13px 0 0; font-size: 11px; line-height: 1.6; }
 .auth-message { color: var(--gold-light); }
-.auth-error { color: var(--gold-light); }
+.auth-error { color: var(--error-soft); }
 
 .contact-form-section { display: grid; grid-template-columns: minmax(220px, .75fr) minmax(0, 1fr); gap: clamp(28px, 7vw, 90px); align-items: start; padding-block: 20px 100px; }
 .contact-form-intro { max-width: 430px; }
@@ -695,3 +696,9 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 4; pointer-event
 @media (max-width: 980px) {
   .contact-layout { grid-template-columns: minmax(0, 1fr); padding-block: 40px 72px; }
 }
+.auth-password { position: relative; display: block; }
+.auth-password input { padding-right: 64px; }
+.auth-password-toggle { position: absolute; top: 0; right: 0; min-width: 52px; min-height: 46px; padding: 0 12px; border: 0; background: none; color: var(--gold-light); font: inherit; font-size: 10px; font-weight: 600; cursor: pointer; }
+.auth-password-toggle:focus-visible { outline: 2px solid var(--gold-light); outline-offset: -2px; border-radius: 4px; }
+.auth-hint { color: var(--muted); font-size: 10px; font-weight: 400; }
+.auth-field input:focus-visible { box-shadow: var(--glow-gold); }
