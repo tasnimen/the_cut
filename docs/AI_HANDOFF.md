@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** I-16 complete (packages editor). **Next step:** I-6 on the owner's ok.
+**Where I stopped:** I-6 complete (holidays and barber profiles layer). **Next step:** I-17 on the owner's ok.
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -357,3 +357,10 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - Notable behaviour: while the collection is empty the pricing page keeps showing the built-in packages; the editor offers "Import the current packages" so the first save does not replace them.
 - Checks: `npm test` 362 passed / 42 files; lint clean. Production build passed (compiled; admin/packages routes listed; it took about one minute this time). Not run live with an Admin session; owner steps in `docs/TESTING.md`.
 - **Where I stopped:** I-16 complete. **Next step:** I-6 (barbers and holidays in the data layer) on the owner's ok.
+
+## Unit I-6 done (2026-10-29): holidays and public barber profiles in the data layer
+- New: `lib/catalog/{holidays,barbers}.js` (+ tests), `config/team-profiles.js`, `getPublicBarbers()` and `getBookingConfig()` in `lib/catalog/source.js`, tags `catalog:barbers` and `catalog:holidays` (also in `revalidateCatalog`), unique index on `siteSetting.key`. `route-core.js` now gives the merged config to availability and to the booking repository; the contact page's hours card uses it; the home team section reads `getPublicBarbers()` and `BarberCard` shows a name only for public barbers. Details in `docs/DATABASE.md`.
+- Behaviour today is unchanged on the public site (no `siteSetting` document, no barber with `publicProfile`): generic team cards, file closures. Verified on a production build against the real database (read-only): pages 200, availability API works with the merged config, contact page lists the four default closures, team cards still generic.
+- Nothing was written to the database in this unit (a live write would have changed what the owner's site shows); the closed-date effect on slots is proven by a unit test (`holidays.test.js`: an admin-closed Monday yields no slots).
+- Checks: `npm test` 370 passed / 44 files; lint clean; build passed.
+- **Where I stopped:** I-6 complete. **Next step:** I-17 (barbers editor with schedules, breaks, days off, public profile) on the owner's ok.
