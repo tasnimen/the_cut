@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** 2C complete. **Next step:** 2D tests and live check.
+**Where I stopped:** Stage 2 complete. **Next step:** Stage 3 design pass (home first).
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -204,3 +204,10 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - Verified live: signed-out header shows Sign in / Sign up, no layout overflow. Signed-in dropdown NOT yet exercised in a browser (needs the dummy account in 2D). Obsolete file `src/components/layout/HeaderAccountLink.jsx` is no longer imported: user should delete it.
 - Checks: `src/config` 3 tests, `src/lib/booking` 22 tests pass; eslint clean on touched folders. Full test/lint/build run at the end of 2D.
 - **Where I stopped:** 2C complete. **Next step:** 2D (tests plus browser check with a dummy account on the dev DB; full checks).
+
+## Stage 2D done / Stage 2 complete (2026-10-29)
+- Live check on the dev app (database `the_cut`) with a dummy account `dummy-header-test@example.com` created via the real sign-up form (verification flag off, no mail sent): sign-up signed the user in with a toast; header showed the initials avatar ("DT"), role badge "Customer", menu "Book Appointment" + "Sign out"; ArrowDown moved focus, Escape closed and returned focus; `GET /api/bookings` returned 200 for the unverified account; server HTML of `/pricing` already contained the avatar (no flash); Sign out via the menu showed the toast, restored Sign in / Sign up, `get-session` returned null and `GET /api/bookings` returned 401.
+- Not verified live: mobile menu signed-in layout, 375/768 px screenshots, booking creation (no barber schedules, so no slots), failed-sign-out UI.
+- **Cleanup for the user:** delete the dummy user (`dummy-header-test@example.com`) and its `account`/`session` documents in `the_cut`, plus the `rateLimit` entries created by the sign-up, via Atlas.
+- Tests added: session-store seed/sign-out state, header menu config, verification policy, toast catalog. Full checks: `npm test` 246 passed / 22 files; `npm run lint` exit 0, no warnings; `npm run build` passed.
+- **Where I stopped:** Stage 2 complete. **Next step:** Stage 3 (design fidelity pass), page order: home, services, booking, about, gallery, pricing, contact, sign-in, sign-up.

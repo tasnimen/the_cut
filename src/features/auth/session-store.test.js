@@ -55,4 +55,26 @@ describe("auth session store", () => {
     expect(await first).toBe(true);
     expect(fetchFn).toHaveBeenCalledTimes(1);
   });
+
+  it("seeds from the server-rendered user without fetching", async () => {
+    const store = await freshStore();
+    const fetchFn = mockFetch(async () => ({ ok: true }));
+    store.seedSession({ email: "a@example.invalid", role: "USER" });
+    expect(store.getSessionState()).toMatchObject({ status: "authenticated", user: { role: "USER" } });
+    store.seedSession(null);
+    expect(store.getSessionState()).toMatchObject({ status: "anonymous", user: null });
+    expect(fetchFn).not.toHaveBeenCalled();
+  });
+
+  it("ends anonymous after a confirmed sign-out and stays signed in after a failure", async () => {
+    const store = await freshStore();
+    store.seedSession({ email: "a@example.invalid", role: "USER" });
+    mockFetch(async () => ({ ok: false }));
+    await store.signOut();
+    expect(store.getSessionState().status).toBe("authenticated");
+    expect(store.getSessionState().error).toMatch(/failed/i);
+    mockFetch(async () => ({ ok: true }));
+    await store.signOut();
+    expect(store.getSessionState()).toMatchObject({ status: "anonymous", user: null });
+  });
 });

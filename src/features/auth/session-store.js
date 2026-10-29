@@ -25,6 +25,10 @@ export function useAuthSession() {
   return useSyncExternalStore(subscribe, () => state, () => serverSnapshot);
 }
 
+export function getSessionState() {
+  return state;
+}
+
 export function refreshSession() {
   if (inflight) return inflight;
   inflight = fetch(`${ROUTES.auth}/get-session`, { credentials: "same-origin", cache: "no-store" })
