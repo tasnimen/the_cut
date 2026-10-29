@@ -5,7 +5,7 @@ import { DASHBOARD_NAV, breadcrumbsFor, greetingFor, isNavItemActive, visibleNav
 
 describe("dashboard navigation", () => {
   it("lists only enabled entries", () => {
-    expect(visibleNav("admin").map((entry) => entry.label)).toEqual(["Overview"]);
+    expect(visibleNav("admin").map((entry) => entry.label)).toEqual(["Overview", "Services"]);
     expect(visibleNav("superAdmin").map((entry) => entry.href)).toEqual(["/super-admin", "/admin"]);
     expect(visibleNav("nope")).toEqual([]);
   });

@@ -785,3 +785,27 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 4; pointer-event
 .tf-codes code { display: block; padding: 8px 10px; border: 1px solid var(--border); border-radius: 4px; background: var(--background); color: var(--text); font-size: 12px; text-align: center; user-select: all; }
 .tf-check { display: flex; align-items: center; gap: 10px; min-height: 44px; color: var(--text-soft); font-size: 12px; cursor: pointer; }
 .tf-check input { width: 18px; height: 18px; accent-color: var(--gold); }
+
+/* Dashboard forms, badges and row actions (I-15) */
+.dash-form { display: grid; gap: 16px; max-width: 760px; }
+.dash-form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
+.dash-field { display: grid; gap: 6px; }
+.dash-field label { color: var(--text-soft); font-size: 12px; font-weight: 600; }
+.dash-field input, .dash-field select, .dash-field textarea { width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 4px; background: var(--background); color: var(--text); font: inherit; font-size: 13px; }
+.dash-field textarea { min-height: 88px; resize: vertical; }
+.dash-field input:focus-visible, .dash-field select:focus-visible, .dash-field textarea:focus-visible { border-color: var(--gold); outline: 2px solid var(--gold-light); outline-offset: 2px; }
+.dash-field input[aria-invalid="true"] { border-color: var(--error-soft); }
+.dash-field small { color: var(--muted); font-size: 11px; line-height: 1.5; }
+.dash-field .dash-field-error { color: var(--error-soft); }
+.dash-form-note { margin: 0; color: var(--muted); font-size: 12px; }
+.dash-form-note code { color: var(--gold-light); }
+.dash-check { display: flex; align-items: center; gap: 10px; min-height: 44px; color: var(--text-soft); font-size: 13px; cursor: pointer; }
+.dash-check input { width: 18px; height: 18px; accent-color: var(--gold); }
+.dash-form-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.dash-badge { display: inline-block; padding: 3px 10px; border: 1px solid var(--border-warm); border-radius: 999px; color: var(--gold-light); font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+.dash-badge.is-off { border-color: var(--border); color: var(--muted); }
+.dash-muted { color: var(--muted-soft); }
+.dash-row-actions { display: inline-flex; align-items: center; gap: 14px; }
+.dash-link-button { min-height: 44px; display: inline-flex; align-items: center; padding: 0; border: 0; background: none; color: var(--gold-light); font: inherit; font-size: 12px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.dash-link-button:disabled { opacity: .6; cursor: wait; }
+.dash-link-button:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 2px; }
