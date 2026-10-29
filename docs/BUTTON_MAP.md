@@ -28,8 +28,10 @@
 | Gallery | Card buttons, dialog Close | View image, Close | opens/closes `<dialog>` | works |
 | About | CTA | Explore services | `/services` | works |
 | Contact | CTA | (services link) | `/services` | works |
-| Contact | Phone, email, address, hours | — | `ContactDetails`: hours from `config/booking.js`; `tel:`/`mailto:`/Maps/social only when set in `config/site.js` | works; **TODO: owner has not supplied phone, email, street address, social URLs** |
-| Contact | Form submit | Send message | server action, toasts, Turnstile hook | works (loading state present) |
+| Contact | Contact information card | Phone / Email / Address / Follow us | `tel:`, `mailto:`, keyless Google Maps link and https social links, each only when set in `config/site.js`; all empty shows "Contact details coming soon." | works; **TODO: owner has not supplied phone, email, street address, social URLs** |
+| Contact | Opening hours card | hours (ET) | from `config/booking.js` (12-hour), plus holiday closures / early close from the same config | works |
+| Contact | Map card | Open in Google Maps | rendered only when a street address exists (no embed, no API key) | works (hidden until an address is set) |
+| Contact | Form submit | Send Message | server action, toasts, Turnstile hook | works (loading state present) |
 | Booking | Service checkboxes, barber select, date, time select | — | live availability | works |
 | Booking | Confirm | Confirm Appointment | `POST /api/bookings`, toasts; guests sent to sign-in with callback | works; no slots until barber schedules exist |
 | Booking | Wizard Next / Back | — | single form with progress indicator | skipped by decision |
@@ -61,3 +63,7 @@ Done: preselect (`lib/booking/preselect.js`, validated against the catalog on th
 ## Forgot password (2026-10-29)
 
 New: `/forgot-password`, `/reset-password`, Better Auth `sendResetPassword`/`onPasswordReset`, `sendPasswordResetEmail` (Nodemailer). Not sent live to a real address in testing.
+
+## Contact page (2026-10-29)
+
+Layout is now info/map/hours cards on the left and the message form on the right (stacked on <= 980 px). Not verified live with filled contact details (config still empty) or with a real form submission (would send mail).

@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** Stage 3 pricing page complete. **Next step:** Stage 3 contact page.
+**Where I stopped:** Stage 3 contact page complete. **Next step:** Stage 3 sign-in and sign-up pages.
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -296,3 +296,8 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - Hero copy from the mockup, hidden section heading, gold full-width buttons, centered price note. Details and the open Standard-package decision in `docs/DESIGN_SYSTEM.md`.
 - Checks: `npm test` 274 passed / 29 files; lint exit 0; build passed; production check on :3002 (stopped) at 1440 and 375 px.
 - **Where I stopped:** Stage 3 pricing page complete. **Next step:** Stage 3 contact page, then sign-in and sign-up.
+
+## Stage 3 unit: contact page (2026-10-29)
+- New `components/contact/ContactInfo.jsx` (`ContactInfoCard`, `OpeningHoursCard`, `MapCard`), `formatClosures` / `timeZoneLabel` in `lib/site/contact.js` (+ tests), contact page re-laid out, `ContactForm` restyled as a card (logic untouched). The user again left every contact detail blank, so `config/site.js` is unchanged and the page shows "Contact details coming soon." and no map button. Filling `contact.phone`, `contact.email`, `location.streetAddress`, `location.postalCode` and `social.*` activates those parts.
+- Checks: `npm test` 276 passed / 29 files; lint exit 0; build passed; production check on :3002 (stopped) at 1440/768/375 px; filled-data rendering and a real form submission were NOT exercised.
+- **Where I stopped:** Stage 3 contact page complete. **Next step:** Stage 3 sign-in and sign-up pages (last of the Stage 3 list); then re-verify home leftovers (barbers, footer).

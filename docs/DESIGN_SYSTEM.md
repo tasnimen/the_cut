@@ -193,3 +193,17 @@ Compared with the pricing panel of the public-pages mockup (hero, three package 
 | Price note | Under the removed heading | Centered line under the cards: "Prices are in USD, before tax. Payment is at the shop." |
 
 Unchanged and already matching: package names, prices ($25, $40, $60), inclusions with check marks, Popular badge. **Open decision:** the Standard package preselects the Combo service on `/booking`, which the catalog prices at $35 (package says $40). Options: (A) set the Standard price to $35, (B) add a real $40 service, (C) stop preselecting from packages. Verified on a production build: 1440 px and 375 px, no overflow, three package links correct.
+
+## Contact page alignment (2026-10-29)
+
+Compared with the contact panel of the public-pages mockup (contact information card, map card, opening hours, "Send us a message" form).
+
+| Item | Before | After |
+|---|---|---|
+| Layout | Info text plus a photo, then a separate form section | Two columns >= 981 px: contact information, map and opening hours cards on the left, message form card on the right; single column below (info first, form last) |
+| Contact information | City plus hours text, "published soon" sentence | `ContactInfoCard`: phone, email, address (Maps link) and social links only for fields set in `config/site.js`; if none, "Contact details coming soon." |
+| Opening hours | Part of the info text | `OpeningHoursCard`: 12-hour hours from `config/booking.js` with "(ET)", holiday closures and early close from the same config (`formatClosures`) |
+| Map | Photo backdrop | `MapCard`: dark navy/gold card over the `contact-map-backdrop` slot (no iframe, no API key); the "Open in Google Maps" button appears only when a street address exists |
+| Form | Own section with intro column | Card headed "Send us a message"; labels Full name, Email address, Message; button "Send Message"; behaviour unchanged (Zod, honeypot, rate limit, Turnstile hook, toasts) |
+
+Not in the mockup match: a phone field in the form (the contact action and its schema have no phone field; adding one is a separate change to the server action and model) and a real map image. Verified on a production build at 1440, 768 and 375 px: no overflow, submit button 44 px at tablet/mobile widths.
