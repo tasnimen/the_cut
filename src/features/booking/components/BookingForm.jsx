@@ -101,7 +101,8 @@ export function BookingForm({ today, initialServiceSlugs = [] }) {
             {services.map((service) => (
               <label className={`booking-service-option${selected.includes(service.slug) ? " is-selected" : ""}`} key={service.slug}>
                 <span className="booking-service-icon" aria-hidden="true"><Icon name={service.icon} size={15} /></span>
-                <span className="booking-service-copy"><span>{service.name}</span><small>{service.durationMinutes} minutes · {Number.isInteger(service.priceMinorUnits) ? formatMoney(service.priceMinorUnits) : "Price to be confirmed"}</small></span>
+                <span className="booking-service-copy"><span>{service.name}</span><small>{service.durationMinutes} minutes</small></span>
+                <span className="booking-service-price">{Number.isInteger(service.priceMinorUnits) ? formatMoney(service.priceMinorUnits) : "TBC"}</span>
                 <input type="checkbox" value={service.slug} checked={selected.includes(service.slug)} onChange={() => toggleService(service.slug)} aria-label={`Select ${service.name}`} />
               </label>
             ))}
@@ -112,13 +113,18 @@ export function BookingForm({ today, initialServiceSlugs = [] }) {
         <fieldset className="booking-step-panel booking-barber-panel">
           <legend><span className="booking-step-number">2.</span><span>Select Barber</span></legend>
           <p className="booking-step-note">Available barbers are shown for this service.</p>
-          <label className="booking-label" htmlFor="booking-barber">Barber
-            <select id="booking-barber" value={barber} onChange={(event) => setBarber(event.target.value)}>
-              <option value="any">Any barber</option>
-              {availability?.barbers?.map((item) => <option value={item.slug} key={item.id}>{item.name}</option>)}
-            </select>
-          </label>
-          <p className="booking-field-note">Any barber assigns the least-booked eligible barber.</p>
+          <div className="booking-preference-list" role="radiogroup" aria-label="Barber">
+            {[{ id: "any", slug: "any", name: "Any barber" }, ...(availability?.barbers ?? [])].map((item) => (
+              <label className="booking-preference-option" key={item.id}>
+                <span className="booking-barber-mark" aria-hidden="true">{item.slug === "any" ? "★" : item.name.split(" ").map((part) => part[0]).join("").slice(0, 2)}</span>
+                <span className="booking-preference-copy">
+                  <strong>{item.name}</strong>
+                  {item.slug === "any" ? <small>Assigns the least-booked eligible barber</small> : null}
+                </span>
+                <input type="radio" name="barber" value={item.slug} checked={barber === item.slug} onChange={() => setBarber(item.slug)} />
+              </label>
+            ))}
+          </div>
         </fieldset>
 
         <fieldset className="booking-step-panel booking-date-panel">
@@ -127,19 +133,29 @@ export function BookingForm({ today, initialServiceSlugs = [] }) {
           <label className="booking-label" htmlFor="booking-date">Date
             <input id="booking-date" type="date" min={today} value={date} onChange={(event) => setDate(event.target.value)} required />
           </label>
-          <label className="booking-label" htmlFor="booking-time">Available time
-            <select id="booking-time" value={slot} onChange={(event) => setSlot(event.target.value)} required disabled={!availability?.slots?.length}>
-              <option value="">{availability ? availability.slots.length ? "Choose a time" : "No times available" : "Loading times…"}</option>
-              {availability?.slots?.map((item) => <option key={item.startsAt} value={item.startsAt}>{item.label} · {item.barberName}</option>)}
-            </select>
-          </label>
+          <p className="booking-step-note">{availability ? (availability.slots.length ? "Choose an available time" : "No times available") : "Loading times…"}</p>
+          <div className="booking-time-grid" role="radiogroup" aria-label="Available times">
+            {availability?.slots?.map((item) => (
+              <button
+                type="button"
+                role="radio"
+                aria-checked={slot === item.startsAt}
+                className={`booking-time-chip${slot === item.startsAt ? " is-selected" : ""}`}
+                key={item.startsAt}
+                onClick={() => setSlot(item.startsAt)}
+              >
+                <span>{item.label}</span>
+                <small>{item.barberName}</small>
+              </button>
+            ))}
+          </div>
           {availability && !availability.slots.length ? <p className="booking-field-note">No appointments are available for this date. Try another day.</p> : null}
         </fieldset>
       </div>
 
       <div className="booking-details-grid">
         <section className="booking-details-panel" aria-labelledby="booking-details-title">
-          <div className="booking-panel-heading"><span className="booking-step-number">4.</span><div><h2 id="booking-details-title">Your Details</h2><p>Your verified account supplies your name and email.</p></div></div>
+          <div className="booking-panel-heading"><span className="booking-step-number">4.</span><div><h2 id="booking-details-title">Your Details</h2><p>Your account supplies your name and email.</p></div></div>
           <label className="booking-label booking-phone-field" htmlFor="booking-phone">Phone number <span className="booking-optional">Optional</span>
             <input id="booking-phone" type="tel" autoComplete="tel" value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="+1 212 555 0100" />
           </label>
@@ -154,9 +170,9 @@ export function BookingForm({ today, initialServiceSlugs = [] }) {
             <div><dt>Price before tax</dt><dd>{priceIsConfigured ? formatMoney(total) : "To be confirmed"}</dd></div>
             <div><dt>Payment</dt><dd>At the shop</dd></div>
           </dl>
-          {status ? <p className="booking-status" role="status" aria-live="polite">{status}{/sign in/i.test(status) ? <> <Link href={`${ROUTES.signIn}?callbackURL=${encodeURIComponent(ROUTES.booking)}`}>Sign in</Link></> : null}</p> : null}
+          {status ? <p className="booking-status" role="status" aria-live="polite">{status}{/sign in/i.test(status) ? <> <Link href={signInUrlFor(ROUTES.booking)}>Sign in</Link></> : null}</p> : null}
           <p className="booking-summary-note">Cancel or reschedule free up to 24 hours before your visit. After that, contact the shop for help.</p>
-          <Button type="submit" className="booking-submit" icon="arrowRight" disabled={pending || !chosenSlot || !priceIsConfigured}>{pending ? "Confirming…" : "Confirm Booking"}</Button>
+          <Button type="submit" className="booking-submit" icon="arrowRight" disabled={pending || !chosenSlot || !priceIsConfigured}>{pending ? "Confirming…" : "Confirm Appointment"}</Button>
         </aside>
       </div>
     </form>

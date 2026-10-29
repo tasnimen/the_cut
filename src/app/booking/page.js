@@ -26,7 +26,7 @@ export default function BookingPage({ searchParams }) {
         <section className="booking-intro page-shell" aria-labelledby="booking-page-title">
           <p className="eyebrow">Book appointment</p>
           <h1 id="booking-page-title">Schedule Your Visit</h1>
-          <p>Choose your services, barber, and an available time.</p>
+          <p>Choose your service, barber, date and time, in just a few steps.</p>
         </section>
 
         <section className="booking-section page-shell" aria-label="Appointment request form">
