@@ -10,6 +10,7 @@ import { getIP } from "@better-auth/core/utils/ip";
 import { cookies } from "next/headers";
 import { env, requireEnv } from "@/config/env";
 import { isStepUpTokenValid, STEP_UP_COOKIE_NAME } from "@/lib/auth/security-events";
+import { isEmailVerificationSatisfied } from "@/lib/auth/verification-policy";
 
 async function auditDenial(actorId, permission, requestHeaders) {
   const { db } = await getMongo();
@@ -49,7 +50,7 @@ export async function requirePrincipal(permission) {
 
   const { role, status, sessionVersion: currentUserVersion } = session.user;
   const sessionVersion = session.session.sessionVersion;
-  if (!session.user.emailVerified || status !== "ACTIVE" || !Object.values(ROLES).includes(role) || !hasPermission(role, permission) || !isSessionVersionCurrent(sessionVersion, currentUserVersion)) {
+  if (!isEmailVerificationSatisfied(session.user, env.AUTH_REQUIRE_EMAIL_VERIFICATION) || status !== "ACTIVE" || !Object.values(ROLES).includes(role) || !hasPermission(role, permission) || !isSessionVersionCurrent(sessionVersion, currentUserVersion)) {
     await auditDenial(session.user.id, permission, requestHeaders);
     throw new AuthorizationError(403);
   }

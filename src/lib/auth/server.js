@@ -40,11 +40,11 @@ export async function getAuth() {
         database: mongodbAdapter(db, { client }),
         emailAndPassword: {
           enabled: true,
-          requireEmailVerification: true,
+          requireEmailVerification: env.AUTH_REQUIRE_EMAIL_VERIFICATION,
         },
         emailVerification: {
-          sendOnSignUp: true,
-          sendOnSignIn: true,
+          sendOnSignUp: env.AUTH_REQUIRE_EMAIL_VERIFICATION,
+          sendOnSignIn: env.AUTH_REQUIRE_EMAIL_VERIFICATION,
           expiresIn: 60 * 60,
           autoSignInAfterVerification: false,
           sendVerificationEmail: async ({ user, url, token }) => {

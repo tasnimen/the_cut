@@ -8,6 +8,7 @@ const envSchema = z.object({
   MONGODB_DB_NAME: z.string().min(1).optional(),
   BETTER_AUTH_SECRET: z.string().min(32).optional(),
   BETTER_AUTH_URL: z.string().url().optional(),
+  AUTH_REQUIRE_EMAIL_VERIFICATION: z.preprocess((value) => value === "" ? undefined : value, z.enum(["true", "false"]).default("false").transform((value) => value === "true")),
   IMGBB_API_KEY: z.preprocess((value) => value === "" ? undefined : value, z.string().min(1).optional()),
   TURNSTILE_SECRET_KEY: z.preprocess((value) => value === "" ? undefined : value, z.string().min(1).optional()),
   NEXT_PUBLIC_TURNSTILE_SITE_KEY: z.preprocess((value) => value === "" ? undefined : value, z.string().min(1).optional()),
