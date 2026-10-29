@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** I-11 complete (admin bookings, not verified live as admin). **Next step:** I-12 on the owner's ok.
+**Where I stopped:** I-12 complete (all bookings search; not verified live as admin). **Next step:** I-13 on the owner's ok.
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -405,3 +405,9 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - Search, filters and pagination are I-12; walk-in booking is I-13.
 - **Cleanup for the owner (Atlas, dev database):** delete user `dummy-i11@example.invalid` with its `account`/`session` documents, plus earlier dummies (I-8, I-9, I-10).
 - **Where I stopped:** I-11 complete. **Next step:** I-12 (all bookings, search, filter, pagination) on the owner's ok.
+
+## Unit I-12 done (2026-10-29): all bookings, search, filter, pagination
+- New: `/admin/bookings/all` page; `parseBookingFilters`, `buildBookingQuery`, `filtersToQueryString` in `lib/booking/admin-bookings.js`; repository `adminSearch` and `adminBarberOptions`; "All bookings" button on the day view. Tests extended (the repository test's fake database now supports `$or`, `$regex`, skip and limit).
+- Not verified live as an admin (same reason as I-11); steps in TESTING.md.
+- **Cleanup for the owner:** none new (dummies from I-8 to I-11 are listed above).
+- **Where I stopped:** I-12 complete. **Next step:** I-13 (walk-in booking) on the owner's ok.

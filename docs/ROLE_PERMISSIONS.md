@@ -84,3 +84,5 @@ Responses for these paths carry `Cache-Control: no-store` and `X-Robots-Tag: noi
 **Avatar and deletion request (I-10):** the photo route `/api/account/avatar` needs `mediaAvatarOwn` (OWN) and only ever touches the caller's own avatar records; the deletion request actions need `profileOwn`. Admins and super admins can use both for their own account.
 
 **Admin bookings (I-11):** `/admin/bookings` and its Server Action need `bookingsManageAll` (ADMIN and SUPER_ADMIN, scope ALL, TOTP enrolled). Customers and guests get 404 on the page. The action takes only a booking id and a target status; the status rules are re-checked on the server.
+
+**All bookings (I-12):** `/admin/bookings/all` needs `bookingsManageAll` like the day view (same guard, same row actions). It is a read of every customer's bookings, limited to name and phone for contact; customers' user ids are not returned.
