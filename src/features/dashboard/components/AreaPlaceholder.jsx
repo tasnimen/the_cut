@@ -1,19 +1,17 @@
-import { SiteFrame } from "@/components/layout/SiteFrame";
-import { ROLE_LABELS } from "@/config/navigation";
+import { site } from "@/config/site";
+import { greetingFor } from "@/config/dashboard-nav";
+import { EmptyState, PageHeader, Panel } from "@/features/dashboard/components/primitives";
 
-// Temporary body for a dashboard area until its shell and screens are built (units I-2 onward).
+// Temporary body for a dashboard area until its screens are built (units I-8 onward).
 // Shows only the signed-in principal's own data; no figures are invented.
 export function AreaPlaceholder({ principal, title, description }) {
+  const firstName = (principal.name || principal.email).split(/\s+/)[0];
   return (
-    <SiteFrame headerVariant="flow">
-      <section className="dashboard-placeholder page-shell" aria-labelledby="dashboard-placeholder-title">
-        <div className="contact-card">
-          <p className="eyebrow">{ROLE_LABELS[principal.role] ?? "Account"}</p>
-          <h1 id="dashboard-placeholder-title">{title}</h1>
-          <p className="contact-empty">{description}</p>
-          <p className="contact-empty">Signed in as {principal.name || principal.email}.</p>
-        </div>
-      </section>
-    </SiteFrame>
+    <>
+      <PageHeader eyebrow={title} title={`${greetingFor(new Date(), site.timeZone)}, ${firstName}`} description="Here is what is happening at The Cut." />
+      <Panel>
+        <EmptyState icon="dashboard" title="Nothing to show yet" text={description} />
+      </Panel>
+    </>
   );
 }
