@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** Stage 3 about page complete. **Next step:** Stage 3 gallery page.
+**Where I stopped:** Stage 3 gallery page complete. **Next step:** Stage 3 pricing page.
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -285,3 +285,9 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - Checks: `npm test` 271 passed / 28 files; eslint on `src/app` clean; build passed; production check on :3002 (stopped): sections in order, 0 broken images after scrolling, no overflow, no fabricated figures. Not screenshotted at 375/768 px this unit (about uses shared sections already checked).
 - TODO for the owner: real story text, years/clients/barber counts (if a stats row is wanted), team photos and roles.
 - **Where I stopped:** Stage 3 about page complete. **Next step:** Stage 3 gallery page, then pricing, contact, sign-in, sign-up.
+
+## Stage 3 unit: gallery page (2026-10-29)
+- Hero copy from the mockup; tabs in mockup order, shown only for categories with visible items; photo-only items (`gallery-04..08`) render once the file exists in `public/images/`; sample disclosure shows only while samples are visible. `GalleryGrid` now takes `items` and `images` props. Tests: `gallery.test.js` (3).
+- Checks: `npm test` 274 passed / 29 files; lint exit 0; build passed. Production check on :3002 with a temporary photo (removed): tab, filter and dialog work.
+- To fill the gallery: add `gallery-04.webp` ... `gallery-08.webp` (and replace the three samples with real photos) per `docs/IMAGE_SLOTS.md`.
+- **Where I stopped:** Stage 3 gallery page complete. **Next step:** Stage 3 pricing page, then contact, sign-in, sign-up.

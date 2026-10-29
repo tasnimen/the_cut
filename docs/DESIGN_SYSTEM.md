@@ -167,3 +167,16 @@ Compared with the about panel of the public-pages mockup.
 | Reviews ("What Our Clients Say") | Not present | Hidden until real reviews exist (Phase I) |
 
 Still different: team portraits and names (no photos or confirmed barber details; cards use the neutral placeholder and generic roles), page-specific story photo (`about-story` slot), and the placeholder sentence "Our story, team details, and shop history will be added when the business information is confirmed" (kept: it is honest). Verified on a production build: sections render in order, no broken images after scrolling, no overflow.
+
+## Gallery page alignment (2026-10-29)
+
+Compared with the gallery panel of the public-pages mockup (tabs All, Haircuts, Beards, Shaves, Styles, Events and a photo grid).
+
+| Item | Before | After |
+|---|---|---|
+| Hero | "The gallery / Moments around the craft." | "Our gallery / Moments that define our craft." with the mockup's description |
+| Tabs | Only the categories of the three sample images (Studio, Tools & details) | Mockup order (Haircuts, Beards, Shaves, Styles, Events, then Studio, Tools & details); a tab appears only when it has a visible item (`galleryCategories`) |
+| Items | 3 labelled sample/concept images | Same 3, plus slots `gallery-04` to `gallery-08` (Haircuts, Beards, Shaves, Styles, Events) that render **only once the owner adds the photo** (`visibleGalleryItems`); no placeholder tiles or fake work |
+| Disclosure | Always shown | Shown only while sample images are visible |
+
+Grid layout (3 columns, wide/tall spans) is unchanged. Verified on a production build with a temporary `gallery-04.webp` (removed afterwards): the Haircuts tab and card appeared, filtering and the dialog worked.
