@@ -50,3 +50,22 @@ describe("paths and landing", () => {
     expect(landingPathFor(undefined)).toBe("/");
   });
 });
+
+import { decideEnrolmentAccess } from "./dashboard-access.js";
+
+describe("decideEnrolmentAccess", () => {
+  const s = (role, extra = {}) => ({ user: { role, status: "ACTIVE", twoFactorEnabled: false, ...extra }, versionCurrent: true });
+
+  it("lets only not-yet-enrolled active admins enrol", () => {
+    expect(decideEnrolmentAccess(s("ADMIN")).action).toBe("allow");
+    expect(decideEnrolmentAccess(s("SUPER_ADMIN")).action).toBe("allow");
+    expect(decideEnrolmentAccess(s("USER")).action).toBe("notFound");
+    expect(decideEnrolmentAccess(s("ADMIN", { status: "SUSPENDED" })).action).toBe("notFound");
+  });
+
+  it("sends guests and stale sessions to sign-in and enrolled admins on to their dashboard", () => {
+    expect(decideEnrolmentAccess(null).action).toBe("signIn");
+    expect(decideEnrolmentAccess({ ...s("ADMIN"), versionCurrent: false }).action).toBe("signIn");
+    expect(decideEnrolmentAccess(s("ADMIN", { twoFactorEnabled: true })).action).toBe("done");
+  });
+});

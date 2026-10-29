@@ -1,7 +1,7 @@
 import "server-only";
 import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
-import { DASHBOARD_AREAS, decideDashboardAccess } from "@/config/dashboard-access";
+import { DASHBOARD_AREAS, decideDashboardAccess, decideEnrolmentAccess, landingPathFor } from "@/config/dashboard-access";
 import { ROUTES } from "@/config/routes";
 import { getAuth } from "@/lib/auth/server";
 import { signInUrlFor } from "@/lib/auth/callback";
@@ -31,4 +31,20 @@ export async function requireDashboardAccess(areaKey) {
 
   const { id, name, email, role } = session.user;
   return Object.freeze({ id, name: name || "", email: email || "", role });
+}
+
+// Guard for /two-factor (enrolment). Guests go to sign-in and come back; customers get 404;
+// admins who are already enrolled go straight to their dashboard.
+export async function requireEnrolmentAccess() {
+  const auth = await getAuth();
+  const session = await auth.api.getSession({ headers: await headers() });
+  const normalized = session?.user
+    ? { user: session.user, versionCurrent: isSessionVersionCurrent(session.session?.sessionVersion, session.user.sessionVersion) }
+    : null;
+  const decision = decideEnrolmentAccess(normalized);
+  if (decision.action === "notFound") notFound();
+  if (decision.action === "signIn") redirect(signInUrlFor(ROUTES.twoFactor));
+  if (decision.action === "done") redirect(landingPathFor(session.user.role));
+  const { name, email, role } = session.user;
+  return Object.freeze({ name: name || "", email: email || "", role });
 }

@@ -33,3 +33,13 @@ export function decideDashboardAccess(area, session) {
   if (area.requiresTwoFactor && !user.twoFactorEnabled) return { action: "twoFactor" };
   return { action: "allow" };
 }
+
+// Who may open the TOTP enrolment page (/two-factor): signed-in, active ADMIN or SUPER_ADMIN who has
+// not enrolled yet. Customers get 404 (nothing to enrol here); enrolled admins go to their dashboard.
+export function decideEnrolmentAccess(session) {
+  const user = session?.user;
+  if (!user || session.versionCurrent === false) return { action: "signIn" };
+  if (user.status !== "ACTIVE" || !["ADMIN", "SUPER_ADMIN"].includes(user.role)) return { action: "notFound" };
+  if (user.twoFactorEnabled) return { action: "done" };
+  return { action: "allow" };
+}
