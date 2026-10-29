@@ -878,3 +878,12 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 4; pointer-event
 .dash-gallery-body { display: grid; gap: 8px; min-width: 0; }
 .dash-gallery-body p { margin: 0; overflow-wrap: anywhere; }
 @media (max-width: 520px) { .dash-gallery-item { grid-template-columns: 1fr; } .dash-gallery-thumb { width: 100%; height: auto; aspect-ratio: 4 / 3; } }
+
+/* Admin reports (I-22) */
+.dash-bars { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; max-width: 760px; }
+.dash-bar-row { display: grid; grid-template-columns: minmax(96px, 200px) 1fr 40px; align-items: center; gap: 12px; font-size: 13px; }
+.dash-bar-label { color: var(--text-soft); overflow-wrap: anywhere; }
+.dash-bar-track { height: 10px; border-radius: 999px; background: var(--surface-muted); border: 1px solid var(--border); overflow: hidden; }
+.dash-bar-fill { display: block; height: 100%; border-radius: 999px; background: var(--gold); }
+.dash-bar-count { color: var(--text); font-weight: 600; text-align: right; }
+@media (max-width: 520px) { .dash-bar-row { grid-template-columns: minmax(80px, 110px) 1fr 32px; gap: 8px; } }
