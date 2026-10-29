@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** Stage 1b complete. **Next step:** Stage 1c.
+**Where I stopped:** Stage 1 complete. **Next step:** Stage 2A.
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -178,3 +178,9 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - Price-gating tests already exist in `repository.test.js`; `seed-core.test.js` and `money.test.js` updated/added. Targeted vitest (booking + format): 20 passed. Targeted eslint clean. `/pricing`, `/services`, `/booking` return 200; pricing shows $25/$40/$60.
 - Delete candidates (not deleted): root `MASTER_PROMPT.md` (0 bytes).
 - **Where I stopped:** 1b complete. **Next step:** 1c (check booking config vs docs).
+
+## Stage 1c done / Stage 1 complete (2026-10-29)
+- Booking config verified against docs: New York, USD, 15-min grid, 5-min buffer, 60-min lead, 30-day window, max 3 services, max 2 active bookings, 24h cancel/reschedule cutoff (enforced in `repository.js`), pay at shop. Lead time and window are enforced through availability (`rules.js`), which `createBooking` consults.
+- Removed unused `defaultServiceDurations` and `barberNames` from `config/booking.js` (they contradicted the catalog: beard-trim 30 vs 20, combo 60 vs 45). Added policy-value and lead/window tests to `rules.test.js`.
+- Stage 1 full checks: `npm test` 235 passed / 19 files; `npm run lint` 0 problems; `npm run build` passed.
+- **Where I stopped:** Stage 1 complete. **Next step:** Stage 2A (disable email verification behind `AUTH_REQUIRE_EMAIL_VERIFICATION=false`) after the user says "continue".
