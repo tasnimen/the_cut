@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** I-14 complete (customers list; not verified live as admin). **Next step:** owner picks the next unit (rest of Admin I-18 to I-22 or Super Admin).
+**Where I stopped:** I-20 complete (contact messages; not verified live as admin). **Next step:** owner picks the next unit (I-19 gallery, I-22 reports, Super Admin).
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -423,3 +423,10 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - Processing a deletion request (and suspending or editing customers) is NOT built; it belongs to the Super Admin account units (I-23 onwards). Until then, a deletion request is only visible as a badge here and in the database (`accountDeletionRequest`).
 - Not verified live as an admin; steps in TESTING.md.
 - **Where I stopped:** I-14 complete (end of the bookings, user and customers round). **Next step:** owner decides: I-18 to I-22 (rest of Admin: gallery I-19, messages I-20, reports I-22) or the Super Admin units.
+
+## Unit I-20 done (2026-10-30): contact messages
+- New: `lib/contact/admin-messages.js` (+ test), `app/admin/messages/{page,[id]/page,actions}` (+ test), `features/dashboard/messages/MessageActions.jsx`; "Messages" enabled in the admin sidebar; toast `messageDeleted`; CSS `.dash-message-body`.
+- Delete is Super Admin only (matches `contactDeleteAll`); the plan said "delete" without saying who, so I followed the permission table. Say if Admins should delete too (then change the permission, with a test).
+- Replying is done in the admin's own mail program (mailto link); the site does not send replies, so "Replied" is marked by hand.
+- Not verified live as an admin; steps in TESTING.md.
+- **Where I stopped:** I-20 complete. **Next step:** I-19 (gallery), I-22 (reports), I-18 (check what is left) or the Super Admin units, on the owner's ok.

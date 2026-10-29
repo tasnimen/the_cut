@@ -84,3 +84,7 @@ Automated (fake database): booking with no account, no lead-time or cap, taken s
 ## Customers list (I-14)
 
 Automated with fakes (parsing, escaping, limited fields, statistics join, empty page). Live: guest and customer get 404 on /admin/customers. **Not exercised live as an admin.** Please check as an admin: (1) Admin > Customers lists your test accounts newest first with join date, booking counts (e.g. "2 (1 completed)") and last visit; (2) search by part of a name and of an email; (3) "Flagged for review" shows customers with 2 or more no-shows; (4) a customer who asked for deletion in their profile shows a "Deletion requested" badge; (5) no phone numbers, roles or edit buttons appear; (6) at 375 px the table scrolls inside its box.
+
+## Contact messages (I-20)
+
+Automated with fakes (filters, escaping, list and single read, status change and delete with audit, Admin refused on delete). Live (earlier unit, still true): guest and customer get 404 on admin pages. **Not exercised live as an admin.** Please check: (1) send a message from /contact (needs the spam check configured); (2) Admin > Messages shows it as New and the "New messages" counter goes up; (3) open it: full text, Reply by email opens your mail program addressed to the customer, delivery status shown; (4) Mark as replied, list shows Replied and the counter goes down; (5) search for part of the text; (6) as an Admin there is no Delete button; as a Super Admin Delete asks to confirm, then removes it and returns to the list; (7) at 375 px the page does not overflow.
