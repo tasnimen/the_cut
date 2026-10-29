@@ -18,6 +18,8 @@ export const TOAST_MESSAGES = Object.freeze({
   adminDenied: { type: "error", text: "You are not allowed to do that." },
   adminFailed: { type: "error", text: "We could not save that. Check the fields and try again." },
   adminDuplicate: { type: "error", text: "That identifier is already in use." },
+  profileSaved: { type: "success", text: "Your name was updated." },
+  sessionRevoked: { type: "success", text: "Signed out on that device." },
   bookingCreated: { type: "success", text: "Your appointment is confirmed." },
   bookingCancelled: { type: "success", text: "Your appointment was cancelled." },
   bookingRescheduled: { type: "success", text: "Your appointment was rescheduled." },

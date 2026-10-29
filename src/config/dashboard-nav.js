@@ -9,7 +9,7 @@ export const DASHBOARD_NAV = Object.freeze({
   user: Object.freeze([
     item("Overview", "/user", "dashboard", true),
     item("Appointments", "/user/appointments", "calendar", true),
-    item("Profile", "/user/profile", "users"),
+    item("Profile", "/user/profile", "users", true),
     item("Security", "/user/security", "shield"),
   ]),
   admin: Object.freeze([

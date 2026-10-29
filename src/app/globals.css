@@ -840,3 +840,11 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 4; pointer-event
 .dash-confirm { display: grid; gap: 10px; padding: 12px 14px; border: 1px solid var(--border-warm); border-radius: 6px; }
 .dash-confirm p { margin: 0; color: var(--text-soft); font-size: 13px; }
 .dash-reschedule { display: grid; gap: 10px; padding-top: 6px; border-top: 1px solid var(--border-soft); }
+
+/* Customer profile (I-9) */
+.dash-session-list { display: grid; gap: 16px; max-width: 760px; }
+.dash-session-items { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.dash-session { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface-muted); }
+.dash-session strong { color: var(--text); font-size: 13px; }
+.dash-session p.dash-muted { margin: 4px 0 0; font-size: 12px; }
+.dash-field input[readonly] { color: var(--muted); }
