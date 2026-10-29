@@ -9,6 +9,7 @@ import { reservationSlotStarts, calculateBookingDuration } from "@/lib/booking/r
 import { adminAllowedActions, buildBookingQuery, SEARCH_PAGE_SIZE } from "@/lib/booking/admin-bookings";
 import { businessDate, formatBookingDateTime, getLocalDayRange, isValidLocalDate } from "@/lib/booking/time";
 import { transitionBooking } from "@/lib/booking/state-machine";
+import { WALK_IN_PREFIX, walkInClock } from "@/lib/booking/walk-in";
 import { appendAuditEvent } from "@/lib/security/audit-log";
 
 const ACTIVE_STATUSES = [...ACTIVE_BOOKING_STATUSES];
@@ -38,6 +39,7 @@ function publicBooking(record) {
     totalPriceMinorUnits: record.totalPriceMinorUnits,
     currency: record.currency,
     status: record.status,
+    source: record.source ?? "online",
     createdAt: record.createdAt.toISOString(),
     cancelledAt: record.cancelledAt?.toISOString() || null,
   });
@@ -257,10 +259,62 @@ export function createBookingRepository({ client, db, config = BOOKING_CONFIG, c
       return { bookings: records.map(publicBooking), total, page: filters.page, pageSize: SEARCH_PAGE_SIZE, pages: Math.max(1, Math.ceil(total / SEARCH_PAGE_SIZE)) };
     },
 
+    // Admin: free times for a walk-in. Same rules as online booking except that a slot may start right now.
+    async adminAvailability({ localDate, serviceSlugs, barber = "any" }) {
+      return loadBookingOptions(db, { localDate, serviceSlugs, barber, now: walkInClock(clock(), config.minimumLeadMinutes), config });
+    },
+
+    // Admin: books a customer who is in the shop. There is no account, so the booking carries a synthetic
+    // `walkin:<id>` owner (never matches a signed-in user), source "walk-in" and who created it.
+    async createWalkIn({ principal, customerName, phone = "", serviceSlugs, startsAt, barber = "any" }) {
+      const start = new Date(startsAt);
+      if (!Number.isFinite(start.getTime())) throw new BookingError("invalid_start_time", 400);
+      const normalizedPhone = phone ? normalizeUsPhone(phone) : null;
+      if (phone && !normalizedPhone) throw new BookingError("invalid_phone", 400);
+      return transaction(async (session) => {
+        const nowDate = clock();
+        const { barberRecord, services, durationMinutes } = await chooseSlot(session, { serviceSlugs, startsAt: start, barber, now: walkInClock(nowDate, config.minimumLeadMinutes) });
+        const bookingId = new ObjectId();
+        const serviceSnapshots = services.map((service) => ({ slug: service.slug, name: service.name, durationMinutes: service.durationMinutes, priceMinorUnits: service.priceMinorUnits, currency: "USD" }));
+        const booking = {
+          _id: bookingId,
+          userId: `${WALK_IN_PREFIX}${bookingId}`,
+          source: "walk-in",
+          createdBy: principal.id,
+          customerName: String(customerName).trim().slice(0, 100),
+          phoneE164: normalizedPhone,
+          smsConsent: false,
+          smsConsentAt: null,
+          services: serviceSnapshots,
+          barberId: String(barberRecord._id),
+          barberName: barberRecord.name,
+          startsAt: start,
+          endsAt: new Date(start.getTime() + durationMinutes * 60_000),
+          durationMinutes,
+          bufferMinutes: config.cleanupBufferMinutes,
+          totalPriceMinorUnits: serviceSnapshots.reduce((sum, service) => sum + service.priceMinorUnits, 0),
+          currency: "USD",
+          status: "confirmed",
+          createdAt: nowDate,
+          updatedAt: nowDate,
+          cancelledAt: null,
+          completedAt: null,
+          noShowAt: null,
+          reminderDueAt: null,
+          reminderSentAt: null,
+          reminderClaimedAt: null,
+        };
+        await holdSlots(session, { bookingId, barberId: booking.barberId, startsAt: start, durationMinutes });
+        await db.collection(BOOKING_COLLECTION).insertOne(booking, { session });
+        await appendAuditEvent(db, bookingAudit({ actorId: principal.id, bookingId, action: "booking.walk_in_created" }), { session });
+        return publicBooking(booking);
+      });
+    },
+
     // Admin: barbers for the filter drop-down (id as stored on bookings, and name).
     async adminBarberOptions() {
-      const barbers = await db.collection("barber").find({}, { projection: { name: 1 } }).sort({ name: 1 }).toArray();
-      return barbers.map((barber) => ({ id: String(barber._id), name: barber.name }));
+      const barbers = await db.collection("barber").find({}, { projection: { name: 1, slug: 1 } }).sort({ name: 1 }).toArray();
+      return barbers.map((barber) => ({ id: String(barber._id), slug: barber.slug, name: barber.name }));
     },
 
     // Admin: confirm, complete or cancel one booking (no-show goes through markNoShow). Returns the booking
@@ -303,18 +357,20 @@ export function createBookingRepository({ client, db, config = BOOKING_CONFIG, c
           throw new BookingError("late_arrival_grace_not_elapsed", 409);
         }
         transitionBooking(booking.status, "no_show");
-        const customer = await db.collection("user").findOne(userIdFilter(booking.userId), { session, projection: { noShowCount: 1, adminReviewFlaggedAt: 1 } });
+        // Walk-ins have no account, so there is no customer record to count the no-show against.
+        const walkIn = booking.source === "walk-in";
+        const customer = walkIn ? {} : await db.collection("user").findOne(userIdFilter(booking.userId), { session, projection: { noShowCount: 1, adminReviewFlaggedAt: 1 } });
         if (!customer) throw new BookingError("account_unavailable", 409);
         const previousCount = Number.isInteger(customer.noShowCount) ? customer.noShowCount : 0;
         const nextCount = previousCount + 1;
         const setFields = nextCount >= config.noShowReviewThreshold
           ? { adminReviewRequired: true, adminReviewFlaggedAt: customer.adminReviewFlaggedAt || nowDate }
           : {};
-        await db.collection("user").updateOne(userIdFilter(booking.userId), { $inc: { noShowCount: 1 }, ...(Object.keys(setFields).length ? { $set: setFields } : {}) }, { session });
+        if (!walkIn) await db.collection("user").updateOne(userIdFilter(booking.userId), { $inc: { noShowCount: 1 }, ...(Object.keys(setFields).length ? { $set: setFields } : {}) }, { session });
         await db.collection(BOOKING_COLLECTION).updateOne({ _id: id, status: "confirmed" }, { $set: { status: "no_show", noShowAt: nowDate, updatedAt: nowDate } }, { session });
         await db.collection(BOOKING_SLOT_COLLECTION).deleteMany({ bookingId: id }, { session });
         await appendAuditEvent(db, bookingAudit({ actorId: principal.id, bookingId: id, action: "booking.no_show" }), { session });
-        if (previousCount < config.noShowReviewThreshold && nextCount >= config.noShowReviewThreshold) {
+        if (!walkIn && previousCount < config.noShowReviewThreshold && nextCount >= config.noShowReviewThreshold) {
           await appendAuditEvent(db, {
             actorId: principal.id,
             action: "booking.customer_flagged_for_review",

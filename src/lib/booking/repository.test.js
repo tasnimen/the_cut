@@ -219,6 +219,54 @@ describe("admin booking search", () => {
 
   it("lists barbers for the filter", async () => {
     const { repository } = many(1);
-    expect(await repository.adminBarberOptions()).toEqual([{ id: expect.any(String), name: "Alex" }]);
+    expect(await repository.adminBarberOptions()).toEqual([{ id: expect.any(String), slug: "alex", name: "Alex" }]);
+  });
+});
+
+describe("walk-in bookings", () => {
+  const admin = { id: "admin-1" };
+  const sunday = "2027-04-05"; // a Monday in the fake barber's schedule
+  const noon = () => new Date("2027-04-05T14:00:00Z");
+
+  it("books a customer with no account, starting right now, without the lead time or the booking cap", async () => {
+    const { db, client, data } = bookingDb();
+    const repository = createBookingRepository({ client, db, clock: () => new Date("2027-04-05T13:55:00Z") });
+    const booking = await repository.createWalkIn({ principal: admin, customerName: " Walk In Guy ", phone: "(212) 555-0147", serviceSlugs: ["haircut"], startsAt: noon().toISOString() });
+    expect(booking).toMatchObject({ customerName: "Walk In Guy", status: "confirmed", source: "walk-in", totalPriceMinorUnits: 2500 });
+    const saved = data.booking[0];
+    expect(saved.userId).toBe(`walkin:${saved._id}`);
+    expect(saved).toMatchObject({ createdBy: "admin-1", phoneE164: "+12125550147", smsConsent: false, reminderDueAt: null });
+    expect(data.bookingSlot.length).toBeGreaterThan(0);
+    expect(data.auditLog[0]).toMatchObject({ actorId: "admin-1", action: "booking.walk_in_created" });
+    expect(JSON.stringify(booking)).not.toMatch(/walkin:/);
+  });
+
+  it("still refuses a taken slot and a bad phone number", async () => {
+    const { db, client, data } = bookingDb();
+    const repository = createBookingRepository({ client, db, clock: () => new Date("2027-04-05T13:55:00Z") });
+    const args = { principal: admin, customerName: "Walk In", serviceSlugs: ["haircut"], startsAt: noon().toISOString() };
+    await repository.createWalkIn(args);
+    await expect(repository.createWalkIn(args)).rejects.toMatchObject({ code: expect.stringMatching(/slot_just_taken|slot_unavailable/) });
+    await expect(repository.createWalkIn({ ...args, phone: "12" })).rejects.toMatchObject({ code: "invalid_phone" });
+    expect(data.booking).toHaveLength(1);
+  });
+
+  it("lists free times starting now for walk-ins but not for online booking", async () => {
+    const { db, client } = bookingDb();
+    const repository = createBookingRepository({ client, db, clock: () => new Date("2027-04-05T13:55:00Z") });
+    const walkIn = await repository.adminAvailability({ localDate: sunday, serviceSlugs: ["haircut"] });
+    const online = await repository.availability({ localDate: sunday, serviceSlugs: ["haircut"], now: new Date("2027-04-05T13:55:00Z") });
+    expect(walkIn.slots.length).toBeGreaterThan(online.slots.length);
+  });
+
+  it("marks a walk-in no-show without needing a customer account", async () => {
+    const { db, client, data } = bookingDb();
+    let now = new Date("2027-04-05T13:55:00Z");
+    const repository = createBookingRepository({ client, db, clock: () => now });
+    const booking = await repository.createWalkIn({ principal: admin, customerName: "Walk In", serviceSlugs: ["haircut"], startsAt: noon().toISOString() });
+    now = new Date("2027-04-05T14:30:00Z");
+    const result = await repository.adminChangeStatus({ principal: admin, bookingId: booking.id, to: "no_show" });
+    expect(result.booking.status).toBe("no_show");
+    expect(data.user.every((user) => !user.noShowCount)).toBe(true);
   });
 });
