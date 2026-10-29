@@ -21,6 +21,14 @@
 - The reset page is `noindex` with `referrer: no-referrer` so the token in the URL is not leaked.
 - Not tested live against a real mailbox (a real send would use the production SMTP provider).
 
+## Two-step verification for admins (I-3, 2026-10-29)
+
+- Enrolment page `/two-factor` (guard `requireEnrolmentAccess`, pure rule `decideEnrolmentAccess`): guests go to sign-in and return; customers and suspended accounts get 404; already-enrolled admins go to their dashboard; page is `noindex`, `no-store`, disallowed in `robots.txt`.
+- Flow (Better Auth `twoFactor` plugin): confirm the password (`/two-factor/enable`), receive the setup key and one-time backup codes (shown once, kept only in component state), then prove the authenticator with a first code (`/two-factor/verify-totp`); two-factor is switched on by the server only after that code. Enabling changes `twoFactorEnabled`, which bumps `sessionVersion` and invalidates the session, so the admin signs in again and meets the challenge.
+- Sign-in challenge: when the response is `twoFactorRedirect`, the sign-in page shows a code step (authenticator code or a single-use backup code). No session exists until it succeeds; a successful TOTP also issues the existing step-up proof cookie. Failures use one generic message; 429 and 5xx map to their own toasts.
+- Limits: `/two-factor/*` is rate limited (10 per minute per IP) on top of the plugin's account lockout (5 failed attempts, 15 minutes) and the existing failed-auth audit and burst alert.
+- Tests: `two-factor-flow.test.js` (in-memory Better Auth: enrol, code needed before 2FA turns on, challenge at sign-in, wrong code refused, backup code single use, wrong password refused), `two-factor.test.js`, `dashboard-access.test.js`. **Not run live:** the enrolment pages with a real Admin (none seeded yet).
+
 ## Dashboard route guards (I-1, 2026-10-29)
 
 Unauthorized visitors never learn that the admin areas exist (404, not a redirect or 403); only the customer area sends guests to sign-in. Decisions are a pure function (`decideDashboardAccess`) covered by a role-matrix test (3 areas x 3 roles, suspended, unknown role, stale session, TOTP). Live check on a production build: guest `/admin` and `/super-admin` 404, guest `/user` 307 to sign-in with a validated callback, customer `/user` 200, customer `/admin` and `/super-admin` 404. Admin and Super Admin paths of the guard are unit-tested only (no seeded admin existed yet).

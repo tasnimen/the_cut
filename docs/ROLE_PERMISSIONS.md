@@ -73,3 +73,5 @@ Rules live in `src/config/dashboard-access.js` (pure, tested) and are applied by
 | Super admin | `/super-admin` | SUPER_ADMIN | yes | **404** (guests too) |
 
 Responses for these paths carry `Cache-Control: no-store` and `X-Robots-Tag: noindex, nofollow` (`next.config.mjs`); `robots.txt` disallows them. Stale sessions (`sessionVersion` mismatch) count as signed out. **Pattern for every unit:** each dashboard page calls `requireDashboardAccess(area)` (a layout alone is not enough because layouts are not re-rendered between sibling pages), and each server action or route handler calls `requirePrincipal(permission)` (`lib/auth/authorization.js`), which re-checks the session, status, permission, session version and TOTP on every call. After sign-in, admins land on their dashboard (`landingPathFor`); customers stay on the public site until the user dashboard is built (`USER_DASHBOARD_ENABLED`).
+
+**Two-factor enrolment (I-3):** `/two-factor` is for ADMIN and SUPER_ADMIN only; customers receive 404.

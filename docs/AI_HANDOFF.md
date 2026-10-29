@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** I-2 complete (dashboard shell). **Next step:** I-3 on the owner's ok.
+**Where I stopped:** I-3 complete (Round 1 done). **Next step:** owner runs the admin seed, then Round 2 (I-5) on the owner's ok.
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -331,3 +331,10 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - Not built on purpose: search box, notification bell, KPI numbers, charts (need real data or features that do not exist).
 - Dummy account used: `dummy-i1-guard@example.com` (delete in Atlas with the other dummies).
 - **Where I stopped:** I-2 complete. **Next step:** I-3 (TOTP enrolment and challenge pages) on the owner's ok. After the owner runs the seed, admin shells can be checked live.
+
+## Unit I-3 done (2026-10-29): TOTP enrolment and challenge
+- New: `/two-factor` page (`app/two-factor/page.jsx`, `features/auth/components/TwoFactorEnrol.jsx`), sign-in code step (`TwoFactorChallengeForm.jsx`, used by `AuthPanel` when the response has `twoFactorRedirect`), `lib/auth/two-factor.js` (+ tests), `decideEnrolmentAccess` and `requireEnrolmentAccess`, rate limit for `/two-factor/*`, toasts, headers and robots for `/two-factor`, CSS. Details in `docs/SECURITY.md`.
+- Verified: in-memory Better Auth flow test (3), pure helper tests, role/decision tests; production build; guest `/two-factor` redirects to sign-in with callback and carries no-store/noindex; robots disallows it. **Not verified live:** enrolment and challenge with a real Admin (none exists: the owner has not run the seed). An attempt to promote a dummy account to ADMIN for the test was blocked, correctly: role grants need the owner's decision.
+- Not built (decision for the owner): a QR code image (would need a small dependency such as `qrcode`; today the page shows the setup key and an `otpauth://` link that authenticator apps accept), disabling or re-generating backup codes (planned in the security screens of I-9 and I-25).
+- Checks: `npm test` all passing; lint exit 0; build passed.
+- **Where I stopped:** I-3 complete (Round 1 done). **Next step:** the owner runs the admin seed (or explicitly authorizes promoting one dummy account) so the admin side can be checked live; then Round 2, starting with I-5.

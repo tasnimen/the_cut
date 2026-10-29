@@ -36,3 +36,7 @@ Live Atlas transaction/session behavior, real barber schedule accuracy, provider
 ## Admin seed
 
 Dry run (read-only): `$env:NODE_ENV='development'; npm run seed:admins:dev`. Apply: also set `$env:ALLOW_ADMIN_SEED='YES_I_REVIEWED_THE_DEV_DATABASE'` and add `-- --apply`. Unit tests: `src/lib/auth/admin-seed-core.test.js` (credential rules, guards, plan, no password in messages). The live write has not been run by the assistant (the owner has not set the `SEED_*` values yet).
+
+## Admin TOTP (I-3)
+
+Manual live check once an Admin exists (after `npm run seed:admins:dev`): sign in as the Admin, open `/admin` (redirects to `/two-factor`), enter the password, add the setup key to an authenticator app, save the backup codes, enter the 6-digit code, then sign in again: the sign-in page asks for the code, a wrong code is refused, a backup code works once, and `/admin` opens. Automated coverage is in `src/lib/auth/two-factor-flow.test.js`.
