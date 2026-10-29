@@ -18,6 +18,9 @@ export const ServiceRecordSchema = z.object({
   priceMinorUnits: z.number().safe().int().positive().nullable(),
   currency: z.literal("USD"),
   active: z.boolean(),
+  displayOrder: z.number().int().min(0).max(999).optional(),
+  category: z.string().max(40).optional(),
+  icon: z.string().max(40).optional(),
   createdAt: z.date(),
   updatedAt: z.date(),
 }).strict();

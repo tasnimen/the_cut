@@ -35,3 +35,9 @@ export async function consumePublicRateLimit(request, { bucket, limit, windowMs 
   const key = `${bucket}:${createHmac("sha256", requireEnv("BETTER_AUTH_SECRET")).update(ip).digest("hex")}`;
   return (await getRateLimiter()).consume({ key, limit, windowMs });
 }
+
+// Rate limit keyed by the signed-in user (used by privileged Server Actions).
+export async function consumeUserRateLimit(userId, { bucket, limit, windowMs }) {
+  const key = `${bucket}:user:${createHmac("sha256", requireEnv("BETTER_AUTH_SECRET")).update(String(userId)).digest("hex")}`;
+  return (await getRateLimiter()).consume({ key, limit, windowMs });
+}
