@@ -3,6 +3,7 @@ import { Cormorant_Garamond, Manrope } from "next/font/google";
 import { env } from "@/config/env";
 import { site } from "@/config/site";
 import { SmoothScrollProvider } from "@/components/motion/SmoothScrollProvider";
+import { AppToaster } from "@/components/ui/AppToaster";
 import { connection } from "next/server";
 
 const displayFont = Cormorant_Garamond({
@@ -30,6 +31,7 @@ export default async function RootLayout({ children }) {
     <html lang={site.locale} className={`${displayFont.variable} ${bodyFont.variable}`}>
       <body>
         <SmoothScrollProvider>{children}</SmoothScrollProvider>
+        <AppToaster />
       </body>
     </html>
   );
