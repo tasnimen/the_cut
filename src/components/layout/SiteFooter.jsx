@@ -3,10 +3,16 @@ import { BrandMark } from "@/components/ui/BrandMark";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { ANCHORS, ROUTES } from "@/config/routes";
 import { ContactDetails } from "@/components/layout/ContactDetails";
+import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
+import { getImage } from "@/lib/images/server";
 
 export function SiteFooter() {
+  const backdrop = getImage("footer-backdrop");
   return (
     <footer className="site-footer" id={ANCHORS.contact}>
+      <div className="footer-backdrop" aria-hidden="true">
+        <ImageWithFallback src={backdrop.src} alt="" fill sizes="100vw" style={{ objectPosition: backdrop.objectPosition }} />
+      </div>
       <div className="footer-inner page-shell">
         <div className="footer-main">
           <div className="footer-brand-block">

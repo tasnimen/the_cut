@@ -1,4 +1,5 @@
 import { SiteFrame } from "@/components/layout/SiteFrame";
+import { CtaBanner } from "@/components/ui/CtaBanner";
 import { BarbersSection } from "@/features/landing/sections/BarbersSection";
 import { HeroSection } from "@/features/landing/sections/HeroSection";
 import { ServicesSection } from "@/features/landing/sections/ServicesSection";
@@ -16,6 +17,7 @@ export default function Home() {
         <HeroSection />
         <ServicesSection />
         <BarbersSection />
+        <CtaBanner />
         {/* TODO(Phase I): render <ReviewsSection /> again once real, approved reviews exist. */}
     </SiteFrame>
   );
