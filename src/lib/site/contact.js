@@ -53,3 +53,25 @@ export function socialLinks(social) {
     .filter(([, url]) => typeof url === "string" && /^https:\/\//.test(url))
     .map(([name, url]) => ({ name, url }));
 }
+
+const TIME_ZONE_LABELS = { "America/New_York": "ET" };
+export const timeZoneLabel = (timeZone) => TIME_ZONE_LABELS[timeZone] ?? timeZone;
+
+const HOLIDAY_LABELS = [
+  ["newYearsDay", "New Year's Day"],
+  ["memorialDay", "Memorial Day"],
+  ["independenceDay", "Independence Day"],
+  ["laborDay", "Labor Day"],
+  ["thanksgiving", "Thanksgiving"],
+  ["christmasDay", "Christmas Day"],
+];
+
+// Closures and early closes straight from config/booking.js `holidays` (no second list to maintain).
+export function formatClosures(holidays = {}) {
+  const closed = HOLIDAY_LABELS.filter(([key]) => holidays[key]).map(([, label]) => label);
+  const extraDates = Array.isArray(holidays.additionalClosedDates) ? holidays.additionalClosedDates : [];
+  const earlyClose = holidays.december24EarlyClose && /^\d{2}:\d{2}$/.test(holidays.december24EarlyCloseAt ?? "")
+    ? `Dec 24: closes ${to12h(holidays.december24EarlyCloseAt)}`
+    : null;
+  return { closed, extraDates, earlyClose };
+}

@@ -666,3 +666,32 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 4; pointer-event
 /* Stage 3: pricing buttons span the card like the mockup */
 .pricing-card .button { width: 100%; justify-content: space-between; }
 .pricing-note { margin: 18px 0 0; color: var(--muted); font-size: 11px; text-align: center; }
+
+/* Stage 3: contact page (info, map and hours cards left; message form right) */
+.contact-layout { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 20px; align-items: start; padding-block: 56px 96px; }
+.contact-layout-info { display: grid; gap: 16px; }
+.contact-card { position: relative; min-width: 0; padding: clamp(20px, 3vw, 28px); border: 1px solid var(--border); border-radius: 8px; background: linear-gradient(145deg, var(--glass-surface-md), var(--surface)); box-shadow: var(--depth-shadow-1); }
+.contact-card h2 { margin: 0 0 14px; color: var(--text); font-size: 24px; font-weight: 500; }
+.contact-card h2 small { color: var(--gold-light); font-family: var(--font-body); font-size: 11px; font-weight: 600; letter-spacing: .08em; }
+.contact-info-list, .contact-hours-list { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.contact-info-list li { display: grid; gap: 2px; padding-bottom: 10px; border-bottom: 1px solid var(--border-soft); color: var(--text); font-size: 13px; }
+.contact-info-list li > span:first-child { color: var(--gold); font-size: 9px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+.contact-info-list a { color: var(--text); }
+.contact-info-list a:hover { color: var(--gold-light); }
+.contact-social-row { display: flex; flex-wrap: wrap; gap: 14px; text-transform: capitalize; }
+.contact-empty { margin: 0; color: var(--muted); font-size: 13px; }
+.contact-hours-list li { display: flex; justify-content: space-between; gap: 12px; color: var(--text-soft); font-size: 13px; }
+.contact-hours-list li span:first-child { color: var(--text); }
+.contact-closures { margin: 12px 0 0; color: var(--muted); font-size: 11px; line-height: 1.7; }
+.contact-map-card { min-height: 220px; overflow: hidden; display: flex; align-items: flex-end; }
+.contact-map-card img { object-fit: cover; }
+.contact-map-overlay { position: absolute; inset: 0; background: linear-gradient(0deg, var(--overlay-ink) 0%, var(--overlay-ink-light) 70%, var(--overlay-ink-light) 100%); }
+.contact-map-copy { position: relative; display: grid; gap: 8px; justify-items: start; }
+.contact-map-copy h2 { margin: 0; }
+.contact-map-copy p { margin: 0; color: var(--text-soft); font-size: 13px; line-height: 1.6; }
+.contact-form-card h2 { margin-bottom: 6px; }
+.contact-form-lead { margin: 0 0 18px; color: var(--muted); font-size: 12px; line-height: 1.8; }
+.contact-form-card .contact-form { padding: 0; border: 0; background: none; box-shadow: none; }
+@media (max-width: 980px) {
+  .contact-layout { grid-template-columns: minmax(0, 1fr); padding-block: 40px 72px; }
+}

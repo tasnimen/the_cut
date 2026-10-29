@@ -19,12 +19,9 @@ export function ContactForm({ formTicket, captchaSiteKey }) {
   }, [state]);
 
   return (
-    <section className="contact-form-section page-shell" aria-labelledby="contact-form-title">
-      <div className="contact-form-intro">
-        <p className="eyebrow">Send a message</p>
-        <h2 id="contact-form-title">A note to <em>the team.</em></h2>
-        <p>Share a question or tell us what you need. Your message is saved for the team to follow up.</p>
-      </div>
+    <section className="contact-card contact-form-card" aria-labelledby="contact-form-title">
+      <h2 id="contact-form-title">Send us a message</h2>
+      <p className="contact-form-lead">Share a question or tell us what you need. Your message is saved for the team to follow up.</p>
       <form action={formAction} className="contact-form" ref={formRef}>
         <input name="formTicket" type="hidden" value={formTicket} />
         <div className="contact-honeypot" aria-hidden="true">
@@ -32,7 +29,7 @@ export function ContactForm({ formTicket, captchaSiteKey }) {
           <input autoComplete="off" id="contact-website" name="website" tabIndex={-1} type="text" />
         </div>
         <label className="contact-field" htmlFor="contact-name">
-          <span>Your name</span>
+          <span>Full name</span>
           <input autoComplete="name" id="contact-name" maxLength={100} name="name" required type="text" />
         </label>
         <label className="contact-field" htmlFor="contact-email">
@@ -40,12 +37,12 @@ export function ContactForm({ formTicket, captchaSiteKey }) {
           <input autoComplete="email" id="contact-email" maxLength={320} name="email" required type="email" />
         </label>
         <label className="contact-field contact-field--wide" htmlFor="contact-message">
-          <span>How can we help?</span>
+          <span>Message</span>
           <textarea id="contact-message" maxLength={5000} minLength={10} name="message" required rows={6} />
         </label>
         <TurnstileField key={state.resetToken || 0} siteKey={captchaSiteKey} />
         <Button className="contact-submit" disabled={pending} icon="arrowUpRight" type="submit">
-          {pending ? "Sending…" : "Send message"}
+          {pending ? "Sending…" : "Send Message"}
         </Button>
         {state.message ? (
           <p className={`contact-form-feedback contact-form-feedback--${state.status}`} role={state.status === "error" ? "alert" : "status"}>

@@ -32,3 +32,25 @@ describe("site contact helpers", () => {
     expect(socialLinks(undefined)).toEqual([]);
   });
 });
+
+import { formatClosures, timeZoneLabel } from "./contact.js";
+
+describe("hours helpers", () => {
+  it("labels the business time zone", () => {
+    expect(timeZoneLabel("America/New_York")).toBe("ET");
+    expect(timeZoneLabel("Europe/Paris")).toBe("Europe/Paris");
+  });
+
+  it("lists enabled holiday closures and the early close from the booking config", () => {
+    expect(formatClosures(BOOKING_CONFIG.holidays)).toEqual({
+      closed: ["New Year's Day", "Independence Day", "Thanksgiving", "Christmas Day"],
+      extraDates: [],
+      earlyClose: null,
+    });
+    expect(formatClosures({ memorialDay: true, december24EarlyClose: true, december24EarlyCloseAt: "14:00", additionalClosedDates: ["2027-01-02"] })).toEqual({
+      closed: ["Memorial Day"],
+      extraDates: ["2027-01-02"],
+      earlyClose: "Dec 24: closes 2:00 PM",
+    });
+  });
+});

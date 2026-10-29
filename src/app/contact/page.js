@@ -1,8 +1,6 @@
 import { SiteFrame } from "@/components/layout/SiteFrame";
 import { getImage } from "@/lib/images/server";
-import { ContactDetails } from "@/components/layout/ContactDetails";
-import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
-import { ButtonLink } from "@/components/ui/ButtonLink";
+import { ContactInfoCard, MapCard, OpeningHoursCard } from "@/components/contact/ContactInfo";
 import { ROUTES } from "@/config/routes";
 import { site } from "@/config/site";
 import { MarketingPageHero } from "@/features/marketing/components/MarketingPageHero";
@@ -27,20 +25,14 @@ export default function ContactPage() {
         image={getImage("hero-contact")}
         title={<>Let’s start<br /><em>a conversation.</em></>}
       />
-      <section className="contact-preview page-shell" aria-labelledby="contact-title">
-        <div>
-          <p className="eyebrow">Contact information</p>
-          <h2 id="contact-title">Visit or <em>reach us.</em></h2>
-          <ContactDetails />
-          {!site.contact.phone && !site.contact.email && !site.location.streetAddress ? <p>Phone, email, and street address will be published soon.</p> : null}
-          <p>Use the message form below for questions and follow-up requests.</p>
-          <ButtonLink href={ROUTES.services} variant="outline">Explore services</ButtonLink>
+      <div className="contact-layout page-shell">
+        <div className="contact-layout-info">
+          <ContactInfoCard />
+          <MapCard />
+          <OpeningHoursCard />
         </div>
-        <div className="contact-preview-image">
-          <ImageWithFallback alt="" aria-hidden="true" fill sizes="(max-width: 760px) 100vw, 45vw" src={getImage("contact-map-backdrop").src} />
-        </div>
-      </section>
-      <ContactForm captchaSiteKey={env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""} formTicket={formTicket} />
+        <ContactForm captchaSiteKey={env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""} formTicket={formTicket} />
+      </div>
     </SiteFrame>
   );
 }
