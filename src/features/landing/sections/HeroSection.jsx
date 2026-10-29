@@ -24,8 +24,8 @@ export function HeroSection() {
             <span /> {site.name} · {site.location.city}
           </p>
           <h1 id="hero-title">
-            More than a<br />
-            <em>haircut.</em>
+            <span className="hero-title-lead">More than a</span>
+            <em>Haircut</em>
           </h1>
           <p className="hero-subtitle">It’s a lifestyle.</p>
           <p className="hero-description">
@@ -34,8 +34,8 @@ export function HeroSection() {
           </p>
           <div className="hero-actions">
             <ButtonLink href={ROUTES.booking}>Book an appointment</ButtonLink>
-            <a className="text-link" href={ROUTES.homeServices}>
-              Explore our services <span aria-hidden="true"></span>
+            <a className="text-link" href={ROUTES.story}>
+              Our story <span aria-hidden="true"></span>
             </a>
           </div>
           <div className="hero-footnote">
