@@ -1,4 +1,5 @@
 :root {
+  --error-soft: #ffcfb5;
   color-scheme: dark;
 
   /* Surfaces and borders */

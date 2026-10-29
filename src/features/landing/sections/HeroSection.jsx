@@ -35,7 +35,7 @@ export function HeroSection() {
           <div className="hero-actions">
             <ButtonLink href={ROUTES.booking}>Book an appointment</ButtonLink>
             <a className="text-link" href={ROUTES.homeServices}>
-              Explore our services <span aria-hidden="true hiden"></span>
+              Explore our services <span aria-hidden="true"></span>
             </a>
           </div>
           <div className="hero-footnote">
