@@ -3,18 +3,21 @@ import { ButtonLink } from '@/components/ui/ButtonLink';
 import { HeroDepth } from '@/components/three/HeroDepth';
 import { ANCHORS, ROUTES } from '@/config/routes';
 import { site } from '@/config/site';
+import { getImage } from '@/lib/images/server';
 
 export function HeroSection() {
+  const hero = getImage("hero");
   return (
     <section className="hero" id={ANCHORS.story} aria-labelledby="hero-title">
       <ImageWithFallback
-        src="/images/banner1.png"
-        alt=""
+        src={hero.src}
+        alt={hero.alt}
         aria-hidden="true"
         fill
         sizes="100vw"
         preload
         className="hero-image"
+        style={{ objectPosition: hero.objectPosition }}
       />
       <div className="hero-overlay" aria-hidden="true" />
       <HeroDepth />

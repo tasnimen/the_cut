@@ -1,4 +1,5 @@
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
+import { getImage } from "@/lib/images/server";
 import { SiteFrame } from "@/components/layout/SiteFrame";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { ROUTES } from "@/config/routes";
@@ -19,20 +20,20 @@ const principles = [
 ];
 
 export default function AboutPage() {
+  const story = getImage("about-story");
   return (
     <SiteFrame activePath={ROUTES.about}>
       <MarketingPageHero
         description="A good cut is personal. The experience around it should be, too."
         eyebrow="About The Cut"
-        image="/images/banner2.png"
-        imagePosition="center"
+        image={getImage("hero-about")}
         title={<>The story behind<br /><em>The Cut.</em></>}
       >
         <ButtonLink href={ROUTES.services} variant="outline">Explore services</ButtonLink>
       </MarketingPageHero>
       <section className="marketing-story page-shell" aria-labelledby="about-story-title">
         <div className="marketing-story-image">
-          <ImageWithFallback alt="Concept image of a barbershop interior" fill sizes="(max-width: 760px) 100vw, 45vw" src="/images/banner1.png" />
+          <ImageWithFallback alt={story.alt} fill sizes="(max-width: 760px) 100vw, 45vw" src={story.src} />
         </div>
         <div className="marketing-story-copy">
           <p className="eyebrow">What we believe</p>

@@ -13,7 +13,7 @@ const categories = [
   { id: "shave", label: "Shave" },
 ];
 
-export function ServiceCatalog() {
+export function ServiceCatalog({ images = {} }) {
   const [activeCategory, setActiveCategory] = useState("all");
   const visibleServices = activeCategory === "all"
     ? services
@@ -36,7 +36,7 @@ export function ServiceCatalog() {
       </div>
       <ScrollReveal className="service-grid service-catalog-grid" stagger>
         {visibleServices.map((service) => (
-          <ServiceCard key={service.number} service={service} actionHref={bookingHrefForService(service.slug)} actionLabel="Book Now" />
+          <ServiceCard key={service.number} service={service} imageSrc={images[service.slug]?.src} imageAlt={images[service.slug]?.alt} actionHref={bookingHrefForService(service.slug)} actionLabel="Book Now" />
         ))}
       </ScrollReveal>
       <p className="service-image-disclosure">

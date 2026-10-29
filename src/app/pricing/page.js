@@ -1,4 +1,5 @@
 import { SiteFrame } from "@/components/layout/SiteFrame";
+import { getImage } from "@/lib/images/server";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { ROUTES } from "@/config/routes";
 import { site } from "@/config/site";
@@ -20,8 +21,7 @@ export default function PricingPage() {
       <MarketingPageHero
         description="A clear menu makes it easier to find the right kind of care. Prices are in USD, before tax."
         eyebrow="Our pricing"
-        image="/images/banner2.png"
-        imagePosition="right center"
+        image={getImage("hero-pricing")}
         title={<>Packages for<br /><em>every gentleman.</em></>}
       />
       <section className="pricing-section page-shell" aria-labelledby="pricing-title">

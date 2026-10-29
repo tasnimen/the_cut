@@ -4,14 +4,14 @@ export function MarketingPageHero({ eyebrow, title, image, imagePosition, descri
   return (
     <section className="marketing-hero" aria-labelledby="marketing-page-title">
       <ImageWithFallback
-        src={image}
+        src={image.src}
         alt=""
         aria-hidden="true"
         fill
         sizes="100vw"
         preload
         className="marketing-hero-image"
-        style={imagePosition ? { objectPosition: imagePosition } : undefined}
+        style={{ objectPosition: imagePosition || image.objectPosition }}
       />
       <div className="marketing-hero-overlay" aria-hidden="true" />
       <div className="marketing-hero-content page-shell">

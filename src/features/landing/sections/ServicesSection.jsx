@@ -5,6 +5,7 @@ import { services } from "@/features/landing/data/services";
 import Link from "next/link";
 import { ANCHORS, ROUTES } from "@/config/routes";
 import { bookingHrefForService } from "@/lib/booking/preselect";
+import { getImage } from "@/lib/images/server";
 
 export function ServicesSection() {
   return (
@@ -17,14 +18,19 @@ export function ServicesSection() {
         Our <em>services.</em>
       </SectionHeading>
       <ScrollReveal className="service-grid" stagger>
-        {services.map((service) => (
+        {services.map((service) => {
+          const image = getImage(`service-${service.slug}`);
+          return (
           <ServiceCard
             key={service.number}
             service={service}
+            imageSrc={image.src}
+            imageAlt={image.alt}
             actionHref={bookingHrefForService(service.slug)}
             actionLabel="Book Now"
           />
-        ))}
+          );
+        })}
       </ScrollReveal>
       <p className="section-footnote">Shared sample image shown · service photos pending</p>
     </section>

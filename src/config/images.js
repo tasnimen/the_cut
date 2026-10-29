@@ -23,9 +23,10 @@ const slot = (file, width, height, options = {}) => Object.freeze({
   note: options.note ?? "",
 });
 
-const SHARED_CARD = "/images/card-image.webp";
-const BANNER_1 = "/images/banner1.png";
-const BANNER_2 = "/images/banner2.png";
+export const SHARED_CARD_SRC = "/images/card-image.webp";
+const SHARED_CARD = SHARED_CARD_SRC;
+const BANNER_1 = "/images/banner1.webp";
+const BANNER_2 = "/images/banner2.webp";
 
 export const IMAGE_SLOTS = Object.freeze({
   // Heroes and banners
@@ -55,6 +56,7 @@ export const IMAGE_SLOTS = Object.freeze({
   "barber-michael-brown": slot("barber-michael-brown", 600, 750, { alt: "Portrait of Michael Brown", note: "Real photo of this barber only" }),
 
   // About and gallery
+  "team-intro": slot("team-intro", 1200, 1000, { decorative: true, fallback: BANNER_2, search: "barbers working side by side dark shop" }),
   "about-story": slot("about-story", 1200, 900, { alt: "Inside The Cut barbershop", fallback: BANNER_2, search: "barbershop interior warm lights vintage chairs" }),
   "gallery-studio-wide": slot("gallery-studio-wide", 1200, 800, { alt: "A quiet corner of the studio", fallback: BANNER_2, search: "barbershop interior wide angle" }),
   "gallery-barber-chair": slot("gallery-barber-chair", 900, 1200, { alt: "The chair, ready for the day", fallback: BANNER_1, search: "barber chair leather vintage" }),
@@ -67,7 +69,7 @@ export const IMAGE_SLOTS = Object.freeze({
 
   // Other
   pricing: slot("pricing", 1600, 700, { decorative: true, fallback: BANNER_2, search: "barber razor comb scissors flat lay" }),
-  "contact-map-backdrop": slot("contact-map-backdrop", 1200, 800, { decorative: true, search: "dark city map abstract navy gold" }),
+  "contact-map-backdrop": slot("contact-map-backdrop", 1200, 800, { decorative: true, fallback: BANNER_2, search: "dark city map abstract navy gold" }),
   "product-1": slot("product-1", 800, 800, { alt: "Grooming product", note: "Future Shop", search: "pomade tin dark background product" }),
   "product-2": slot("product-2", 800, 800, { alt: "Grooming product", note: "Future Shop", search: "beard oil bottle product dark" }),
   "product-3": slot("product-3", 800, 800, { alt: "Grooming product", note: "Future Shop", search: "shaving brush and soap product" }),

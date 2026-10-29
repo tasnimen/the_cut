@@ -483,7 +483,9 @@ h2 { margin-bottom: 0; color: var(--text); font-size: clamp(32px, 4vw, 47px); le
   .contact-preview { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1fr); gap: 48px; align-items: center; padding-block: 78px 96px; }
   .contact-preview > div:first-child { max-width: 540px; }
   .contact-preview > div:first-child .button { margin-top: 10px; }
-  .contact-preview-image { min-height: 360px; border: 1px solid var(--border); border-radius: 8px; background: linear-gradient(0deg, var(--overlay-ink-mid-soft), transparent 65%), url('/images/banner2.png') center / cover; box-shadow: var(--depth-shadow-2); }
+  .contact-preview-image { min-height: 360px; border: 1px solid var(--border); border-radius: 8px; position: relative; overflow: hidden; box-shadow: var(--depth-shadow-2); }
+  .contact-preview-image::after { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg, var(--overlay-ink-mid-soft), transparent 65%); }
+  .contact-preview-image img { object-fit: cover; }
 }
 
 @media (max-width: 760px) {

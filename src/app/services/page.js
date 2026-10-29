@@ -1,9 +1,10 @@
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
+import { getImage } from "@/lib/images/server";
 import { SiteFrame } from "@/components/layout/SiteFrame";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ServiceCatalog } from "@/features/services/components/ServiceCatalog";
-import { ReviewsSection } from "@/features/landing/sections/ReviewsSection";
+import { services } from "@/features/landing/data/services";
 import { ANCHORS, ROUTES } from "@/config/routes";
 import { site } from "@/config/site";
 
@@ -17,7 +18,7 @@ export default function ServicesPage() {
     <SiteFrame activePath={ROUTES.services}>
         <section className="services-hero" aria-labelledby="services-page-title">
           <ImageWithFallback
-            src="/images/banner2.png"
+            src={getImage("hero-services").src}
             alt=""
             aria-hidden="true"
             fill
@@ -47,7 +48,7 @@ export default function ServicesPage() {
           <p className="service-menu-disclosure">
             Prices are in USD before tax and are paid at the shop.
           </p>
-          <ServiceCatalog />
+          <ServiceCatalog images={Object.fromEntries(services.map((service) => [service.slug, getImage(`service-${service.slug}`)]))} />
         </section>
 
         <section className="services-page-note page-shell" aria-label="Service information">
@@ -57,7 +58,6 @@ export default function ServicesPage() {
             <p>The online booking flow and confirmed service details are still being prepared.</p>
           </div>
         </section>
-        <ReviewsSection />
     </SiteFrame>
   );
 }

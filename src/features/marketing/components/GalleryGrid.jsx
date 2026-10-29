@@ -6,7 +6,7 @@ import { galleryItems } from "@/features/marketing/data/gallery";
 
 const categories = ["All", ...new Set(galleryItems.map(({ category }) => category))];
 
-export function GalleryGrid() {
+export function GalleryGrid({ images = {} }) {
   const [activeCategory, setActiveCategory] = useState("All");
   const [selectedItem, setSelectedItem] = useState(null);
   const dialogRef = useRef(null);
@@ -41,7 +41,7 @@ export function GalleryGrid() {
         {visibleItems.map((item) => (
           <figure className={`gallery-card gallery-card--${item.shape}`} key={item.id}>
             <button className="gallery-card-button" onClick={() => setSelectedItem(item)} type="button">
-              <ImageWithFallback alt={item.alt} className="gallery-card-image" fill sizes="(max-width: 760px) 100vw, 50vw" src={item.image} />
+              <ImageWithFallback alt={item.alt} className="gallery-card-image" fill sizes="(max-width: 760px) 100vw, 50vw" src={images[item.id]} />
               <span className="gallery-card-open">View image</span>
             </button>
             <figcaption>
@@ -61,7 +61,7 @@ export function GalleryGrid() {
         {selectedItem ? (
           <div className="gallery-dialog-content">
             <button aria-label="Close image" className="gallery-dialog-close" onClick={() => setSelectedItem(null)} type="button">Close</button>
-            <ImageWithFallback alt={selectedItem.alt} className="gallery-dialog-image" fill sizes="90vw" src={selectedItem.image} />
+            <ImageWithFallback alt={selectedItem.alt} className="gallery-dialog-image" fill sizes="90vw" src={images[selectedItem.id]} />
             <p>{selectedItem.title}</p>
           </div>
         ) : null}

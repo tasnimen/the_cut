@@ -17,15 +17,20 @@ describe("image slots", () => {
   });
 
   it("falls back to the configured asset when no photo was added", () => {
-    expect(resolveImage("hero", { available: [] })).toMatchObject({ source: "fallback", src: "/images/banner1.png", alt: "" });
+    expect(resolveImage("hero", { available: [] })).toMatchObject({ source: "fallback", src: "/images/banner1.webp", alt: "" });
   });
 
   it("prefers a photo placed in public/images, in extension priority order", () => {
     expect(resolveImage("service-haircut", { available: ["service-haircut.jpg", "service-haircut.webp"] })).toMatchObject({ source: "file", src: "/images/service-haircut.webp" });
   });
 
+  it("gives meaningful alt text only for real photos, not fallbacks", () => {
+    expect(resolveImage("service-haircut", { available: [] }).alt).toBe("");
+    expect(resolveImage("service-haircut", { available: ["service-haircut.webp"] }).alt).toBe("A haircut in progress");
+  });
+
   it("accepts an ImgBB override and rejects other hosts", () => {
-    const ok = resolveImage("about-story", { available: ["about-story.webp"], overrides: { "about-story": { url: "https://i.ibb.co/abc/story.webp", alt: "The shop", width: 1000, height: 700 } } });
+    const ok = resolveImage("about-story", { available: [], overrides: { "about-story": { url: "https://i.ibb.co/abc/story.webp", alt: "The shop", width: 1000, height: 700 } } });
     expect(ok).toMatchObject({ source: "override", src: "https://i.ibb.co/abc/story.webp", alt: "The shop", width: 1000 });
     const bad = resolveImage("about-story", { available: [], overrides: { "about-story": { url: "https://evil.example/x.jpg" } } });
     expect(bad.source).toBe("fallback");

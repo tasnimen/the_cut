@@ -8,11 +8,13 @@ import { formatMoney } from "@/lib/format/money";
 
 export function ServiceCard({
   service,
-  imageSrc = sharedCardImage.src,
-  imageAlt = sharedCardImage.alt,
+  imageSrc: imageSrcProp,
+  imageAlt: imageAltProp,
   actionHref = ROUTES.booking,
   actionLabel = "Find your fit",
 }) {
+  const imageSrc = imageSrcProp ?? sharedCardImage.src;
+  const imageAlt = imageAltProp ?? sharedCardImage.alt;
   return (
     <TiltSurface as="article" className="service-card">
       <CardImage src={imageSrc} alt={imageAlt} className="service-card-image" />

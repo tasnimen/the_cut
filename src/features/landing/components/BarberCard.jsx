@@ -4,9 +4,11 @@ import { sharedCardImage } from "@/features/landing/data/cardImage";
 
 export function BarberCard({
   barber,
-  imageSrc = sharedCardImage.src,
-  imageAlt = sharedCardImage.alt,
+  imageSrc: imageSrcProp,
+  imageAlt: imageAltProp,
 }) {
+  const imageSrc = imageSrcProp ?? sharedCardImage.src;
+  const imageAlt = imageAltProp ?? sharedCardImage.alt;
   return (
     <TiltSurface as="article" className="barber-card">
       <CardImage src={imageSrc} alt={imageAlt} className="barber-card-image" />

@@ -27,7 +27,7 @@ export function resolveImage(slotKey, { available = [], overrides = {} } = {}) {
     slot: slotKey,
     src,
     source: overrideValid ? "override" : localFile ? "file" : "fallback",
-    alt: definition.decorative ? "" : (overrideValid && override.alt) || definition.alt,
+    alt: definition.decorative || !(overrideValid || localFile) ? "" : (overrideValid && override.alt) || definition.alt,
     width: (overrideValid && override.width) || definition.width,
     height: (overrideValid && override.height) || definition.height,
     objectPosition: definition.focal,
