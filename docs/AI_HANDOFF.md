@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** I-9 complete (profile, password, sessions). **Next step:** I-10 or I-11 on the owner's ok.
+**Where I stopped:** I-10 complete (avatar upload not verified live; deletion request done). **Next step:** I-11 on the owner's ok.
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -391,3 +391,10 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - **Cleanup for the owner (Atlas, dev database):** delete user `dummy-i9@example.invalid` with its `account`/`session` documents, plus the I-8 dummy and older dummies.
 - Checks: see TESTING.md. Account deletion request and avatar are I-10.
 - **Where I stopped:** I-9 complete. **Next step:** I-10 (avatar + deletion request) or I-11 (admin bookings) on the owner's ok.
+
+## Unit I-10 done (2026-10-29): avatar and deletion request
+- New: `api/account/avatar/route.js`, `lib/account/{avatar-core,deletion-request,account-data}.js` (+ tests), `app/user/profile/deletion-actions.js` (+ test), `features/dashboard/user/{AvatarPanel,DeletionPanel}.jsx`; profile page now has Profile photo and Delete my account panels; unique index on `accountDeletionRequest.userId` in `lib/db/mongo.js`; toasts and CSS added.
+- **Live upload NOT verified:** ImgBB answered with an error using the current local key. Owner: check `IMGBB_API_KEY` (name only; do not paste it) then try the manual steps in TESTING.md.
+- Account deletion is a request only (no automatic deletion). Showing the avatar in the header/sidebar was not done.
+- **Cleanup for the owner (Atlas, dev database):** delete user `dummy-i10@example.invalid` with its `account`/`session` documents and its `accountDeletionRequest` document, plus the I-8 and I-9 dummies.
+- **Where I stopped:** I-10 complete (upload unverified). **Next step:** I-11 (admin bookings) on the owner's ok.

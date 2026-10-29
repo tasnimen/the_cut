@@ -86,3 +86,7 @@ Rules (`lib/catalog/normalize.js`, tested): the database is authoritative once t
 | `social` | `instagram`, `facebook`, `tiktok`, `x`, `youtube` (https links on each network's own domain only) | contact page, footer |
 
 Every value is validated again when read (`lib/catalog/settings.js`), so a malformed or tampered document cannot publish a script URL, a broken phone link or close the whole shop.
+
+## accountDeletionRequest (I-10)
+
+One document per user who asked the shop to delete their account: `userId` (unique index `account_deletion_user_unique`), `email`, `status` (`pending` or `cancelled`), `requestedAt`, `createdAt`, `cancelledAt`. Nothing is deleted automatically; the admin screen that processes requests comes with the customers unit (I-14). The user's avatar is `user.image` plus a `media` document (`category: "avatar"`, `ownerId`).
