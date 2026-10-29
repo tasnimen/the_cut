@@ -44,20 +44,6 @@ export const BOOKING_CONFIG = Object.freeze({
   suggestedTips: Object.freeze([15, 20, 25]),
   depositEnabled: false,
   paymentLocation: "at_shop",
-  defaultServiceDurations: Object.freeze({
-    haircut: 30,
-    "beard-trim": 30,
-    shave: 30,
-    "hair-color": 60,
-    "hair-treatment": 45,
-    combo: 60,
-  }),
-  barberNames: Object.freeze([
-    "Daniel Carter",
-    "James Miller",
-    "Robert Wilson",
-    "Michael Brown",
-  ]),
 });
 
 export const BOOKING_HOLIDAY_ASSUMPTIONS = Object.freeze([

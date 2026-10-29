@@ -37,3 +37,23 @@ describe("booking rules", () => {
     expect(() => transitionBooking("cancelled", "no_show")).toThrow("booking_state_transition_invalid");
   });
 });
+
+describe("booking policy config vs docs", () => {
+  it("matches the documented policy values", () => {
+    expect(BOOKING_CONFIG).toMatchObject({
+      timeZone: "America/New_York", currency: "USD", slotMinutes: 15, cleanupBufferMinutes: 5,
+      minimumLeadMinutes: 60, maximumAdvanceDays: 30, maximumServicesPerBooking: 3,
+      maximumActiveBookingsPerUser: 2, cancellationCutoffHours: 24, depositEnabled: false, paymentLocation: "at_shop",
+    });
+  });
+
+  it("enforces the one-hour lead time and the 30-day window", () => {
+    const base = { services: [{ durationMinutes: 30 }], config: BOOKING_CONFIG, barber };
+    // 2027-04-05 is a Monday; 13:00Z is 9:00 AM New York.
+    const now = new Date("2027-04-05T13:00:00Z");
+    const today = generateCandidateSlots({ ...base, localDate: "2027-04-05", now });
+    expect(today.every((slot) => new Date(slot.startsAt).getTime() >= now.getTime() + 60 * 60 * 1000)).toBe(true);
+    expect(generateCandidateSlots({ ...base, localDate: "2027-05-03", now }).length).toBeGreaterThan(0);
+    expect(generateCandidateSlots({ ...base, localDate: "2027-05-10", now })).toEqual([]);
+  });
+});
