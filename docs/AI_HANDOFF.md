@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** Stage 3 gallery page complete. **Next step:** Stage 3 pricing page.
+**Where I stopped:** Stage 3 pricing page complete. **Next step:** Stage 3 contact page.
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -291,3 +291,8 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - Checks: `npm test` 274 passed / 29 files; lint exit 0; build passed. Production check on :3002 with a temporary photo (removed): tab, filter and dialog work.
 - To fill the gallery: add `gallery-04.webp` ... `gallery-08.webp` (and replace the three samples with real photos) per `docs/IMAGE_SLOTS.md`.
 - **Where I stopped:** Stage 3 gallery page complete. **Next step:** Stage 3 pricing page, then contact, sign-in, sign-up.
+
+## Stage 3 unit: pricing page (2026-10-29)
+- Hero copy from the mockup, hidden section heading, gold full-width buttons, centered price note. Details and the open Standard-package decision in `docs/DESIGN_SYSTEM.md`.
+- Checks: `npm test` 274 passed / 29 files; lint exit 0; build passed; production check on :3002 (stopped) at 1440 and 375 px.
+- **Where I stopped:** Stage 3 pricing page complete. **Next step:** Stage 3 contact page, then sign-in and sign-up.

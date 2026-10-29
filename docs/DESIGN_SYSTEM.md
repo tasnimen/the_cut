@@ -180,3 +180,16 @@ Compared with the gallery panel of the public-pages mockup (tabs All, Haircuts, 
 | Disclosure | Always shown | Shown only while sample images are visible |
 
 Grid layout (3 columns, wide/tall spans) is unchanged. Verified on a production build with a temporary `gallery-04.webp` (removed afterwards): the Haircuts tab and card appeared, filtering and the dialog worked.
+
+## Pricing page alignment (2026-10-29)
+
+Compared with the pricing panel of the public-pages mockup (hero, three package cards with a "Popular" Standard, gold "Book Now" buttons).
+
+| Item | Before | After |
+|---|---|---|
+| Hero | "Packages for every gentleman." + menu sentence | "Premium packages for every gentleman." + "Choose the perfect package for your style and grooming needs." |
+| Section heading | Visible "Choose your starting point." block above the cards | Visually hidden `<h2>` (still labels the section); cards follow the hero directly like the mockup |
+| Buttons | Outline for Basic and Premium, small and left-aligned | Gold primary on all three, full card width (`.pricing-card .button`), 44 px on touch widths |
+| Price note | Under the removed heading | Centered line under the cards: "Prices are in USD, before tax. Payment is at the shop." |
+
+Unchanged and already matching: package names, prices ($25, $40, $60), inclusions with check marks, Popular badge. **Open decision:** the Standard package preselects the Combo service on `/booking`, which the catalog prices at $35 (package says $40). Options: (A) set the Standard price to $35, (B) add a real $40 service, (C) stop preselecting from packages. Verified on a production build: 1440 px and 375 px, no overflow, three package links correct.
