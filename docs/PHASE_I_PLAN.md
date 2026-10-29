@@ -30,7 +30,7 @@
 
 | Unit | What | Cost |
 |---|---|---|
-| I-8 | Overview, upcoming appointment with reschedule and cancel (24-hour rule), visit history | M |
+| I-8 (done 2026-10-29) | Overview, upcoming appointment with reschedule and cancel (24-hour rule), visit history | M |
 | I-9 | Profile edit, change password, active sessions list with revoke | M |
 | I-10 | Avatar upload (ImgBB, own avatar only) and account deletion request | M |
 

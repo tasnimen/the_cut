@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** I-7 complete (Round 2 done). **Next step:** I-8 (user appointments) or the admin bookings units, on the owner's ok.
+**Where I stopped:** I-8 complete (customer appointments). **Next step:** I-9 or I-11 on the owner's ok.
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -377,3 +377,10 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - Round 2 ("control the data myself": I-5, I-15, I-16, I-6, I-17, I-7) is complete. Public data editable from the dashboard: services, packages, barbers, hours, closed dates, contact, social. Still file-only: images (slots, I-27/I-19), reviews (hidden).
 - Checks: `npm test` 413 passed / 51 files; lint clean; build passed. Live (production build, read-only): public pages 200, availability works, contact page unchanged with no saved settings, `/admin/settings` is a 404 for guests. Not run live with an Admin session.
 - **Where I stopped:** I-7 complete, Round 2 done. **Next step:** the bookings and user-dashboard units (I-8 user overview and appointments with cancel/reschedule, then I-11/I-12/I-13 admin bookings) on the owner's ok.
+
+## Unit I-8 done (2026-10-29): customer dashboard
+- New: `lib/booking/{user-bookings,my-bookings,service,notify}.js` (+ tests), `app/user/{page,actions,appointments/page}`, `features/dashboard/user/{AppointmentCard,AppointmentHistory}.jsx`. `/user` is now real (greeting in the business time zone, real counts, next appointment with Reschedule/Cancel, recent visits); `/user/appointments` lists upcoming and history. Sign-in lands customers on `/user`; the account menu and sidebar link to it. `route-core.js` now uses the shared `notifyBookingChange`. No fake data (no loyalty/offers: those features do not exist).
+- Live (production build, dummy customer `dummy-i8@example.invalid`): sign-up, booking via API, reschedule via UI, cancel via UI all worked; mobile 375 px no page overflow. Note the dev database already has barber hours (slots exist) and the owner's own test edits (a $100.00 haircut and a barber named "wfoijwfnwfe").
+- **Cleanup for the owner (Atlas, dev database):** delete user `dummy-i8@example.invalid` with its `account`/`session` documents and its one cancelled `booking` (and `bookingSlot` rows are already removed by the cancel), plus older dummies.
+- Checks: `npm test` 424 passed / 53 files; lint clean; build passed.
+- **Where I stopped:** I-8 complete. **Next step:** I-9 (profile, change password, sessions) or the admin bookings units I-11/I-12/I-13, on the owner's ok.
