@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** I-8 complete (customer appointments). **Next step:** I-9 or I-11 on the owner's ok.
+**Where I stopped:** I-9 complete (profile, password, sessions). **Next step:** I-10 or I-11 on the owner's ok.
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -384,3 +384,10 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - **Cleanup for the owner (Atlas, dev database):** delete user `dummy-i8@example.invalid` with its `account`/`session` documents and its one cancelled `booking` (and `bookingSlot` rows are already removed by the cancel), plus older dummies.
 - Checks: `npm test` 424 passed / 53 files; lint clean; build passed.
 - **Where I stopped:** I-8 complete. **Next step:** I-9 (profile, change password, sessions) or the admin bookings units I-11/I-12/I-13, on the owner's ok.
+
+## Unit I-9 done (2026-10-29): profile, password, sessions
+- New: `lib/account/{account-input,my-sessions}.js` (+ test), `app/user/profile/{page,actions}` (+ test), `features/dashboard/user/{ProfileForms,SessionList}.jsx`; "Profile" enabled in the sidebar and "My Profile" in the account menu; toasts `profileSaved`, `sessionRevoked`; CSS `.dash-session*`.
+- Name only is editable (email read-only). Password change signs the user out everywhere (including this browser) and returns to sign-in.
+- **Cleanup for the owner (Atlas, dev database):** delete user `dummy-i9@example.invalid` with its `account`/`session` documents, plus the I-8 dummy and older dummies.
+- Checks: see TESTING.md. Account deletion request and avatar are I-10.
+- **Where I stopped:** I-9 complete. **Next step:** I-10 (avatar + deletion request) or I-11 (admin bookings) on the owner's ok.
