@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** I-6 complete (holidays and barber profiles layer). **Next step:** I-17 on the owner's ok.
+**Where I stopped:** I-17 complete (barbers editor). **Next step:** I-7 on the owner's ok.
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -364,3 +364,10 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - Nothing was written to the database in this unit (a live write would have changed what the owner's site shows); the closed-date effect on slots is proven by a unit test (`holidays.test.js`: an admin-closed Monday yields no slots).
 - Checks: `npm test` 370 passed / 44 files; lint clean; build passed.
 - **Where I stopped:** I-6 complete. **Next step:** I-17 (barbers editor with schedules, breaks, days off, public profile) on the owner's ok.
+
+## Unit I-17 done (2026-10-29): barbers editor
+- New: `lib/catalog/{barber-input,admin-barbers}.js`, `app/admin/barbers/{page,new/page,[slug]/page,actions}`, `features/dashboard/barbers/{BarberForm,BarberActiveToggle}.jsx`, "Barbers" enabled in the admin sidebar, CSS for the weekly-hours grid, optional public-profile fields in `BarberRecordSchema`. Details in `docs/SECURITY.md`, `docs/DATABASE.md`, `docs/TESTING.md`.
+- This is the unit that makes real booking slots possible: the four seeded barbers still have empty schedules until the owner sets their hours here.
+- Not built on purpose: hard delete (turn off instead), photo upload (barber photos come from the image slots; overrides arrive with I-27/I-19), moving existing appointments when hours change (not done by design; the UI says so).
+- Checks: `npm test` 388 passed / 47 files; lint clean; build passed (about 30 s). Not run live with an Admin session; owner steps in `docs/TESTING.md`.
+- **Where I stopped:** I-17 complete (Round 2 data units: I-5, I-15, I-16, I-6, I-17 done; I-7 remains). **Next step:** I-7 (business settings: opening hours, contact details, social links, plus the closed-dates editor) on the owner's ok.

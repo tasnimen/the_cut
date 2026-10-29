@@ -44,7 +44,7 @@
 | I-14 | Customers list (limited fields) | S |
 | I-15 (done 2026-10-29, image field deferred to the image-slot work in I-27) | Services CRUD (name, price, duration, active, order) | M |
 | I-16 (done 2026-10-29) | Pricing packages CRUD | S |
-| I-17 | Barbers CRUD with schedule editor | L |
+| I-17 (done 2026-10-29; photo upload deferred to the image-slot work in I-27) | Barbers CRUD with schedule editor | L |
 | I-18 | Holidays and closed dates, business settings UI | M |
 | I-19 | Gallery manager (ImgBB upload and delete) | M |
 | I-20 | Contact messages (read, replied, delete) | S |
