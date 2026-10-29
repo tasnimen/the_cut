@@ -20,7 +20,16 @@ export function MobileNavigation({ activePath = ROUTES.home, initialUser }) {
       if (event.key === "Escape") {
         setIsOpen(false);
         toggleRef.current?.focus();
+        return;
       }
+      if (event.key !== "Tab") return;
+      // Keep Tab inside the open menu (toggle + panel controls).
+      const nodes = [...navigationRef.current.querySelectorAll("button:not(:disabled), a[href]")];
+      if (nodes.length === 0) return;
+      const first = nodes[0];
+      const last = nodes[nodes.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
     }
 
     function handleOutsidePointer(event) {

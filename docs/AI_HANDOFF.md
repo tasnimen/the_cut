@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** U1 audit done (docs/BUTTON_MAP.md); waiting for the user to approve U1 fixes. **Next step:** U1 fix 1 (preselect).
+**Where I stopped:** U1 fixes 1-3 complete. **Next step:** forgot-password unit, then U2, then Stage 3.
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -229,3 +229,11 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 ## U1 audit done (2026-10-29)
 - Read-only audit written to `docs/BUTTON_MAP.md` (no code changed). No `href="#"`, no typeless buttons. Gaps: no service/package preselect on Book Now; services-page cards have no button; contact/footer lack phone/email/address/hours/social (no data in `config/site.js`); no forgot-password; no Cancel/Reschedule UI; no newsletter; mobile menu has no focus trap; booking is a single form (no Next/Back).
 - **Where I stopped:** awaiting user "ok" for U1 fix order (see bottom of `BUTTON_MAP.md`). U2 and the rest of Stage 3 follow.
+
+## U1 fixes 1-3 done (2026-10-29)
+- Preselect: `/booking?service=a,b` and `?package=basic|standard|premium`, resolved on the server by `resolvePreselect` against the real catalog (unknown values dropped, max 3); `pricing-packages.js` gained `bookingServiceSlugs` (Basic: haircut; Standard: combo; Premium: haircut + beard-trim + shave). Service cards (home + services page) and pricing buttons use it. **Note:** booking shows catalog prices (Standard preselect = Combo $35, not the $40 package price): needs an owner decision on package pricing.
+- Contact: `config/site.js` has `contact.phone/email` and `social.*` (all null: the user's details were not supplied). `ContactDetails` renders `tel:`, `mailto:`, a keyless Google Maps link (needs `location.streetAddress`) and https-only social links only when set; hours come from `config/booking.js`. Footer and contact page use it; "Policies to be published" removed.
+- Mobile menu: Tab focus trap; 44 px minimum targets on touch/mobile widths (CTA verified 112x44 at 375 px).
+- TODO list: newsletter (hidden), policies/privacy/terms text, Cancel/Reschedule and "My appointments" (Phase I dashboard), search and Shop, "Watch our story" video, owner contact details.
+- Checks: `npm test` 262 passed / 26 files; lint exit 0; build passed. Live-checked on a temporary production server (port 3002, stopped): preselect, hostile query values, pricing/services links, footer hours, focus trap, 375 px sizes.
+- **Where I stopped:** U1 fixes 1-3 complete. **Next step:** forgot password unit (user's choice), then U2 images, then Stage 3 services page.

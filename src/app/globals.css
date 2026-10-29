@@ -614,3 +614,12 @@ h2 { margin-bottom: 0; color: var(--text); font-size: clamp(32px, 4vw, 47px); le
 .mobile-nav-identity .account-identity { border: 0; padding: 0; }
 .mobile-nav-account-links .mobile-nav-identity ~ a { grid-column: 1 / -1; }
 @media (prefers-reduced-motion: reduce) { .avatar { transition: none; } .account-trigger:hover .avatar { transform: none; } }
+.contact-details { display: grid; gap: 6px; color: var(--text-soft); font-size: 12px; }
+.contact-details a { color: var(--text); }
+.contact-details a:hover { color: var(--gold-light); }
+.contact-hours, .contact-social { display: grid; gap: 3px; margin: 4px 0 0; padding: 0; list-style: none; color: var(--muted); font-size: 11px; }
+.contact-hours li span { display: inline-block; min-width: 64px; color: var(--text-soft); }
+.contact-social { grid-auto-flow: column; justify-content: start; gap: 14px; text-transform: capitalize; }
+@media (pointer: coarse), (max-width: 760px) {
+  .button, .button-small, .button-card, .header-actions > .button, .mobile-menu-toggle, .account-trigger, .service-category, .gallery-filter, .mobile-nav-signout, .mobile-nav-account-links a, .header-account-link, .text-link { min-height: 44px; min-width: 44px; }
+}
