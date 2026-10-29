@@ -1,4 +1,5 @@
 import { SiteFrame } from "@/components/layout/SiteFrame";
+import { ContactDetails } from "@/components/layout/ContactDetails";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { ROUTES } from "@/config/routes";
 import { site } from "@/config/site";
@@ -28,8 +29,9 @@ export default function ContactPage() {
       <section className="contact-preview page-shell" aria-labelledby="contact-title">
         <div>
           <p className="eyebrow">Contact information</p>
-          <h2 id="contact-title">We’re getting the details <em>in place.</em></h2>
-          <p>Phone, email, address, and opening hours are still being confirmed before publication.</p>
+          <h2 id="contact-title">Visit or <em>reach us.</em></h2>
+          <ContactDetails />
+          {!site.contact.phone && !site.contact.email && !site.location.streetAddress ? <p>Phone, email, and street address will be published soon.</p> : null}
           <p>Use the message form below for questions and follow-up requests.</p>
           <ButtonLink href={ROUTES.services} variant="outline">Explore services</ButtonLink>
         </div>

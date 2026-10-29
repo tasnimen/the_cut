@@ -2,7 +2,7 @@ import Link from "next/link";
 import { BrandMark } from "@/components/ui/BrandMark";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { ANCHORS, ROUTES } from "@/config/routes";
-import { site } from "@/config/site";
+import { ContactDetails } from "@/components/layout/ContactDetails";
 
 export function SiteFooter() {
   return (
@@ -24,8 +24,7 @@ export function SiteFooter() {
           </div>
           <div className="footer-column">
             <h2>Find us</h2>
-            <span>{site.location.city}, {site.location.country}</span>
-            <span>Opening hours to be confirmed</span>
+            <ContactDetails />
           </div>
           <div className="footer-cta">
             <p className="eyebrow">A little time for you</p>
@@ -38,7 +37,6 @@ export function SiteFooter() {
         <div className="footer-bottom">
           <span>© The Cut Barbershop</span>
           <span>Made for the love of a good cut.</span>
-          <span>Policies to be published</span>
         </div>
       </div>
     </footer>
