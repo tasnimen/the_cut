@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** I-13 complete (walk-in booking; not verified live as admin). **Next step:** I-14 on the owner's ok.
+**Where I stopped:** I-14 complete (customers list; not verified live as admin). **Next step:** owner picks the next unit (rest of Admin I-18 to I-22 or Super Admin).
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -417,3 +417,9 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - Design choice to confirm with the owner: walk-ins are anonymous (name and optional phone only, no account, no emails or texts). Linking a walk-in to an existing customer account was not built.
 - Not verified live as an admin; steps in TESTING.md.
 - **Where I stopped:** I-13 complete. **Next step:** I-14 (customers list, limited fields) on the owner's ok.
+
+## Unit I-14 done (2026-10-29): customers list
+- New: `lib/customers/{customers,admin-customers}.js` (+ test), `app/admin/customers/page.jsx`; "Customers" enabled in the admin sidebar. Read-only: search, "flagged for review" filter, pagination, booking counts, deletion-request badge.
+- Processing a deletion request (and suspending or editing customers) is NOT built; it belongs to the Super Admin account units (I-23 onwards). Until then, a deletion request is only visible as a badge here and in the database (`accountDeletionRequest`).
+- Not verified live as an admin; steps in TESTING.md.
+- **Where I stopped:** I-14 complete (end of the bookings, user and customers round). **Next step:** owner decides: I-18 to I-22 (rest of Admin: gallery I-19, messages I-20, reports I-22) or the Super Admin units.

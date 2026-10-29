@@ -80,3 +80,7 @@ Automated only (fake database); the screen needs an admin with two-step verifica
 ## Walk-in booking (I-13)
 
 Automated (fake database): booking with no account, no lead-time or cap, taken slot refused, bad phone refused, walk-in no-show with no account, availability starting now. Live: guest and customer get 404 on /admin/bookings/walk-in. **Not exercised live as an admin.** Please check as an admin: (1) Bookings > New walk-in; (2) enter a name, tick a service, pick today and a barber, times appear and the first slot is not in the past; (3) Book walk-in returns to today's list with a "Walk-in" tag, status Confirmed; (4) try the same slot as an online customer: it is gone; (5) later, Mark completed works; Cancel does not try to send an email; (6) at 375 px the form stacks and the time chips wrap.
+
+## Customers list (I-14)
+
+Automated with fakes (parsing, escaping, limited fields, statistics join, empty page). Live: guest and customer get 404 on /admin/customers. **Not exercised live as an admin.** Please check as an admin: (1) Admin > Customers lists your test accounts newest first with join date, booking counts (e.g. "2 (1 completed)") and last visit; (2) search by part of a name and of an email; (3) "Flagged for review" shows customers with 2 or more no-shows; (4) a customer who asked for deletion in their profile shows a "Deletion requested" badge; (5) no phone numbers, roles or edit buttons appear; (6) at 375 px the table scrolls inside its box.

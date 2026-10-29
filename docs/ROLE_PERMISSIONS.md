@@ -88,3 +88,5 @@ Responses for these paths carry `Cache-Control: no-store` and `X-Robots-Tag: noi
 **All bookings (I-12):** `/admin/bookings/all` needs `bookingsManageAll` like the day view (same guard, same row actions). It is a read of every customer's bookings, limited to name and phone for contact; customers' user ids are not returned.
 
 **Walk-in (I-13):** `/admin/bookings/walk-in` and its two actions need `bookingsManageAll` (ADMIN and SUPER_ADMIN, TOTP enrolled). Customers and guests get 404.
+
+**Customers list (I-14):** `/admin/customers` needs the `customersRead` permission (ADMIN gets the LIMITED scope, SUPER_ADMIN ALL; both must have TOTP). The page calls `requireDashboardAccess("admin")` and then `requirePrincipal("customersRead")`. It lists only users with role USER. LIMITED means: name, email, join date, suspended flag, booking counts, last completed visit, no-show count, review flag and a pending deletion request. No phone, no role, no password or session data, and no edit actions. Super admins see the same list for now; a fuller view and account management belong to the Super Admin units (I-23 onwards).
