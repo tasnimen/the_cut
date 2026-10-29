@@ -1,11 +1,16 @@
-export const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+// 4 MB: a serverless request body limit makes larger uploads fail, and the image service accepts far more.
+// The browser shrinks photos before sending; the server re-encodes to about 2000 px WebP.
+export const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
 
+// Every upload target has a fixed folder at the image service; no part of a path comes from the user.
 const TARGET_RULES = Object.freeze({
-  gallery: { permission: "mediaGalleryManageAll", ownerOnly: false },
-  products: { permission: "mediaProductsManageAll", ownerOnly: false },
-  barbers: { permission: "mediaBarbersManageAll", ownerOnly: false },
-  services: { permission: "mediaServicesManageAll", ownerOnly: false },
-  avatar: { permission: "mediaAvatarOwn", ownerOnly: true },
+  gallery: { permission: "mediaGalleryManageAll", ownerOnly: false, folder: "the-cut/gallery" },
+  products: { permission: "mediaProductsManageAll", ownerOnly: false, folder: "the-cut/products" },
+  barbers: { permission: "mediaBarbersManageAll", ownerOnly: false, folder: "the-cut/barbers" },
+  services: { permission: "mediaServicesManageAll", ownerOnly: false, folder: "the-cut/services" },
+  banners: { permission: "mediaBannersManageAll", ownerOnly: false, folder: "the-cut/banners" },
+  slots: { permission: "mediaSlotsManageAll", ownerOnly: false, folder: "the-cut/slots" },
+  avatar: { permission: "mediaAvatarOwn", ownerOnly: true, folder: "the-cut/avatars" },
 });
 
 const signatures = [

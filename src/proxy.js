@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
 
+// Browsers may load images only from this site and our image host. The cloud name (not a secret) narrows
+// Cloudinary to our own folder tree. ImgBB stays only for older images (docs/DECISIONS.md).
+const CLOUD_NAME = /^[A-Za-z0-9_-]{2,64}$/.test(process.env.CLOUDINARY_CLOUD_NAME ?? "") ? process.env.CLOUDINARY_CLOUD_NAME : null;
+const CLOUDINARY_IMG_SOURCE = CLOUD_NAME ? `https://res.cloudinary.com/${CLOUD_NAME}/` : "https://res.cloudinary.com";
+
 export function proxy(request) {
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
   const isDevelopment = process.env.NODE_ENV === "development";
@@ -9,9 +14,9 @@ export function proxy(request) {
     `style-src 'self' 'nonce-${nonce}'`,
     `style-src-elem ${isDevelopment ? "'self' 'unsafe-inline'" : `'self' 'nonce-${nonce}'`}`,
     "style-src-attr 'unsafe-inline'",
-    "img-src 'self' data: blob: https://i.ibb.co",
+    `img-src 'self' data: blob: ${CLOUDINARY_IMG_SOURCE} https://i.ibb.co`,
     "font-src 'self' data:",
-    "connect-src 'self' https://api.imgbb.com https://challenges.cloudflare.com",
+    "connect-src 'self' https://challenges.cloudflare.com",
     "frame-src https://challenges.cloudflare.com",
     "object-src 'none'",
     "base-uri 'self'",

@@ -1,7 +1,23 @@
+import { IMAGE_DEVICE_SIZES, IMAGE_MIN_CACHE_SECONDS, IMAGE_QUALITIES, IMAGE_SMALL_SIZES } from "./src/config/image-sizes.mjs";
+
+// The cloud name is not a secret; it only scopes which Cloudinary paths next/image may fetch.
+// Read at build time, so rebuild after changing CLOUDINARY_CLOUD_NAME.
+const cloudName = /^[A-Za-z0-9_-]{2,64}$/.test(process.env.CLOUDINARY_CLOUD_NAME ?? "") ? process.env.CLOUDINARY_CLOUD_NAME : null;
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    remotePatterns: [new URL("https://i.ibb.co/**")],
+    remotePatterns: [
+      ...(cloudName ? [{ protocol: "https", hostname: "res.cloudinary.com", pathname: `/${cloudName}/**` }] : []),
+      // Older images were stored on ImgBB. Keep this pattern while such records exist (docs/DECISIONS.md).
+      { protocol: "https", hostname: "i.ibb.co", pathname: "/**" },
+    ],
+    // Default loader with a small fixed set of widths: no per-page or per-visitor image variants.
+    deviceSizes: [...IMAGE_DEVICE_SIZES],
+    imageSizes: [...IMAGE_SMALL_SIZES],
+    qualities: [...IMAGE_QUALITIES],
+    formats: ["image/webp"],
+    minimumCacheTTL: IMAGE_MIN_CACHE_SECONDS,
   },
   poweredByHeader: false,
   experimental: {

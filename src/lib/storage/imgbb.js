@@ -26,7 +26,7 @@ async function requestWithRetry(fetchImpl, url, init) {
     try {
       const response = await fetchImpl(url, { ...init, signal: AbortSignal.timeout(15000) });
       if (response.status < 500 || attempt === 2) return response;
-    } catch {
+    } catch (error) {
       if (attempt === 2) throw error;
     }
     await new Promise((resolve) => setTimeout(resolve, 150 * (attempt + 1)));

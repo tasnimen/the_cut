@@ -9,6 +9,12 @@ const envSchema = z.object({
   BETTER_AUTH_SECRET: z.string().min(32).optional(),
   BETTER_AUTH_URL: z.string().url().optional(),
   AUTH_REQUIRE_EMAIL_VERIFICATION: z.preprocess((value) => value === "" ? undefined : value, z.enum(["true", "false"]).default("false").transform((value) => value === "true")),
+  // Image storage: "cloudinary" (default) or the legacy "imgbb". The provider's own variables are checked
+  // when the first upload or delete happens (lib/storage/storage-env.js), with a message naming the variable.
+  STORAGE_PROVIDER: z.preprocess((value) => value === "" ? undefined : value, z.enum(["cloudinary", "imgbb"]).default("cloudinary")),
+  CLOUDINARY_CLOUD_NAME: z.preprocess((value) => value === "" ? undefined : value, z.string().trim().regex(/^[A-Za-z0-9_-]{2,64}$/, "must be the cloud name from the Cloudinary dashboard").optional()),
+  CLOUDINARY_API_KEY: z.preprocess((value) => value === "" ? undefined : value, z.string().trim().min(1).max(64).optional()),
+  CLOUDINARY_API_SECRET: z.preprocess((value) => value === "" ? undefined : value, z.string().trim().min(1).max(128).optional()),
   IMGBB_API_KEY: z.preprocess((value) => value === "" ? undefined : value, z.string().min(1).optional()),
   TURNSTILE_SECRET_KEY: z.preprocess((value) => value === "" ? undefined : value, z.string().min(1).optional()),
   NEXT_PUBLIC_TURNSTILE_SITE_KEY: z.preprocess((value) => value === "" ? undefined : value, z.string().min(1).optional()),

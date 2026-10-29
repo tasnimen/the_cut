@@ -1,7 +1,7 @@
 // Single source for every image slot on the site. Components must read images through
 // `getImage()` (src/lib/images/server.js) and never hard-code a path.
 //
-// Resolution order per slot: (1) a Super Admin override from a Media (ImgBB) record, passed in by
+// Resolution order per slot: (1) a Super Admin override from a Media (image service) record, passed in by
 // the caller (Phase I), (2) a photo the owner placed at public/images/<file>.(webp|avif|jpg|jpeg|png),
 // (3) the `fallback` below (an existing local asset or the neutral placeholder).
 
@@ -76,3 +76,7 @@ export const IMAGE_SLOTS = Object.freeze({
 });
 
 export const IMAGE_SLOT_KEYS = Object.freeze(Object.keys(IMAGE_SLOTS));
+
+// Allowed image widths and the named size presets (thumb, card, hero, banner, avatar). Only these widths are
+// ever requested from the image optimizer; see docs/DECISIONS.md ("Image delivery loader").
+export { IMAGE_DEVICE_SIZES, IMAGE_PRESETS, IMAGE_QUALITIES, IMAGE_SMALL_SIZES } from "./image-sizes.mjs";
