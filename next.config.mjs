@@ -37,6 +37,7 @@ const nextConfig = {
     return [
       { source: "/:path*", headers: securityHeaders },
       { source: "/:area(user|admin|super-admin)/:path*", headers: privateAreaHeaders },
+      { source: "/two-factor", headers: privateAreaHeaders },
     ];
   },
 };

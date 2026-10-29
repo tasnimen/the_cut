@@ -7,6 +7,7 @@ import { landingPathFor } from "@/config/dashboard-access";
 import { ROUTES } from "@/config/routes";
 import { notify } from "@/lib/toast/notify";
 import { toastKeyForStatus } from "@/lib/toast/messages";
+import { TwoFactorChallengeForm } from "@/features/auth/components/TwoFactorChallengeForm";
 import { markSignedIn, signOut as signOutSession } from "@/features/auth/session-store";
 
 export function AuthPanel({ mode, callbackPath = ROUTES.home }) {
@@ -14,6 +15,7 @@ export function AuthPanel({ mode, callbackPath = ROUTES.home }) {
   const isSignUp = mode === "sign-up";
   const [busy, setBusy] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [challenge, setChallenge] = useState(false);
   const [user, setUser] = useState(null);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -56,6 +58,12 @@ export function AuthPanel({ mode, callbackPath = ROUTES.home }) {
         setError(isSignUp
           ? "We couldn't complete sign-up. Check the details and try again."
           : "Sign-in failed. Check your email and password and try again.");
+        return;
+      }
+
+      if (!isSignUp && result.twoFactorRedirect) {
+        formElement.reset();
+        setChallenge(true);
         return;
       }
 
@@ -106,6 +114,17 @@ export function AuthPanel({ mode, callbackPath = ROUTES.home }) {
     }
     setBusy(false);
   }
+
+  function handleVerified(verifiedUser) {
+    setChallenge(false);
+    setUser(verifiedUser);
+    markSignedIn(verifiedUser);
+    notify("signInSuccess");
+    const target = callbackPath !== ROUTES.home ? callbackPath : landingPathFor(verifiedUser?.role);
+    if (target !== ROUTES.home) router.push(target);
+  }
+
+  if (challenge) return <TwoFactorChallengeForm onVerified={handleVerified} />;
 
   if (user) {
     return (

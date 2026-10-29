@@ -8,6 +8,7 @@ export const AUTH_RATE_LIMIT_POLICY = Object.freeze({
   customRules: Object.freeze({
     "/sign-in/*": Object.freeze({ window: 60, max: 5 }),
     "/sign-up/*": Object.freeze({ window: 3600, max: 5 }),
+    "/two-factor/*": Object.freeze({ window: 60, max: 10 }),
     "/request-password-reset": Object.freeze({ window: 3600, max: 3 }),
     "/reset-password*": Object.freeze({ window: 3600, max: 5 }),
     "/send-verification-email": Object.freeze({ window: 3600, max: 3 }),

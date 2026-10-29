@@ -770,3 +770,18 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 4; pointer-event
   .dash-sidebar { transition: none; }
   .dash-skeleton { animation: none; }
 }
+
+/* Two-step verification screens */
+.auth-card--wide { width: min(100%, 640px); }
+.auth-link-button { padding: 0; border: 0; background: none; color: var(--gold-light); font: inherit; font-size: 11px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; min-height: 44px; }
+.auth-link-button:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 2px; }
+.tf-steps { display: grid; gap: 22px; margin: 22px 0 0; padding: 0; list-style: none; }
+.tf-steps > li { display: grid; gap: 8px; padding-bottom: 20px; border-bottom: 1px solid var(--border-soft); }
+.tf-steps > li:last-child { padding-bottom: 0; border-bottom: 0; }
+.tf-steps p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.7; }
+.tf-steps strong { color: var(--text); font-size: 13px; }
+.tf-secret { display: block; padding: 12px 14px; border: 1px solid var(--border-warm); border-radius: 4px; background: var(--background); color: var(--gold-light); font-size: 15px; letter-spacing: .12em; word-break: break-all; user-select: all; }
+.tf-codes { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin: 0; padding: 0; list-style: none; }
+.tf-codes code { display: block; padding: 8px 10px; border: 1px solid var(--border); border-radius: 4px; background: var(--background); color: var(--text); font-size: 12px; text-align: center; user-select: all; }
+.tf-check { display: flex; align-items: center; gap: 10px; min-height: 44px; color: var(--text-soft); font-size: 12px; cursor: pointer; }
+.tf-check input { width: 18px; height: 18px; accent-color: var(--gold); }
