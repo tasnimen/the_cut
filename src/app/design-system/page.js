@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/Button";
 import { Surface } from "@/components/ui/Surface";
 import { TiltSurface } from "@/components/ui/TiltSurface";
 import { MotionReveal } from "@/components/motion/MotionReveal";
+import { DashboardError } from "@/features/dashboard/components/DashboardError";
+import { DataTable, EmptyState, LoadingBlock, PageHeader, Panel, StatCard } from "@/features/dashboard/components/primitives";
 import { ROUTES } from "@/config/routes";
 import { site } from "@/config/site";
 
@@ -57,6 +59,24 @@ export default function DesignSystemPage() {
           <strong>Reduced-motion aware reveal</strong>
           <span>Lenis and ScrollTrigger share one GSAP ticker when motion is allowed.</span>
         </MotionReveal>
+      </PageSection>
+
+      <PageSection spacing="compact" className="design-system-section" aria-labelledby="design-dashboard-title">
+        <p className="eyebrow">04 · Dashboard primitives</p>
+        <h2 id="design-dashboard-title">Cards, tables and states</h2>
+        <p className="design-system-note">Sample values for layout review only. This dev route is never shown to visitors, and the real dashboards never use sample data.</p>
+        <PageHeader eyebrow="Sample" title="Page header" description="Title, description and actions." />
+        <div className="dash-stat-grid">
+          <StatCard label="Sample stat" value="12" hint="Sample hint" icon="calendar" />
+          <StatCard label="Missing value" value={null} hint="Shown as a dash" icon="users" />
+        </div>
+        <Panel title="Sample table" action={{ href: ROUTES.designSystem, label: "View all" }}>
+          <DataTable caption="Sample table" columns={[{ key: "a", label: "Column A" }, { key: "b", label: "Column B" }]} rows={[{ id: "1", cells: { a: "Row one", b: "Value" } }]} />
+        </Panel>
+        <Panel title="Empty table"><DataTable caption="Empty" columns={[{ key: "a", label: "A" }]} rows={[]} emptyText="Real dashboards show this state until data exists." /></Panel>
+        <Panel title="Loading"><LoadingBlock lines={3} /></Panel>
+        <Panel title="Empty state"><EmptyState icon="inbox" title="Nothing here yet" text="Explain what will appear and how to add it." action={{ href: ROUTES.designSystem, label: "Primary action" }} /></Panel>
+        <Panel title="Error state"><DashboardError reset={() => {}} /></Panel>
       </PageSection>
 
       <p className="design-system-note">This route is available in development only ({ROUTES.designSystem}).</p>

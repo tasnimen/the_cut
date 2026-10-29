@@ -1,3 +1,4 @@
+import { DashboardShell } from "@/features/dashboard/components/DashboardShell";
 import { requireDashboardAccess } from "@/lib/auth/dashboard-guard";
 
 export const metadata = {
@@ -6,6 +7,6 @@ export const metadata = {
 };
 
 export default async function Layout({ children }) {
-  await requireDashboardAccess("superAdmin");
-  return children;
+  const principal = await requireDashboardAccess("superAdmin");
+  return <DashboardShell areaKey="superAdmin" principal={principal}>{children}</DashboardShell>;
 }
