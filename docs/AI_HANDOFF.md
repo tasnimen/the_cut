@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** Stage 0 complete (CLAUDE.md, .gitattributes, checks). Waiting for the user to commit the snapshot and say "continue". **Next step:** Stage 1a (review/fix Codex defects).
+**Where I stopped:** Stage 1a complete. **Next step:** Stage 1b.
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -165,3 +165,8 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 
 - With the user's explicit "Apply seed" authorization, `npm run seed:booking:dev -- --apply` ran against `the_cut` with the documented opt-in: 6 service and 4 barber inserts, completed without error. Existing schedules and booking snapshots were untouched. Rerunning the read-only preflight now plans only `update` rows for the same 10 records (existing, idempotent). Collection values were not independently read back.
 - Barbers have empty schedules, so no availability exists. Booking stays disabled for production until real names, schedules, holidays and hours are confirmed.
+
+## Stage 1a done (2026-10-29)
+- Fixed `aria-hidden="true hiden"` typo in `HeroSection.jsx` (the lint warning); removed a duplicated header CSS block; added `--error-soft` token replacing two hardcoded colors; updated stale statuses in REQUIREMENTS, DECISIONS, IMPLEMENTATION_PLAN.
+- Risky/open, not changed: root `MASTER_PROMPT.md` is 0 bytes (delete if unused); hero says "DHAKA · BANGLADESH" vs New York; pricing tier content differs from the approved catalog (Stage 1b); `src/lib/mail/mailer-core.js` has literal colors in email HTML (acceptable).
+- **Where I stopped:** Stage 1a complete. **Next step:** 1b (single source of truth for services/prices; seed accepts `_dev`/`_test` plus existing `the_cut`, per user's choice).

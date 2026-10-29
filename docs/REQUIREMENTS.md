@@ -6,7 +6,7 @@
 |---|---|---|
 | R1 | JavaScript and JSX only | Constraint accepted; current starter files are `.js`. |
 | R2 | Match supplied dark luxury barbershop visual language | References inspected; tokens and limitations in [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md). |
-| R3 | Public home, about, services, gallery, pricing, booking, shop, contact | Partially implemented: `/`, `/about`, `/services`, `/gallery`, `/pricing`, `/contact` preview, and preview-only `/booking`; `/shop` remains planned. Booking has no API or persistence. Gallery imagery, verified business copy, contact channels, and final menu/prices remain pending. |
+| R3 | Public home, about, services, gallery, pricing, booking, shop, contact | Partially implemented: `/`, `/about`, `/services`, `/gallery`, `/pricing`, `/contact` preview, and preview-only `/booking`; `/shop` remains planned. Booking API, persistence and the approved catalog are implemented (Phase G); see docs/BOOKING_RULES.md. Gallery imagery, verified business copy, contact channels, and final menu/prices remain pending. |
 | R4 | Customer dashboard for profile, bookings, history, loyalty, offers | Dashboard reference inspected; account and loyalty policy TBD. |
 | R5 | Admin dashboard for business operations | Dashboard reference inspected; exact workflows and report definitions TBD. |
 | R6 | Super Admin capabilities for system governance | Requested in pasted specification; no visual reference and bootstrap policy TBD. |
