@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** Auth verification unit complete. **Next step:** Stage 3 (home) after the user says continue.
+**Where I stopped:** Stage 3 home page unit partial (hero + services done). **Next step:** barbers/reviews or services page.
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -218,3 +218,10 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - Not built: password reset, per-account password lockout. See `docs/SECURITY.md`.
 - Checks: `npm test` 253 passed / 24 files; lint exit 0; build passed.
 - **Where I stopped:** verification unit complete. **Next step:** user decision on password reset, then Stage 3 (home page) after "continue".
+
+## Stage 3 unit: home page (2026-10-29), partial
+- Done: hero headline/CTA, services heading + 3-col grid + "Book Now", sonner CSS import (CSP fix). Details and open items in `docs/DESIGN_SYSTEM.md` ("Stage 3 — Home page alignment").
+- Tooling note: the dev server on port 3000 (started outside this session) stopped recompiling `globals.css` after a concurrent `next build`; the user should stop it and rerun `npm run dev`. Visual checks this unit used a temporary `next start -p 3002` (stopped afterwards).
+- Not done for home: barbers/reviews/footer alignment; 768/375 px screenshots. Next page: services.
+- Checks: `npm run build` passed; eslint on touched folders clean; targeted tests (features + toast) 9 passed. Full suite not rerun this unit.
+- **Where I stopped:** home page unit partial. **Next step:** barbers/reviews alignment or move to the services page (user's choice).

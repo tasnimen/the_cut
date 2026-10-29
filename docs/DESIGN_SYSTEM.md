@@ -95,3 +95,17 @@ The current Booking reference uses a compact text introduction, pill-like progre
 - Staff profiles, business hours, and contact details have not been verified. Do not turn placeholders into claims.
 - Home and Services pages are statically rendered from local data; they do not currently fetch API data and therefore have no API loading/error state. Add explicit loading, empty, and error states when an authoritative backend is introduced.
 - `/booking` is a preview-only form. No page should claim that an appointment has been saved.
+
+## Stage 3 — Home page alignment (2026-10-29)
+
+Compared against `docs/design/The Cut_ Luxury Barbershop Website Collection.png` (home panel), production build at 1440 px.
+
+| Item | Before | After |
+|---|---|---|
+| Hero headline | Lowercase serif "More than a / haircut." with gold italic | Small tracked "MORE THAN A" over large uppercase "HAIRCUT" (`.hero h1`, `.hero-title-lead`) |
+| Hero secondary link | "Explore our services" | "Our story" (`ROUTES.story`); the mockup's "Watch Our Story" needs a video that does not exist |
+| Services heading | "The good stuff / Care for your kind of style." | "Our services." with "View all services →" link; the sample-image disclosure moved to `.section-footnote` |
+| Service cards | 4 columns with 6 cards (orphan row), "Explore services" to /services | `.service-grid` is 3 columns (6 cards = 2 full rows); button "Book Now" to /booking |
+| Toasts | n/a | `sonner/dist/styles.css` is imported by `AppToaster` because CSP (`style-src` nonce) blocks sonner's runtime `<style>` injection; the console still logs two blocked-inline-style notices, harmless |
+
+Open for the home page: barber section layout (mockup: four photo cards with names and roles under "Meet Our Expert Barbers"), reviews heading and aggregate rating ("What Our Clients Say", figures not supplied), footer newsletter and social icons, nav search icon and Shop link (Shop not built), and per-service photos (only the shared `card-image` exists). Not screenshot-compared at 768 and 375 px in this unit.
