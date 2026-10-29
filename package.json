@@ -9,7 +9,8 @@
     "lint": "eslint",
     "test": "vitest run",
     "seed:booking:dev": "node scripts/seed-booking.js",
-    "seed:admins:dev": "node scripts/seed-admins.js"
+    "seed:admins:dev": "node scripts/seed-admins.js",
+    "check:cloudinary": "node scripts/check-cloudinary.js"
   },
   "dependencies": {
     "@better-auth/mongo-adapter": "^1.7.14",
