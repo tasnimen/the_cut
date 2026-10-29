@@ -1,6 +1,6 @@
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
-import { BOOKING_CONFIG } from "@/config/booking";
 import { site } from "@/config/site";
+import { getBookingConfig } from "@/lib/catalog/source";
 import { getImage } from "@/lib/images/server";
 import { formatAddress, formatClosures, formatOpeningHours, mailtoHref, mapsHref, socialLinks, telHref, timeZoneLabel } from "@/lib/site/contact";
 
@@ -37,10 +37,11 @@ export function ContactInfoCard() {
   );
 }
 
-export function OpeningHoursCard() {
-  const hours = formatOpeningHours(BOOKING_CONFIG.openingHours);
-  const { closed, extraDates, earlyClose } = formatClosures(BOOKING_CONFIG.holidays);
-  const zone = timeZoneLabel(BOOKING_CONFIG.timeZone);
+export async function OpeningHoursCard() {
+  const config = await getBookingConfig();
+  const hours = formatOpeningHours(config.openingHours);
+  const { closed, extraDates, earlyClose } = formatClosures(config.holidays);
+  const zone = timeZoneLabel(config.timeZone);
 
   return (
     <section className="contact-card" aria-labelledby="contact-hours-title">

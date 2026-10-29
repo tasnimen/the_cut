@@ -95,6 +95,7 @@ export async function ensureApplicationIndexes(db) {
       db.collection("contactMessage").createIndex({ status: 1, createdAt: -1 }, { name: "contact_status_created" }),
       db.collection("service").createIndex({ slug: 1 }, { unique: true, name: "service_slug_unique" }),
       db.collection("service").createIndex({ active: 1, slug: 1 }, { name: "service_active_slug" }),
+      db.collection("siteSetting").createIndex({ key: 1 }, { unique: true, name: "site_setting_key_unique" }),
       db.collection("pricingPackage").createIndex({ slug: 1 }, { unique: true, name: "pricing_package_slug_unique" }),
       db.collection("barber").createIndex({ slug: 1 }, { unique: true, name: "barber_slug_unique" }),
       db.collection("barber").createIndex({ active: 1, name: 1 }, { name: "barber_active_name" }),

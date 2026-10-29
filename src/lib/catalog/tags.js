@@ -2,6 +2,8 @@
 export const CATALOG_TAGS = Object.freeze({
   services: "catalog:services",
   packages: "catalog:packages",
+  barbers: "catalog:barbers",
+  holidays: "catalog:holidays",
 });
 
 export const CATALOG_REVALIDATE_SECONDS = 300;

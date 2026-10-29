@@ -3,15 +3,12 @@ import { ScrollReveal } from "@/components/animations/ScrollReveal";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { BarberCard } from "@/features/landing/components/BarberCard";
 import { ANCHORS, ROUTES } from "@/config/routes";
+import { PLACEHOLDER_SRC } from "@/config/images";
+import { getPublicBarbers } from "@/lib/catalog/source";
 import { getImage } from "@/lib/images/server";
 
-const barberProfiles = [
-  { number: 1, slot: "barber-daniel-carter", role: "Master Barber", focus: "Classic, considered cuts" },
-  { number: 2, slot: "barber-james-miller", role: "Senior Barber", focus: "Texture and shape" },
-  { number: 3, slot: "barber-robert-wilson", role: "Barber & Groomer", focus: "Beard and shave" },
-];
-
-export function BarbersSection() {
+export async function BarbersSection() {
+  const profiles = await getPublicBarbers();
   return (
     <section className="team-section" id={ANCHORS.team} aria-labelledby="team-title">
       <div className="page-shell team-layout">
@@ -34,9 +31,9 @@ export function BarbersSection() {
           <span className="team-photo-caption">A PLACE FOR THE CRAFT</span>
         </div>
         <ScrollReveal className="barber-grid" id={ANCHORS.teamProfiles} stagger>
-          {barberProfiles.map((barber) => {
-            const image = getImage(barber.slot);
-            return <BarberCard key={barber.number} barber={barber} imageSrc={image.src} imageAlt={image.alt} />;
+          {profiles.map((barber) => {
+            const image = barber.photoSlot ? getImage(barber.photoSlot) : { src: PLACEHOLDER_SRC, alt: "" };
+            return <BarberCard key={barber.key} barber={barber} imageSrc={image.src} imageAlt={image.alt} />;
           })}
         </ScrollReveal>
       </div>

@@ -814,3 +814,4 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 4; pointer-event
 .dash-fieldset { margin: 0; padding: 14px 16px; border: 1px solid var(--border); border-radius: 6px; }
 .dash-fieldset legend { padding: 0 6px; color: var(--text-soft); font-size: 12px; font-weight: 600; }
 .dash-check-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 2px 16px; }
+.barber-focus { margin: 4px 0 0; color: var(--muted); font-size: 11px; }

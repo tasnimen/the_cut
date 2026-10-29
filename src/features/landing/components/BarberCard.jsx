@@ -14,7 +14,8 @@ export function BarberCard({
       <CardImage src={imageSrc} alt={imageAlt} className="barber-card-image" />
       <p className="shared-image-note">Shared sample image</p>
       <p className="barber-role">{barber.role}</p>
-      <h3>{barber.focus}</h3>
+      <h3>{barber.name ?? barber.focus}</h3>
+      {barber.name && barber.focus ? <p className="barber-focus">{barber.focus}</p> : null}
     </TiltSurface>
   );
 }

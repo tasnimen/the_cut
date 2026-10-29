@@ -6,7 +6,7 @@ import { ensureApplicationIndexes, getMongo } from "@/lib/db/mongo";
 import { consumePublicRateLimit } from "@/lib/security/public-rate-limit";
 import { appendAuditEvent } from "@/lib/security/audit-log";
 import { sendBookingCancellation, sendBookingConfirmation, sendBookingReschedule } from "@/lib/mail/mailer";
-import { BOOKING_CONFIG } from "@/config/booking";
+import { getBookingConfig } from "@/lib/catalog/source";
 import { BookingAvailabilityQuerySchema, BookingIdSchema, CreateBookingSchema, RescheduleBookingSchema } from "@/lib/booking/booking-model";
 import { BookingError, loadBookingOptions } from "@/lib/booking/availability";
 import { createBookingRepository } from "@/lib/booking/repository";
@@ -27,7 +27,8 @@ function failure(error) {
 async function connect() {
   const { client, db } = await getMongo();
   await ensureApplicationIndexes(db);
-  return { client, db, repository: createBookingRepository({ client, db }) };
+  const config = await getBookingConfig();
+  return { client, db, config, repository: createBookingRepository({ client, db, config }) };
 }
 
 export async function getAvailability(request) {
@@ -39,8 +40,8 @@ export async function getAvailability(request) {
       date: url.searchParams.get("date"), services: url.searchParams.getAll("service"), barber: url.searchParams.get("barber") || "any",
     });
     if (!query.success) return json({ error: "invalid_query" }, 400);
-    const { db } = await connect();
-    return json(await loadBookingOptions(db, { localDate: query.data.date, serviceSlugs: query.data.services, barber: query.data.barber, config: BOOKING_CONFIG }));
+    const { db, config } = await connect();
+    return json(await loadBookingOptions(db, { localDate: query.data.date, serviceSlugs: query.data.services, barber: query.data.barber, config }));
   } catch (error) { return failure(error); }
 }
 
