@@ -426,7 +426,7 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 
 ## Unit I-20 done (2026-10-30): contact messages
 - New: `lib/contact/admin-messages.js` (+ test), `app/admin/messages/{page,[id]/page,actions}` (+ test), `features/dashboard/messages/MessageActions.jsx`; "Messages" enabled in the admin sidebar; toast `messageDeleted`; CSS `.dash-message-body`.
-- Delete is Super Admin only (matches `contactDeleteAll`); the plan said "delete" without saying who, so I followed the permission table. Say if Admins should delete too (then change the permission, with a test).
+- Delete: the owner decided (2026-10-30) that Admins may delete too, so `contactDeleteAll` is now ADMIN and SUPER_ADMIN (config/permissions.js, ROLE_PERMISSIONS.md, test updated).
 - Replying is done in the admin's own mail program (mailto link); the site does not send replies, so "Replied" is marked by hand.
 - Not verified live as an admin; steps in TESTING.md.
 - **Where I stopped:** I-20 complete. **Next step:** I-19 (gallery), I-22 (reports), I-18 (check what is left) or the Super Admin units, on the owner's ok.

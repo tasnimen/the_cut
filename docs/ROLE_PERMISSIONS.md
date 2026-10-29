@@ -45,7 +45,7 @@ Roles are `GUEST` (unauthenticated; not stored), `USER`, `ADMIN`, and `SUPER_ADM
 | `ordersRefundAll` | — | — | — | ALL (step-up) |
 | `bookingsDeleteAll` | — | — | — | ALL (step-up) |
 | `contactManageAll` | — | — | ALL | ALL |
-| `contactDeleteAll` | — | — | — | ALL |
+| `contactDeleteAll` | — | — | ALL | ALL |
 | `operationalReportsAll` | — | — | ALL | ALL |
 | `financialReportsAll` | — | — | — | ALL |
 | `financialExportAll` | — | — | — | ALL (step-up) |
@@ -91,4 +91,4 @@ Responses for these paths carry `Cache-Control: no-store` and `X-Robots-Tag: noi
 
 **Customers list (I-14):** `/admin/customers` needs the `customersRead` permission (ADMIN gets the LIMITED scope, SUPER_ADMIN ALL; both must have TOTP). The page calls `requireDashboardAccess("admin")` and then `requirePrincipal("customersRead")`. It lists only users with role USER. LIMITED means: name, email, join date, suspended flag, booking counts, last completed visit, no-show count, review flag and a pending deletion request. No phone, no role, no password or session data, and no edit actions. Super admins see the same list for now; a fuller view and account management belong to the Super Admin units (I-23 onwards).
 
-**Messages (I-20):** `/admin/messages` and `/admin/messages/[id]` need `contactManageAll` (ADMIN and SUPER_ADMIN, TOTP). Changing status uses the same permission. **Deleting needs `contactDeleteAll`, which is Super Admin only**, as the permission table already said: the Delete button is shown only to a Super Admin and the Server Action refuses an Admin on its own, so an Admin who calls it directly gets "not allowed".
+**Messages (I-20):** `/admin/messages` and `/admin/messages/[id]` need `contactManageAll` (ADMIN and SUPER_ADMIN, TOTP). Changing status uses the same permission. **Deleting needs `contactDeleteAll`, which the owner decided on 2026-10-30 should be held by Admin as well as Super Admin** (it was Super Admin only before). The Delete button follows the permission and the Server Action checks it on every call.
