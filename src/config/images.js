@@ -61,11 +61,11 @@ export const IMAGE_SLOTS = Object.freeze({
   "gallery-studio-wide": slot("gallery-studio-wide", 1200, 800, { alt: "A quiet corner of the studio", fallback: BANNER_2, search: "barbershop interior wide angle" }),
   "gallery-barber-chair": slot("gallery-barber-chair", 900, 1200, { alt: "The chair, ready for the day", fallback: BANNER_1, search: "barber chair leather vintage" }),
   "gallery-scissors-detail": slot("gallery-scissors-detail", 1000, 1000, { alt: "Scissors and comb on the counter", fallback: SHARED_CARD, search: "barber scissors comb close up" }),
-  "gallery-04": slot("gallery-04", 1200, 800, { alt: "Gallery photo 4", search: "fade haircut side view" }),
-  "gallery-05": slot("gallery-05", 1200, 800, { alt: "Gallery photo 5", search: "beard grooming close up" }),
-  "gallery-06": slot("gallery-06", 1200, 800, { alt: "Gallery photo 6", search: "barbershop detail hot towel" }),
-  "gallery-07": slot("gallery-07", 1200, 800, { alt: "Gallery photo 7", search: "barber tools razor brush" }),
-  "gallery-08": slot("gallery-08", 1200, 800, { alt: "Gallery photo 8", search: "barbershop shop front night" }),
+  "gallery-04": slot("gallery-04", 1200, 800, { alt: "A haircut finished at The Cut", search: "fade haircut side view" }),
+  "gallery-05": slot("gallery-05", 1200, 800, { alt: "A groomed beard", search: "beard grooming close up" }),
+  "gallery-06": slot("gallery-06", 1200, 800, { alt: "A hot towel shave", search: "barbershop detail hot towel" }),
+  "gallery-07": slot("gallery-07", 1200, 800, { alt: "A finished hairstyle", search: "barber tools razor brush" }),
+  "gallery-08": slot("gallery-08", 1200, 800, { alt: "An event at the shop", search: "barbershop shop front night" }),
 
   // Other
   pricing: slot("pricing", 1600, 700, { decorative: true, fallback: BANNER_2, search: "barber razor comb scissors flat lay" }),

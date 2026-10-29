@@ -2,17 +2,16 @@
 
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { galleryItems } from "@/features/marketing/data/gallery";
+import { galleryCategories } from "@/features/marketing/data/gallery";
 
-const categories = ["All", ...new Set(galleryItems.map(({ category }) => category))];
-
-export function GalleryGrid({ images = {} }) {
+export function GalleryGrid({ items = [], images = {} }) {
+  const categories = useMemo(() => galleryCategories(items), [items]);
   const [activeCategory, setActiveCategory] = useState("All");
   const [selectedItem, setSelectedItem] = useState(null);
   const dialogRef = useRef(null);
   const visibleItems = useMemo(
-    () => galleryItems.filter((item) => activeCategory === "All" || item.category === activeCategory),
-    [activeCategory],
+    () => items.filter((item) => activeCategory === "All" || item.category === activeCategory),
+    [activeCategory, items],
   );
 
   useEffect(() => {

@@ -2,7 +2,7 @@ import { SiteFrame } from "@/components/layout/SiteFrame";
 import { getImage } from "@/lib/images/server";
 import { ROUTES } from "@/config/routes";
 import { site } from "@/config/site";
-import { galleryItems } from "@/features/marketing/data/gallery";
+import { galleryItems, visibleGalleryItems } from "@/features/marketing/data/gallery";
 import { GalleryGrid } from "@/features/marketing/components/GalleryGrid";
 import { MarketingPageHero } from "@/features/marketing/components/MarketingPageHero";
 
@@ -14,22 +14,25 @@ export const metadata = {
 };
 
 export default function GalleryPage() {
-  const galleryImages = Object.fromEntries(galleryItems.map((item) => [item.id, getImage(`gallery-${item.id}`).src]));
+  const resolved = Object.fromEntries(galleryItems.map((item) => [item.id, getImage(`gallery-${item.id}`)]));
+  const items = visibleGalleryItems(galleryItems, (item) => resolved[item.id].source !== "fallback");
+  const galleryImages = Object.fromEntries(items.map((item) => [item.id, resolved[item.id].src]));
+  const showsSamples = items.some((item) => item.sample);
   return (
     <SiteFrame activePath={ROUTES.gallery}>
       <MarketingPageHero
-        description="A visual preview of the space and the details that inspire the experience."
-        eyebrow="The gallery"
+        description="Explore our gallery and see the transformation, style, and precision in every cut."
+        eyebrow="Our gallery"
         image={getImage("hero-gallery")}
-        title={<>Moments around<br /><em>the craft.</em></>}
+        title={<>Moments that define<br /><em>our craft.</em></>}
       />
       <section className="gallery-section page-shell" aria-labelledby="gallery-title">
         <div className="marketing-section-heading">
-          <p className="eyebrow">Studio & details</p>
+          <p className="eyebrow">Gallery</p>
           <h2 id="gallery-title">A closer <em>look.</em></h2>
-          <p className="marketing-disclosure">These are concept images already used on the site, not verified examples of the shop, its staff, or client work.</p>
+          {showsSamples ? <p className="marketing-disclosure">Some images shown here are concept images, not verified examples of the shop, its staff, or client work.</p> : null}
         </div>
-        <GalleryGrid images={galleryImages} />
+        <GalleryGrid items={items} images={galleryImages} />
       </section>
     </SiteFrame>
   );

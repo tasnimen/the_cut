@@ -4,7 +4,7 @@ Single source: `src/config/images.js`. Components read images only through `getI
 
 **How to add a photo:** save it as `public/images/<file>` using the filename in the table (accepted extensions, in priority order: webp, avif, jpg, jpeg, png), then restart the dev server or rebuild. Until then the slot uses its fallback (an existing local asset or the neutral placeholder). Phase I: a Super Admin can override any slot with an uploaded ImgBB Media record (only `https://i.ibb.co/` URLs are accepted); the local file stays the fallback.
 
-**Rules for photos:** license-free only (Unsplash, Pexels or your own); no recognizable brand logos; **no real identifiable people unless they consented**: barber portraits must be the actual barbers. Compress each to about 200 KB or less (WebP, quality 75–82) at the recommended size. Record every photo's source and license in `docs/IMAGE_CREDITS.md`. The two project banners were compressed to `banner1.webp` (71 KB) and `banner2.webp` (129 KB); the original PNGs are in `docs/design/originals/`.
+**Rules for photos:** license-free only (Unsplash, Pexels or your own); no recognizable brand logos; **no real identifiable people unless they consented**: barber portraits must be the actual barbers. Compress each to about 200 KB or less (WebP, quality 75–82) at the recommended size. Record every photo's source and license in `docs/IMAGE_CREDITS.md`. `banner1.png` (1.7 MB) and `banner2.png` (2.1 MB) are over budget and should be replaced by compressed WebP versions.
 
 | Slot | File to add | Size (aspect) | Search phrase (Unsplash / Pexels) | Current fallback | Notes | Source / license |
 |---|---|---|---|---|---|---|
