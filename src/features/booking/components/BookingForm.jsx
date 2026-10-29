@@ -7,12 +7,15 @@ import { Icon } from "@/components/ui/Icon";
 import { BookingProgress } from "@/features/booking/components/BookingProgress";
 import { services } from "@/features/landing/data/services";
 import { ROUTES } from "@/config/routes";
+import { useRouter } from "next/navigation";
+import { signInUrlFor } from "@/lib/auth/callback";
 import { notify } from "@/lib/toast/notify";
 import { toastKeyForStatus } from "@/lib/toast/messages";
 import { formatMoney } from "@/lib/format/money";
 
 
 export function BookingForm({ today }) {
+  const router = useRouter();
   const [selected, setSelected] = useState([services[0]?.slug].filter(Boolean));
   const [date, setDate] = useState(today);
   const [barber, setBarber] = useState("any");
@@ -67,6 +70,7 @@ export function BookingForm({ today }) {
       if (response.status === 401 || response.status === 403) {
         setStatus("Sign in to confirm your booking.");
         notify("signInRequired");
+        router.push(signInUrlFor(ROUTES.booking));
       } else if (response.status === 409 && result.error === "price_not_configured") {
         setStatus("Prices are being finalized. Please check back soon.");
         notify("bookingFailure");

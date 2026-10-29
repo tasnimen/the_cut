@@ -1,13 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ROUTES } from "@/config/routes";
 import { notify } from "@/lib/toast/notify";
 import { toastKeyForStatus } from "@/lib/toast/messages";
 import { markSignedIn, signOut as signOutSession } from "@/features/auth/session-store";
 
-export function AuthPanel({ mode }) {
+export function AuthPanel({ mode, callbackPath = ROUTES.home }) {
+  const router = useRouter();
   const isSignUp = mode === "sign-up";
   const [busy, setBusy] = useState(false);
   const [user, setUser] = useState(null);
@@ -65,6 +67,7 @@ export function AuthPanel({ mode }) {
           markSignedIn(session.user);
           setMessage("Your account is ready and you are signed in.");
           notify("signUpSuccess");
+          if (callbackPath !== ROUTES.home) router.push(callbackPath);
         } else {
           setMessage("If this address can be registered, check your inbox for a verification link, then sign in.");
           notify("signUpCheckInbox");
@@ -74,6 +77,7 @@ export function AuthPanel({ mode }) {
         markSignedIn(result.user || null);
         setMessage("You are signed in.");
         notify("signInSuccess");
+        if (callbackPath !== ROUTES.home) router.push(callbackPath);
       }
     } catch {
       setError("We couldn't reach the sign-in service. Try again.");
