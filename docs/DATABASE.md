@@ -47,3 +47,18 @@ At booking and rescheduling, the API revalidates service duration, barber eligib
 ## Operations
 
 Bound and paginate list queries; set sensible connection pool limits; validate every write at runtime; minimize duplicate PII; document retention/deletion and backup restore. Atlas tier limits and point-in-time recovery availability must be checked against the chosen plan before deployment. See [backup status](BACKUP_RECOVERY.md) (to be created during operations planning).
+
+## Public catalog (unit I-5, 2026-10-29)
+
+The public site (home, services, pricing, booking list and preselect) reads **services** and **pricing packages** through `src/lib/catalog/source.js`: MongoDB first, the file data (`config/booking-services.js`, `config/pricing-packages.js`) as the fallback.
+
+| Collection | Fields read (allow-list) | Notes |
+|---|---|---|
+| `service` | `slug`, `name`, `description` (shown as the card text), `durationMinutes`, `priceMinorUnits`, `active`, `displayOrder`, `category` (haircut, beard, shave, color, treatment), `icon` (scissors, beard, razor, sparkle) | Existing documents lack `displayOrder`, `category` and `icon`: missing display fields are filled from the file entry with the same slug (new slugs default to haircut/scissors); order falls back to the file order. A missing or invalid price shows "Price to be confirmed" (never an invented number) and booking stays blocked as before |
+| `pricingPackage` (new, empty) | `slug`, `name`, `priceMinorUnits`, `note`, `inclusions[]`, `featured`, `active`, `displayOrder`, `bookingServiceSlugs[]` | Created by the packages CRUD in unit I-16. While the collection is empty the three file packages are shown |
+
+Rules (`lib/catalog/normalize.js`, tested): the database is authoritative once the collection has any document (inactive or invalid documents are hidden, so deactivating all services shows none); the file data is used only when the collection is empty or the read fails; internal fields (`_id`, timestamps) never reach pages.
+
+**Caching:** `unstable_cache` with tags `catalog:services` and `catalog:packages` and a 5-minute safety revalidate. (The installed Next.js docs mark `unstable_cache` as replaced by `use cache`, which needs the Cache Components flag and would change rendering app-wide; migrate later if the flag is adopted.) After any admin save call `revalidateCatalog()` (`lib/catalog/revalidate.js`, uses `revalidateTag(tag, { expire: 0 })`) from the Server Action or Route Handler; the next public request then reads fresh data. A failed query is never cached.
+
+**Outage behavior:** a failed read serves the file data; a 30-second cooldown (`lib/utils/cooldown.js`) stops every request waiting for the 8 s database timeout. The site header uses the same cooldown for its session lookup (it shows the signed-out header while the cooldown is active; authorization itself is unaffected).

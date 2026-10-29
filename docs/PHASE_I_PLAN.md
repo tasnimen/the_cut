@@ -22,7 +22,7 @@
 
 | Unit | What | Cost |
 |---|---|---|
-| I-5 | Data layer pattern: repository functions with file fallback, cache tags, `revalidateTag` on save; start with services and pricing packages (public pages read from it) | M |
+| I-5 (done 2026-10-29) | Data layer pattern: repository functions with file fallback, cache tags, `revalidateTag` on save; start with services and pricing packages (public pages read from it) | M |
 | I-6 | Barbers (photo, schedule, lunch break, days off) and holidays/closed dates into the layer | M |
 | I-7 | Business settings (opening hours, contact details, social links) feeding `config/site.js` data | M |
 

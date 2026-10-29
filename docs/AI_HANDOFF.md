@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** I-3 complete (Round 1 done). **Next step:** owner runs the admin seed, then Round 2 (I-5) on the owner's ok.
+**Where I stopped:** I-5 complete (catalog data layer). **Next step:** I-15 (services CRUD) on the owner's ok.
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -338,3 +338,10 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - Not built (decision for the owner): a QR code image (would need a small dependency such as `qrcode`; today the page shows the setup key and an `otpauth://` link that authenticator apps accept), disabling or re-generating backup codes (planned in the security screens of I-9 and I-25).
 - Checks: `npm test` all passing; lint exit 0; build passed.
 - **Where I stopped:** I-3 complete (Round 1 done). **Next step:** the owner runs the admin seed (or explicitly authorizes promoting one dummy account) so the admin side can be checked live; then Round 2, starting with I-5.
+
+## Unit I-5 done (2026-10-29): public catalog from MongoDB with file fallback
+- New: `lib/catalog/{normalize,source,revalidate,tags}.js` (+ tests), `lib/utils/cooldown.js` (+ test). Consumers now read the layer: home `ServicesSection`, `/services` (`ServiceCatalog` takes `services` as a prop), `/pricing`, `/booking` (`BookingForm` takes `services`; `resolvePreselect` validates against the live catalog, default file catalog). `ServiceCard` shows "Price to be confirmed" for an unset price. `getHeaderUser` uses the cooldown. Details and field list in `docs/DATABASE.md`.
+- Checks: tests all passing; lint clean; build passed. Live (production build): pages show $15, $20, $25, $35, $40, $60 and packages $25/$40/$60; booking preselect works; read-only normalization of the six real `service` documents yields six public services (so the database path is used); with an unreachable database (separate test instance) all pages still render from the file data, the first request pays the timeout once and later ones take about 0.03 s.
+- Not done on purpose: seeding `pricingPackage` (I-16 creates it), admin screens (I-15, I-16), `displayOrder`/`category`/`icon` on the existing service documents (the I-15 editor will set them).
+- Delete candidate (owner): `src/features/landing/data/services.js` is no longer imported by anything.
+- **Where I stopped:** I-5 complete. **Next step:** I-15 (services CRUD) on the owner's ok.
