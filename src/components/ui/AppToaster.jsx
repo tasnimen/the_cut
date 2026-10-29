@@ -1,6 +1,7 @@
 "use client";
 
 import { Toaster } from "sonner";
+import "sonner/dist/styles.css";
 
 // Themed with the design tokens so toasts match the glass/gold surfaces.
 export function AppToaster() {
