@@ -5,6 +5,7 @@ import { BookingForm } from "@/features/booking/components/BookingForm";
 import { ReviewsSection } from "@/features/landing/sections/ReviewsSection";
 import { ROUTES } from "@/config/routes";
 import { site } from "@/config/site";
+import { resolvePreselect } from "@/lib/booking/preselect";
 import { businessDate } from "@/lib/booking/time";
 
 export const metadata = {
@@ -12,15 +13,15 @@ export const metadata = {
   description: "Choose a service and an available time for your visit.",
 };
 
-async function BookingFormForToday() {
+async function BookingFormForToday({ searchParams }) {
   await connection();
+  const initialServiceSlugs = resolvePreselect(await searchParams);
   const now = new Date();
   const today = businessDate(now, site.timeZone);
-  return <BookingForm today={today} />;
+  return <BookingForm today={today} initialServiceSlugs={initialServiceSlugs} />;
 }
 
-export default function BookingPage() {
-
+export default function BookingPage({ searchParams }) {
   return (
     <SiteFrame activePath={ROUTES.booking} headerVariant="flow">
         <section className="booking-intro page-shell" aria-labelledby="booking-page-title">
@@ -31,7 +32,7 @@ export default function BookingPage() {
 
         <section className="booking-section page-shell" aria-label="Appointment request form">
           <Suspense fallback={<p className="booking-loading" role="status">Preparing appointment options…</p>}>
-            <BookingFormForToday />
+            <BookingFormForToday searchParams={searchParams} />
           </Suspense>
         </section>
 

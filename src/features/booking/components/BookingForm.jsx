@@ -14,9 +14,9 @@ import { toastKeyForStatus } from "@/lib/toast/messages";
 import { formatMoney } from "@/lib/format/money";
 
 
-export function BookingForm({ today }) {
+export function BookingForm({ today, initialServiceSlugs = [] }) {
   const router = useRouter();
-  const [selected, setSelected] = useState([services[0]?.slug].filter(Boolean));
+  const [selected, setSelected] = useState(initialServiceSlugs.length ? initialServiceSlugs : [services[0]?.slug].filter(Boolean));
   const [date, setDate] = useState(today);
   const [barber, setBarber] = useState("any");
   const [options, setOptions] = useState(null);

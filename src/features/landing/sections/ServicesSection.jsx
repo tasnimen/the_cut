@@ -4,6 +4,7 @@ import { ServiceCard } from "@/features/landing/components/ServiceCard";
 import { services } from "@/features/landing/data/services";
 import Link from "next/link";
 import { ANCHORS, ROUTES } from "@/config/routes";
+import { bookingHrefForService } from "@/lib/booking/preselect";
 
 export function ServicesSection() {
   return (
@@ -20,7 +21,7 @@ export function ServicesSection() {
           <ServiceCard
             key={service.number}
             service={service}
-            actionHref={ROUTES.booking}
+            actionHref={bookingHrefForService(service.slug)}
             actionLabel="Book Now"
           />
         ))}

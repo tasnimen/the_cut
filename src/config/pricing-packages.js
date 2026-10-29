@@ -1,18 +1,22 @@
 // Single source for the public pricing packages (display order = array order).
-// Prices are USD minor units, before tax. Edit here or, later, from the admin dashboard.
+// Prices are USD minor units, before tax. `bookingServiceSlugs` is what /booking?package= preselects;
+// booking prices always come from the service catalog, not from the package price. Edit here or, later, from the admin dashboard.
 export const PRICING_PACKAGES = Object.freeze([
   Object.freeze({
     slug: "basic", name: "Basic", priceMinorUnits: 2500, active: true, featured: false,
+    bookingServiceSlugs: Object.freeze(["haircut"]),
     note: "Essential care for your style.",
     inclusions: Object.freeze(["Haircut", "Quick Touch-up"]),
   }),
   Object.freeze({
     slug: "standard", name: "Standard", priceMinorUnits: 4000, active: true, featured: true,
+    bookingServiceSlugs: Object.freeze(["combo"]),
     note: "Most popular choice.",
     inclusions: Object.freeze(["Haircut", "Beard Trim", "Wash & Style", "Product Finish"]),
   }),
   Object.freeze({
     slug: "premium", name: "Premium", priceMinorUnits: 6000, active: true, featured: false,
+    bookingServiceSlugs: Object.freeze(["haircut", "beard-trim", "shave"]),
     note: "The full experience.",
     inclusions: Object.freeze(["Haircut", "Beard Trim", "Wash & Style", "Hot Towel Shave", "Product Finish"]),
   }),

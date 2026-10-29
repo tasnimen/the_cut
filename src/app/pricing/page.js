@@ -4,6 +4,7 @@ import { ROUTES } from "@/config/routes";
 import { site } from "@/config/site";
 import { PRICING_PACKAGES } from "@/config/pricing-packages";
 import { formatMoney } from "@/lib/format/money";
+import { bookingHrefForPackage } from "@/lib/booking/preselect";
 import { MarketingPageHero } from "@/features/marketing/components/MarketingPageHero";
 
 export const metadata = {
@@ -39,7 +40,7 @@ export default function PricingPage() {
               <ul className="pricing-inclusions">
                 {tier.inclusions.map((item) => <li key={item}>{item}</li>)}
               </ul>
-              <ButtonLink href={ROUTES.booking} variant={tier.featured ? "primary" : "outline"} size="small">Book Now</ButtonLink>
+              <ButtonLink href={bookingHrefForPackage(tier.slug)} variant={tier.featured ? "primary" : "outline"} size="small">Book Now</ButtonLink>
             </article>
           ))}
         </div>

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ScrollReveal } from "@/components/animations/ScrollReveal";
 import { ServiceCard } from "@/features/landing/components/ServiceCard";
 import { services } from "@/features/landing/data/services";
+import { bookingHrefForService } from "@/lib/booking/preselect";
 
 const categories = [
   { id: "all", label: "All services" },
@@ -35,7 +36,7 @@ export function ServiceCatalog() {
       </div>
       <ScrollReveal className="service-grid service-catalog-grid" stagger>
         {visibleServices.map((service) => (
-          <ServiceCard key={service.number} service={service} actionHref={null} />
+          <ServiceCard key={service.number} service={service} actionHref={bookingHrefForService(service.slug)} actionLabel="Book Now" />
         ))}
       </ScrollReveal>
       <p className="service-image-disclosure">
