@@ -1,5 +1,7 @@
 import { SiteFrame } from "@/components/layout/SiteFrame";
 import { getImage } from "@/lib/images/server";
+import { getPublicGallery } from "@/lib/catalog/source";
+import { mergeGallery } from "@/lib/gallery/gallery-input";
 import { ROUTES } from "@/config/routes";
 import { site } from "@/config/site";
 import { galleryItems, visibleGalleryItems } from "@/features/marketing/data/gallery";
@@ -13,11 +15,12 @@ export const metadata = {
   openGraph: { title: `Gallery | ${site.name}`, description: "A visual preview of The Cut's studio concept.", type: "website" },
 };
 
-export default function GalleryPage() {
+export default async function GalleryPage() {
   const resolved = Object.fromEntries(galleryItems.map((item) => [item.id, getImage(`gallery-${item.id}`)]));
-  const items = visibleGalleryItems(galleryItems, (item) => resolved[item.id].source !== "fallback");
-  const galleryImages = Object.fromEntries(items.map((item) => [item.id, resolved[item.id].src]));
-  const showsSamples = items.some((item) => item.sample);
+  const builtIn = visibleGalleryItems(galleryItems, (item) => resolved[item.id].source !== "fallback");
+  const builtInImages = Object.fromEntries(builtIn.map((item) => [item.id, resolved[item.id].src]));
+  // Photos uploaded by the shop come first; once there are any, the labelled concept images are dropped.
+  const { items, images: galleryImages, showsSamples } = mergeGallery({ uploaded: await getPublicGallery(), builtIn, builtInImages });
   return (
     <SiteFrame activePath={ROUTES.gallery}>
       <MarketingPageHero

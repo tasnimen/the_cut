@@ -869,3 +869,12 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 4; pointer-event
 
 /* Admin messages (I-20) */
 .dash-message-body { margin: 12px 0; padding: 14px 16px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface-muted); color: var(--text); font-size: 14px; line-height: 1.7; white-space: pre-wrap; overflow-wrap: anywhere; }
+
+/* Admin gallery (I-19) */
+.dash-gallery-list { display: grid; gap: 14px; margin: 0; padding: 0; list-style: none; }
+.dash-gallery-item { display: grid; grid-template-columns: 160px 1fr; gap: 16px; align-items: start; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-muted); }
+.dash-gallery-item.is-hidden .dash-gallery-thumb { opacity: .5; }
+.dash-gallery-thumb { width: 160px; height: 120px; object-fit: cover; border-radius: 4px; }
+.dash-gallery-body { display: grid; gap: 8px; min-width: 0; }
+.dash-gallery-body p { margin: 0; overflow-wrap: anywhere; }
+@media (max-width: 520px) { .dash-gallery-item { grid-template-columns: 1fr; } .dash-gallery-thumb { width: 100%; height: auto; aspect-ratio: 4 / 3; } }
