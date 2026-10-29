@@ -1,7 +1,6 @@
 import { SiteFrame } from "@/components/layout/SiteFrame";
 import { BarbersSection } from "@/features/landing/sections/BarbersSection";
 import { HeroSection } from "@/features/landing/sections/HeroSection";
-import { ReviewsSection } from "@/features/landing/sections/ReviewsSection";
 import { ServicesSection } from "@/features/landing/sections/ServicesSection";
 import { site } from "@/config/site";
 
@@ -17,7 +16,7 @@ export default function Home() {
         <HeroSection />
         <ServicesSection />
         <BarbersSection />
-        <ReviewsSection />
+        {/* TODO(Phase I): render <ReviewsSection /> again once real, approved reviews exist. */}
     </SiteFrame>
   );
 }

@@ -2,7 +2,6 @@ import { Suspense } from "react";
 import { connection } from "next/server";
 import { SiteFrame } from "@/components/layout/SiteFrame";
 import { BookingForm } from "@/features/booking/components/BookingForm";
-import { ReviewsSection } from "@/features/landing/sections/ReviewsSection";
 import { ROUTES } from "@/config/routes";
 import { site } from "@/config/site";
 import { resolvePreselect } from "@/lib/booking/preselect";
@@ -36,7 +35,6 @@ export default function BookingPage({ searchParams }) {
           </Suspense>
         </section>
 
-        <ReviewsSection />
     </SiteFrame>
   );
 }

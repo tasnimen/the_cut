@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** U2a (image slots) complete. **Next step:** U2b rewiring after the user's ok, then Stage 3.
+**Where I stopped:** U2b part 1 complete. **Next step:** U2b part 2 (decoration) after the user's ok, then Stage 3.
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -251,3 +251,12 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - Findings: `banner1.png` 1.7 MB and `banner2.png` 2.1 MB are over the 200 KB budget; `card-image.webp` is a watermarked stock illustration (replace before launch); no per-service, barber or gallery photos exist; barber portraits must be the real barbers.
 - **U2b (next, needs the user's ok):** rewire hero, page heroes, service cards, barbers, about, gallery, footer to `getImage`; priority only on the hero LCP image; blur placeholders and sizes; hide the sample reviews section until real data; decoration with tokens (gold dividers, glow, grain, hover zoom). Compressing the two banners to WebP needs sharp (installed) and the user's ok to replace the files.
 - **Where I stopped:** U2a complete. **Next step:** U2b after the user says ok, then Stage 3 services page.
+
+## U2b part 1 done (2026-10-29): getImage rewiring
+- Banners compressed with sharp: `public/images/banner1.webp` (71 KB), `banner2.webp` (129 KB); originals moved to `docs/design/originals/` (git sees the PNGs as deleted from `public/images/` plus new files). All references updated (`config/images.js` fallbacks, no `banner*.png` left in `src/`).
+- Rewired to `getImage()`: home hero (only image with `preload`; page heroes via `MarketingPageHero` also preload their own single hero), services hero, about hero + story image, gallery hero + grid (per-item slots `gallery-<id>`), pricing hero, contact hero + preview image (now an `<img>`, CSS background removed), team intro, home service cards and the services-page catalog (`service-<slug>`), barber cards (`barber-*` slots). `ImageWithFallback` now defaults to a blur placeholder. Resolver returns empty alt when a slot is on a fallback (placeholder/sample), real alt once a photo exists. `hero-mobile` slot is defined but not wired (needs art direction, wait for a real photo).
+- Reviews hidden: `ReviewsSection` is no longer rendered on home, services or booking (component kept; about/pricing/footer never showed it; no aggregate rating or structured data exists in the code). **TODO(Phase I): render `<ReviewsSection />` again once real, approved reviews exist** (comment in `src/app/page.js`).
+- Checks: `npm test` 271 passed / 28 files; lint clean; build passed. Production server on :3002 (stopped): all 7 pages return 200, 0 broken images, hero eager, others lazy, no review text.
+- **Part 2 (not started, needs the user's ok):** decoration with tokens (gold dividers, glow, grain overlay, hover zoom with transform/opacity only and reduced-motion respected, offer/CTA/footer backdrops).
+- **Photos still needed** (see `docs/IMAGE_SLOTS.md`; save in `public/images/` using the filename shown there, then restart/rebuild): service photos ×6, barber portraits ×4 (real barbers only), hero (+ optional hero-mobile), page heroes (about, services, gallery, pricing, contact), team-intro, about-story, gallery ×3 existing slots (studio-wide, barber-chair, scissors-detail) plus gallery-04..08, offer-banner, cta-background, footer-backdrop, contact-map-backdrop, product-1..3 (future Shop).
+- **Where I stopped:** U2b part 1 complete. **Next step:** U2b part 2 after the user's ok, then Stage 3 services page.
