@@ -5,7 +5,7 @@ import { ButtonLink } from "@/components/ui/ButtonLink";
 import { CtaBanner } from "@/components/ui/CtaBanner";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ServiceCatalog } from "@/features/services/components/ServiceCatalog";
-import { services } from "@/features/landing/data/services";
+import { getPublicServices } from "@/lib/catalog/source";
 import { ANCHORS, ROUTES } from "@/config/routes";
 import { site } from "@/config/site";
 
@@ -14,7 +14,8 @@ export const metadata = {
   description: `Haircuts, beard trims, shaves, color and treatments at ${site.name}. Prices in USD, before tax.`,
 };
 
-export default function ServicesPage() {
+export default async function ServicesPage() {
+  const services = await getPublicServices();
   return (
     <SiteFrame activePath={ROUTES.services}>
         <section className="services-hero" aria-labelledby="services-page-title">
@@ -48,7 +49,7 @@ export default function ServicesPage() {
           <p className="service-menu-disclosure">
             Prices are in USD, before tax. Payment is at the shop.
           </p>
-          <ServiceCatalog images={Object.fromEntries(services.map((service) => [service.slug, getImage(`service-${service.slug}`)]))} />
+          <ServiceCatalog services={services} images={Object.fromEntries(services.map((service) => [service.slug, getImage(`service-${service.slug}`)]))} />
         </section>
 
         <section className="services-page-note page-shell" aria-label="Service information">

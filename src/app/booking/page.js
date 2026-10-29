@@ -4,6 +4,7 @@ import { SiteFrame } from "@/components/layout/SiteFrame";
 import { BookingForm } from "@/features/booking/components/BookingForm";
 import { ROUTES } from "@/config/routes";
 import { site } from "@/config/site";
+import { getPublicPackages, getPublicServices } from "@/lib/catalog/source";
 import { resolvePreselect } from "@/lib/booking/preselect";
 import { businessDate } from "@/lib/booking/time";
 
@@ -14,10 +15,11 @@ export const metadata = {
 
 async function BookingFormForToday({ searchParams }) {
   await connection();
-  const initialServiceSlugs = resolvePreselect(await searchParams);
+  const [services, packages] = await Promise.all([getPublicServices(), getPublicPackages()]);
+  const initialServiceSlugs = resolvePreselect(await searchParams, { services, packages });
   const now = new Date();
   const today = businessDate(now, site.timeZone);
-  return <BookingForm today={today} initialServiceSlugs={initialServiceSlugs} />;
+  return <BookingForm today={today} services={services} initialServiceSlugs={initialServiceSlugs} />;
 }
 
 export default function BookingPage({ searchParams }) {

@@ -5,7 +5,6 @@ import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import { BookingProgress } from "@/features/booking/components/BookingProgress";
-import { services } from "@/features/landing/data/services";
 import { ROUTES } from "@/config/routes";
 import { useRouter } from "next/navigation";
 import { signInUrlFor } from "@/lib/auth/callback";
@@ -14,7 +13,7 @@ import { toastKeyForStatus } from "@/lib/toast/messages";
 import { formatMoney } from "@/lib/format/money";
 
 
-export function BookingForm({ today, initialServiceSlugs = [] }) {
+export function BookingForm({ today, services = [], initialServiceSlugs = [] }) {
   const router = useRouter();
   const [selected, setSelected] = useState(initialServiceSlugs.length ? initialServiceSlugs : [services[0]?.slug].filter(Boolean));
   const [date, setDate] = useState(today);
@@ -27,7 +26,7 @@ export function BookingForm({ today, initialServiceSlugs = [] }) {
   const [pending, setPending] = useState(false);
   const queryKey = `${date}|${barber}|${selected.join(",")}`;
   const availability = options?.queryKey === queryKey ? options.data : null;
-  const selectedServices = useMemo(() => selected.map((slug) => availability?.services?.find((item) => item.slug === slug) || services.find((item) => item.slug === slug)).filter(Boolean), [selected, availability]);
+  const selectedServices = useMemo(() => selected.map((slug) => availability?.services?.find((item) => item.slug === slug) || services.find((item) => item.slug === slug)).filter(Boolean), [selected, availability, services]);
 
   useEffect(() => {
     if (!date || selected.length < 1) return;

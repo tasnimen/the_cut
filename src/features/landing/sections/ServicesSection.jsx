@@ -1,13 +1,14 @@
 ﻿import { ScrollReveal } from "@/components/animations/ScrollReveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ServiceCard } from "@/features/landing/components/ServiceCard";
-import { services } from "@/features/landing/data/services";
+import { getPublicServices } from "@/lib/catalog/source";
 import Link from "next/link";
 import { ANCHORS, ROUTES } from "@/config/routes";
 import { bookingHrefForService } from "@/lib/booking/preselect";
 import { getImage } from "@/lib/images/server";
 
-export function ServicesSection() {
+export async function ServicesSection() {
+  const services = await getPublicServices();
   return (
     <section className="section page-shell services-section" id={ANCHORS.services} aria-labelledby="services-title">
       <SectionHeading
@@ -17,6 +18,7 @@ export function ServicesSection() {
       >
         Our <em>services.</em>
       </SectionHeading>
+      {services.length === 0 ? <p className="section-footnote">Services will be listed here soon.</p> : null}
       <ScrollReveal className="service-grid" stagger>
         {services.map((service) => {
           const image = getImage(`service-${service.slug}`);

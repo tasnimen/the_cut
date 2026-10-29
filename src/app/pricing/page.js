@@ -3,7 +3,7 @@ import { getImage } from "@/lib/images/server";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { ROUTES } from "@/config/routes";
 import { site } from "@/config/site";
-import { PRICING_PACKAGES } from "@/config/pricing-packages";
+import { getPublicPackages } from "@/lib/catalog/source";
 import { formatMoney } from "@/lib/format/money";
 import { bookingHrefForPackage } from "@/lib/booking/preselect";
 import { MarketingPageHero } from "@/features/marketing/components/MarketingPageHero";
@@ -15,7 +15,8 @@ export const metadata = {
   openGraph: { title: `Pricing | ${site.name}`, description: "Grooming packages with prices in USD before tax.", type: "website" },
 };
 
-export default function PricingPage() {
+export default async function PricingPage() {
+  const packages = await getPublicPackages();
   return (
     <SiteFrame activePath={ROUTES.pricing}>
       <MarketingPageHero
@@ -27,7 +28,7 @@ export default function PricingPage() {
       <section className="pricing-section page-shell" aria-labelledby="pricing-title">
         <h2 id="pricing-title" className="sr-only">Packages</h2>
         <div className="pricing-grid">
-          {PRICING_PACKAGES.filter((tier) => tier.active).map((tier) => (
+          {packages.map((tier) => (
             <article className={`pricing-card${tier.featured ? " pricing-card--featured" : ""}`} key={tier.slug}>
               {tier.featured ? <span className="pricing-card-badge">Popular</span> : null}
               <h3>{tier.name}</h3>

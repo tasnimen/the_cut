@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { ScrollReveal } from "@/components/animations/ScrollReveal";
 import { ServiceCard } from "@/features/landing/components/ServiceCard";
-import { services } from "@/features/landing/data/services";
 import { bookingHrefForService } from "@/lib/booking/preselect";
 
 const categories = [
@@ -15,7 +14,7 @@ const categories = [
   { id: "treatment", label: "Treatment" },
 ];
 
-export function ServiceCatalog({ images = {} }) {
+export function ServiceCatalog({ services = [], images = {} }) {
   const [activeCategory, setActiveCategory] = useState("all");
   const visibleServices = activeCategory === "all"
     ? services

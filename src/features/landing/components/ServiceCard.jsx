@@ -22,7 +22,7 @@ export function ServiceCard({
         <span className="service-number">{service.number} / SERVICE</span>
         <h3>{service.name}</h3>
         <p>{service.detail}</p>
-        <p className="service-card-price">{formatMoney(service.priceMinorUnits)} · {service.durationMinutes} minutes before tax</p>
+        <p className="service-card-price">{Number.isInteger(service.priceMinorUnits) ? formatMoney(service.priceMinorUnits) : "Price to be confirmed"} · {service.durationMinutes} minutes{Number.isInteger(service.priceMinorUnits) ? " before tax" : ""}</p>
       </div>
       {actionHref ? (
         <ButtonLink href={actionHref} variant="outline" size="card">

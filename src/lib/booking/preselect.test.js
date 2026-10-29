@@ -25,6 +25,14 @@ describe("resolvePreselect", () => {
     expect(resolvePreselect({ service: "shave", package: "standard" })).toEqual(["shave"]);
   });
 
+  it("validates against a supplied live catalog instead of the file data", () => {
+    const services = [{ slug: "signature-cut" }];
+    const packages = [{ slug: "gold", active: true, bookingServiceSlugs: ["signature-cut", "haircut"] }];
+    expect(resolvePreselect({ service: "signature-cut,haircut" }, { services, packages })).toEqual(["signature-cut"]);
+    expect(resolvePreselect({ package: "gold" }, { services, packages })).toEqual(["signature-cut"]);
+    expect(resolvePreselect({ service: "haircut" }, { services, packages })).toEqual([]);
+  });
+
   it("builds encoded booking links", () => {
     expect(bookingHrefForService("hair-color")).toBe("/booking?service=hair-color");
     expect(bookingHrefForPackage("basic")).toBe("/booking?package=basic");
