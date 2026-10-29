@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** I-20 complete (contact messages; not verified live as admin). **Next step:** owner picks the next unit (I-19 gallery, I-22 reports, Super Admin).
+**Where I stopped:** I-19 complete (gallery manager; upload not verified live). **Next step:** owner picks I-22 or Super Admin, or live-tests the admin screens.
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -430,3 +430,10 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - Replying is done in the admin's own mail program (mailto link); the site does not send replies, so "Replied" is marked by hand.
 - Not verified live as an admin; steps in TESTING.md.
 - **Where I stopped:** I-20 complete. **Next step:** I-19 (gallery), I-22 (reports), I-18 (check what is left) or the Super Admin units, on the owner's ok.
+
+## Unit I-19 done (2026-10-30): gallery manager
+- New: `lib/gallery/{gallery-input,admin-gallery,media}.js` (+ tests), `api/admin/gallery/route.js`, `app/admin/gallery/{page,actions}` (+ test), `features/dashboard/gallery/{GalleryUploadForm,GalleryItemCard}.jsx`; `getPublicGallery()` in `lib/catalog/source.js`; tag `catalog:gallery`; `app/gallery/page.js` merges uploaded and built-in photos; index on `galleryItem`; "Gallery" enabled in the admin sidebar; toasts and CSS.
+- Behaviour to know: once one uploaded photo is shown, concept (sample) images are hidden; if the database is unreachable the page falls back to the built-in gallery.
+- **Not verified live:** no admin session and the ImgBB upload failed earlier (I-10). Owner: check `IMGBB_API_KEY` (name only) and follow TESTING.md.
+- Not built: manual ordering, bulk upload, replacing the file of an existing item (delete and re-add instead).
+- **Where I stopped:** I-19 complete. **Next step:** I-22 (reports), then Super Admin units; or live-test the admin screens first (I-11 to I-14, I-19, I-20).

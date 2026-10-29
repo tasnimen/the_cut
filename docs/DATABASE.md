@@ -94,3 +94,7 @@ One document per user who asked the shop to delete their account: `userId` (uniq
 ## Walk-in bookings (I-13)
 
 A walk-in is a normal `booking` document with `source: "walk-in"`, `createdBy` (the admin's user id) and a synthetic owner `userId: "walkin:<bookingId>"`, which never equals a real user id, so it never appears in any customer's account and no active-booking cap applies. There is no email, `smsConsent` is false and `reminderDueAt` is null, so no reminder or message is ever sent. Online bookings have no `source` field (treated as "online"). No-shows on walk-ins are not counted against anyone.
+
+## galleryItem (I-19)
+
+One document per photo the shop added to the public gallery: `mediaId` (the `media` document that holds the provider's delete address), `title`, `category` (one of the gallery categories), `alt`, `active`, `displayUrl`, `thumbUrl`, `width`, `height`, `createdBy`, `createdAt`, `updatedAt`. Index `gallery_active_created` (`active`, `createdAt` desc). The public site reads active items only (cache tag `catalog:gallery`, 5 minutes, refreshed on every admin change) and only an allow-list of fields. Order is newest first; manual ordering was not built. Maximum 200 photos.

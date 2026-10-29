@@ -43,3 +43,7 @@ Single source: `src/config/images.js`. Components read images only through `getI
 | `product-1` | `public/images/product-1.webp` | 800×800 (1:1) | `pomade tin dark background product` | `image-placeholder.svg` | Future Shop | _not added_ |
 | `product-2` | `public/images/product-2.webp` | 800×800 (1:1) | `beard oil bottle product dark` | `image-placeholder.svg` | Future Shop | _not added_ |
 | `product-3` | `public/images/product-3.webp` | 800×800 (1:1) | `shaving brush and soap product` | `image-placeholder.svg` | Future Shop | _not added_ |
+
+## Gallery photos added through the admin (I-19)
+
+The gallery no longer needs files in `public/images`: photos added at Admin > Gallery are stored on ImgBB and shown first. Once at least one is shown, the labelled concept images (`gallery-studio-wide`, `gallery-barber-chair`, `gallery-scissors-detail`) stop appearing; real photo files placed in the `gallery-04` to `gallery-08` slots still appear after the uploaded ones.

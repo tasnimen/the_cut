@@ -46,7 +46,7 @@
 | I-16 (done 2026-10-29) | Pricing packages CRUD | S |
 | I-17 (done 2026-10-29; photo upload deferred to the image-slot work in I-27) | Barbers CRUD with schedule editor | L |
 | I-18 | Holidays and closed dates, business settings UI | M |
-| I-19 | Gallery manager (ImgBB upload and delete) | M |
+| I-19 (done 2026-10-30, upload not verified live) | Gallery manager (ImgBB upload and delete) | M |
 | I-20 (done 2026-10-30, admin screen not exercised live) | Contact messages (read, replied, delete) | S |
 | I-21 | Review moderation (only if reviews exist; otherwise skipped) | S |
 | I-22 | Operational reports with real aggregates | M |
