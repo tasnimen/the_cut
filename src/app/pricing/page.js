@@ -19,17 +19,13 @@ export default function PricingPage() {
   return (
     <SiteFrame activePath={ROUTES.pricing}>
       <MarketingPageHero
-        description="A clear menu makes it easier to find the right kind of care. Prices are in USD, before tax."
+        description="Choose the perfect package for your style and grooming needs."
         eyebrow="Our pricing"
         image={getImage("hero-pricing")}
-        title={<>Packages for<br /><em>every gentleman.</em></>}
+        title={<>Premium packages<br /><em>for every gentleman.</em></>}
       />
       <section className="pricing-section page-shell" aria-labelledby="pricing-title">
-        <div className="marketing-section-heading">
-          <p className="eyebrow">Packages</p>
-          <h2 id="pricing-title">Choose your <em>starting point.</em></h2>
-          <p className="marketing-disclosure">Prices are in USD before tax. Pay at the shop.</p>
-        </div>
+        <h2 id="pricing-title" className="sr-only">Packages</h2>
         <div className="pricing-grid">
           {PRICING_PACKAGES.filter((tier) => tier.active).map((tier) => (
             <article className={`pricing-card${tier.featured ? " pricing-card--featured" : ""}`} key={tier.slug}>
@@ -40,10 +36,11 @@ export default function PricingPage() {
               <ul className="pricing-inclusions">
                 {tier.inclusions.map((item) => <li key={item}>{item}</li>)}
               </ul>
-              <ButtonLink href={bookingHrefForPackage(tier.slug)} variant={tier.featured ? "primary" : "outline"} size="small">Book Now</ButtonLink>
+              <ButtonLink href={bookingHrefForPackage(tier.slug)} variant="primary" size="small">Book Now</ButtonLink>
             </article>
           ))}
         </div>
+        <p className="pricing-note">Prices are in USD, before tax. Payment is at the shop.</p>
       </section>
     </SiteFrame>
   );

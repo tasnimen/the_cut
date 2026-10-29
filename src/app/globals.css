@@ -662,3 +662,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 4; pointer-event
 .booking-time-chip:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 2px; }
 .booking-time-chip.is-selected { border-color: var(--gold); color: var(--text-on-gold); background: var(--gold); }
 .booking-time-chip.is-selected small { color: var(--text-on-gold); }
+
+/* Stage 3: pricing buttons span the card like the mockup */
+.pricing-card .button { width: 100%; justify-content: space-between; }
+.pricing-note { margin: 18px 0 0; color: var(--muted); font-size: 11px; text-align: center; }
