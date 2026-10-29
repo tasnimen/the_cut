@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useRef } from "react";
 import { submitContactMessage } from "@/app/contact/actions";
 import { Button } from "@/components/ui/Button";
+import { notify } from "@/lib/toast/notify";
 import { TurnstileField } from "@/components/contact/TurnstileField";
 
 const INITIAL_STATE = Object.freeze({ status: "idle", message: "" });
@@ -13,6 +14,8 @@ export function ContactForm({ formTicket, captchaSiteKey }) {
 
   useEffect(() => {
     if (state.status === "success") formRef.current?.reset();
+    if (state.status === "success") notify("contactSent");
+    if (state.status === "error") notify("contactFailure");
   }, [state]);
 
   return (

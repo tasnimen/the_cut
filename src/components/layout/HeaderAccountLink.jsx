@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/config/routes";
+import { notify } from "@/lib/toast/notify";
 import { ensureSession, signOut, useAuthSession } from "@/features/auth/session-store";
 
 export function useSessionNav() {
@@ -13,6 +14,7 @@ export function useSessionNav() {
 
   async function handleSignOut() {
     const ok = await signOut();
+    notify(ok ? "signOutSuccess" : "signOutFailure");
     if (ok) router.refresh();
     return ok;
   }

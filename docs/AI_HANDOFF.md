@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** 2A complete. **Next step:** 2B toasts.
+**Where I stopped:** 2B complete. **Next step:** 2C header dropdown.
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -190,3 +190,9 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - Existing local users with `emailVerified=false` can now sign in. Dev server must be restarted to pick up the new flag default (none needed in .env).
 - Targeted: `src/lib/auth` 192 tests passed; eslint on touched folders clean. Live sign-up not tested yet (2D).
 - **Where I stopped:** 2A complete. **Next step:** 2B (sonner toasts).
+
+## Stage 2B done (2026-10-29)
+- Added dependency `sonner`. `components/ui/AppToaster.jsx` (token-themed) mounted once in `app/layout.js`. Copy catalog + `toastKeyForStatus` in `lib/toast/messages.js`, client helper `notify(key)` in `lib/toast/notify.js` (deduped by id).
+- Wired: sign-up/sign-in success and failure (generic wording, 429/5xx mapped), sign-out (header and AuthPanel), booking created / slot taken / sign-in required / failures, contact sent/failed. Keys `bookingCancelled`, `bookingRescheduled`, `uploadFailure` exist but no UI calls them yet (no cancel/reschedule/upload UI built).
+- Checks: `src/lib/toast` 3 tests pass; eslint on touched folders clean; /contact renders the toaster with no console errors. Toast appearance on real events not yet viewed.
+- **Where I stopped:** 2B complete. **Next step:** 2C conditional header with avatar dropdown.

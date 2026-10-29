@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ROUTES } from "@/config/routes";
+import { notify } from "@/lib/toast/notify";
+import { toastKeyForStatus } from "@/lib/toast/messages";
 import { markSignedIn, signOut as signOutSession } from "@/features/auth/session-store";
 
 export function AuthPanel({ mode }) {
@@ -46,6 +48,7 @@ export function AuthPanel({ mode }) {
       });
       const result = await response.json().catch(() => ({}));
       if (!response.ok) {
+        notify(response.status === 429 || response.status >= 500 ? toastKeyForStatus(response.status) : (isSignUp ? "signUpFailure" : "signInFailure"));
         setError(isSignUp
           ? "We couldn't complete sign-up. Check the details and try again."
           : "Sign-in failed. Check your email and password and try again.");
@@ -61,16 +64,20 @@ export function AuthPanel({ mode }) {
           setUser(session.user);
           markSignedIn(session.user);
           setMessage("Your account is ready and you are signed in.");
+          notify("signUpSuccess");
         } else {
           setMessage("If this address can be registered, check your inbox for a verification link, then sign in.");
+          notify("signUpCheckInbox");
         }
       } else {
         setUser(result.user || null);
         markSignedIn(result.user || null);
         setMessage("You are signed in.");
+        notify("signInSuccess");
       }
     } catch {
       setError("We couldn't reach the sign-in service. Try again.");
+      notify("network");
     } finally {
       setBusy(false);
     }
@@ -84,8 +91,10 @@ export function AuthPanel({ mode }) {
     if (ok) {
       setUser(null);
       setMessage("You are signed out.");
+      notify("signOutSuccess");
     } else {
       setError("We couldn't end this session. Try again.");
+      notify("signOutFailure");
     }
     setBusy(false);
   }

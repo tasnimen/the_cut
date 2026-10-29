@@ -7,6 +7,8 @@ import { Icon } from "@/components/ui/Icon";
 import { BookingProgress } from "@/features/booking/components/BookingProgress";
 import { services } from "@/features/landing/data/services";
 import { ROUTES } from "@/config/routes";
+import { notify } from "@/lib/toast/notify";
+import { toastKeyForStatus } from "@/lib/toast/messages";
 import { formatMoney } from "@/lib/format/money";
 
 
@@ -64,18 +66,23 @@ export function BookingForm({ today }) {
       const result = await response.json();
       if (response.status === 401 || response.status === 403) {
         setStatus("Sign in to confirm your booking.");
+        notify("signInRequired");
       } else if (response.status === 409 && result.error === "price_not_configured") {
         setStatus("Prices are being finalized. Please check back soon.");
+        notify("bookingFailure");
       } else if (!response.ok) {
+        notify(result.error === "slot_just_taken" || result.error === "slot_unavailable" ? "slotTaken" : toastKeyForStatus(response.status, "bookingFailure"));
         setStatus(result.error === "slot_just_taken" || result.error === "slot_unavailable"
           ? "That time was just taken. Choose another available time."
           : "Your booking could not be completed. Please retry.");
       } else {
         setStatus("Your appointment is confirmed. A confirmation email is on its way.");
         setSlot("");
+        notify("bookingCreated");
       }
     } catch {
       setStatus("We couldn't reach the booking service. Please retry.");
+      notify("network");
     } finally { setPending(false); }
   }
 
