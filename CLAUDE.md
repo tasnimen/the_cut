@@ -10,10 +10,10 @@ Next.js 16.4.3 App Router (breaking changes: read node_modules/next/dist/docs be
 - Seed: `NODE_ENV=development npm run seed:booking:dev [-- --apply]` (read-only without --apply)
 
 ## Structure
-- `src/app/**` routes: /, /about, /services, /gallery, /pricing, /booking, /contact, /sign-in, /sign-up, /design-system (dev), `/api/auth/[...all]`, `/api/bookings/**`, `/api/media`
-- `src/components/{layout,ui,motion,contact}`: SiteHeader/MobileNavigation/HeaderAccountLink, Button, ButtonLink, Surface, CardImage
+- `src/app/**` routes: /, /about, /services, /gallery, /pricing, /booking, /contact, /sign-in, /sign-up, /forgot-password, /reset-password, /design-system (dev), `/api/auth/[...all]`, `/api/bookings/**`, `/api/media`
+- `src/components/{layout,ui,motion,contact}`: SiteHeader/HeaderAccount/MobileNavigation/ContactDetails, Button, ButtonLink, CtaBanner, ImageWithFallback; contact cards in `components/contact/ContactInfo.jsx`
 - `src/features/{landing,marketing,services,booking,auth}`; auth client store: `features/auth/session-store.js`
-- `src/config`: env.js (zod), routes.js, navigation.js, permissions.js, booking.js, booking-services.js (approved catalog)
+- `src/config`: env.js (zod), routes.js, navigation.js (account menu by role), permissions.js, booking.js (policy and opening hours), booking-services.js (approved catalog), pricing-packages.js, images.js, site.js (contact/social, empty until owner fills)
 - `src/lib/{auth,booking,db}`; `scripts/seed-booking.js`; tokens in `src/styles/tokens.css`, globals in `src/app/globals.css`
 - Images: slots in `src/config/images.js`, read via `getImage(slot)` (`src/lib/images/server.js`); photo list in `docs/IMAGE_SLOTS.md`
 - Docs: docs/*.md; handoff docs/AI_HANDOFF.md, NEXT_TASK.md, docs/PROGRESS.md, docs/REFERENCE_DESIGN_AUDIT.md
@@ -25,8 +25,8 @@ Next.js 16.4.3 App Router (breaking changes: read node_modules/next/dist/docs be
 - Env var NAMES only in .env.example; never open/print .env.
 
 ## Status
-Phases A–G done locally; seed applied to existing DB `the_cut` (6 services, 4 barbers, empty schedules). Phase H/I not started. Design mockups: docs/design/ ("The Cut_ Luxury Barbershop Website Collection.png" = public pages, "deshboard.png" = dashboards). Design audit: docs/REFERENCE_DESIGN_AUDIT.md.
+Phases A-G and the Stage 1-3 cleanup are done: auth (verification off by default via `AUTH_REQUIRE_EMAIL_VERIFICATION`), password reset, toasts (sonner), session-aware header, button map, image slots, mockup alignment of public pages. Seed applied to existing DB `the_cut` (6 services, 4 barbers, empty schedules). **Next: Phase I dashboards, planned in `docs/PHASE_I_PLAN.md` (one unit per owner ok).** Optional Stage 3 leftovers (home barbers/footer details) are TODO in `docs/AI_HANDOFF.md`. Never use the dev server on :3000 for CSS checks if it is stale; use `next build` + `next start -p 3002` (auth only works on the trusted origin :3000).
 
 ## Do not
-- Run git state-changing commands (user commits); print secrets; drop/reset DBs; add TypeScript; add parallel auth; start Phase H/I unasked.
+- Run git state-changing commands (user commits; give explicit `git add <paths>` blocks); print secrets; drop/reset DBs; add TypeScript; add parallel auth; start Phase H/I unasked.
 - Hardcode prices/colors in components; use one-off CSS overrides instead of tokens/shared components.

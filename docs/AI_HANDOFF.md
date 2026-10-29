@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** Stage 3 contact page complete. **Next step:** Stage 3 sign-in and sign-up pages.
+**Where I stopped:** Stage 3 closed; Phase I plan written (docs/PHASE_I_PLAN.md), waiting for the owner's ok on the first unit.
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -301,3 +301,12 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - New `components/contact/ContactInfo.jsx` (`ContactInfoCard`, `OpeningHoursCard`, `MapCard`), `formatClosures` / `timeZoneLabel` in `lib/site/contact.js` (+ tests), contact page re-laid out, `ContactForm` restyled as a card (logic untouched). The user again left every contact detail blank, so `config/site.js` is unchanged and the page shows "Contact details coming soon." and no map button. Filling `contact.phone`, `contact.email`, `location.streetAddress`, `location.postalCode` and `social.*` activates those parts.
 - Checks: `npm test` 276 passed / 29 files; lint exit 0; build passed; production check on :3002 (stopped) at 1440/768/375 px; filled-data rendering and a real form submission were NOT exercised.
 - **Where I stopped:** Stage 3 contact page complete. **Next step:** Stage 3 sign-in and sign-up pages (last of the Stage 3 list); then re-verify home leftovers (barbers, footer).
+
+## Sign-in / sign-up pages and Stage 3 close-out (2026-10-29)
+- Auth card: backdrop blur, glow, gold divider under the title, error text uses `--error-soft` (was the same gold as success), accessible show/hide password toggle (`<label for>` + button, `aria-pressed`), sign-up hint "Use at least 10 characters.". Logic unchanged.
+- Checks: eslint clean; `npm test` 276 passed / 29 files; build passed. Live on the dev server (:3000): sign-up (toast, signed in, callback to /booking), sign-out, sign-in (callback to /booking), show/hide toggle. No screenshots (per the owner). Note: a test server on another port is rejected by Better Auth ("Invalid origin"), so auth checks must use :3000.
+- **Dummy account to delete in Atlas:** `dummy-auth-pages@example.com` (plus earlier ones if still present: `dummy-header-test@example.com`, `dummy-verify-auth@example.com`).
+- **Stage 3 is closed by the owner's decision.** Optional TODOs left: home barbers section layout (four photo cards with names and roles), home footer newsletter/social icons and nav search icon (Shop/search not built), month calendar on the booking page, phone field on the contact form, per-service/barber/gallery/hero photos (`docs/IMAGE_SLOTS.md`), real owner contact details in `config/site.js`, stats row (needs real numbers), reviews (Phase I), delete unused `DatePreferencePicker.jsx`, empty root `MASTER_PROMPT.md` and `HeaderAccountLink.jsx`.
+- Decision recorded: pricing packages stay Basic $25 / Standard $40 / Premium $60 in `config/pricing-packages.js`, separate from catalog prices. The package preselect still maps Standard to the Combo service ($35 in booking); the owner accepted this separation.
+- Phase I plan written to `docs/PHASE_I_PLAN.md` (30 units with costs). `CLAUDE.md` updated.
+- **Where I stopped:** Stage 3 closed; waiting for the owner's "ok" on the first Phase I unit. **Next step:** Phase I unit I-4 (seed first SUPER_ADMIN/ADMIN) or I-1, per the owner.
