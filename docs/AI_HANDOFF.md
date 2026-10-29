@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** Stage 3 home page unit partial (hero + services done). **Next step:** barbers/reviews or services page.
+**Where I stopped:** U1 audit done (docs/BUTTON_MAP.md); waiting for the user to approve U1 fixes. **Next step:** U1 fix 1 (preselect).
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -225,3 +225,7 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - Not done for home: barbers/reviews/footer alignment; 768/375 px screenshots. Next page: services.
 - Checks: `npm run build` passed; eslint on touched folders clean; targeted tests (features + toast) 9 passed. Full suite not rerun this unit.
 - **Where I stopped:** home page unit partial. **Next step:** barbers/reviews alignment or move to the services page (user's choice).
+
+## U1 audit done (2026-10-29)
+- Read-only audit written to `docs/BUTTON_MAP.md` (no code changed). No `href="#"`, no typeless buttons. Gaps: no service/package preselect on Book Now; services-page cards have no button; contact/footer lack phone/email/address/hours/social (no data in `config/site.js`); no forgot-password; no Cancel/Reschedule UI; no newsletter; mobile menu has no focus trap; booking is a single form (no Next/Back).
+- **Where I stopped:** awaiting user "ok" for U1 fix order (see bottom of `BUTTON_MAP.md`). U2 and the rest of Stage 3 follow.
