@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** Stage 1a complete. **Next step:** Stage 1b.
+**Where I stopped:** Stage 1b complete. **Next step:** Stage 1c.
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -170,3 +170,11 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - Fixed `aria-hidden="true hiden"` typo in `HeroSection.jsx` (the lint warning); removed a duplicated header CSS block; added `--error-soft` token replacing two hardcoded colors; updated stale statuses in REQUIREMENTS, DECISIONS, IMPLEMENTATION_PLAN.
 - Risky/open, not changed: root `MASTER_PROMPT.md` is 0 bytes (delete if unused); hero says "DHAKA · BANGLADESH" vs New York; pricing tier content differs from the approved catalog (Stage 1b); `src/lib/mail/mailer-core.js` has literal colors in email HTML (acceptable).
 - **Where I stopped:** Stage 1a complete. **Next step:** 1b (single source of truth for services/prices; seed accepts `_dev`/`_test` plus existing `the_cut`, per user's choice).
+
+## Stage 1b done (2026-10-29)
+- One money helper `src/lib/format/money.js` (ServiceCard, BookingForm use it). Services stay in `src/config/booking-services.js` (approved prices, Mongo is authoritative for booking); seed now also writes `displayOrder`. New `src/config/pricing-packages.js` (Basic $25 / Standard $40 / Premium $60, with `active`, `featured`, inclusions from the mockup) drives `/pricing`.
+- Removed "prices pending"/"illustrative" copy on /pricing and /services. Hero footer now "NEW YORK" (user decision; no other Dhaka text in src/docs except audit notes).
+- Seed guard now accepts `the_cut` or any database ending `_dev`/`_test` (user choice); script prints only the database name. Seed was NOT rerun. For a separate dev DB: set `MONGODB_DB_NAME=the_cut_dev` in your local env, then `$env:NODE_ENV='development'; npm run seed:booking:dev` (add `-- --apply` plus the opt-in only after review).
+- Price-gating tests already exist in `repository.test.js`; `seed-core.test.js` and `money.test.js` updated/added. Targeted vitest (booking + format): 20 passed. Targeted eslint clean. `/pricing`, `/services`, `/booking` return 200; pricing shows $25/$40/$60.
+- Delete candidates (not deleted): root `MASTER_PROMPT.md` (0 bytes).
+- **Where I stopped:** 1b complete. **Next step:** 1c (check booking config vs docs).

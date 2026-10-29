@@ -35,9 +35,13 @@ function normalized(value) {
   return String(value || "").trim().toLocaleLowerCase("en-US");
 }
 
+export function isAllowedSeedDatabase(name) {
+  return name === "the_cut" || (typeof name === "string" && /.+_(dev|test)$/.test(name));
+}
+
 export function validateBookingSeedGuards({ nodeEnv, databaseName, optIn, apply }) {
   if (nodeEnv !== "development") throw new BookingSeedGuardError("NODE_ENV must be development.");
-  if (databaseName !== "the_cut") throw new BookingSeedGuardError("Resolved MongoDB database must be exactly the_cut.");
+  if (!isAllowedSeedDatabase(databaseName)) throw new BookingSeedGuardError("Resolved MongoDB database must be the_cut or end with _dev or _test.");
   if (apply && optIn !== BOOKING_SEED_OPT_IN_VALUE) {
     throw new BookingSeedGuardError(`Set ${BOOKING_SEED_OPT_IN_NAME} to its documented opt-in value before writes.`);
   }
@@ -101,6 +105,7 @@ export async function applyBookingSeed(db, plan, now = new Date()) {
       priceMinorUnits: service.priceMinorUnits,
       currency: "USD",
       active: true,
+      displayOrder: Number(service.number),
       updatedAt: now,
     };
     if (record) {

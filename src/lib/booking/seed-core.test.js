@@ -18,10 +18,14 @@ describe("booking seed guards and idempotency", () => {
 
   it("rejects a different database and missing explicit opt-in for writes", () => {
     expect(() => validateBookingSeedGuards({ nodeEnv: "development", databaseName: "other", optIn: BOOKING_SEED_OPT_IN_VALUE, apply: true }))
-      .toThrow("exactly the_cut");
+      .toThrow("the_cut or end with");
     expect(() => validateBookingSeedGuards({ nodeEnv: "development", databaseName: "the_cut", optIn: undefined, apply: true }))
       .toThrow("ALLOW_THE_CUT_BOOKING_SEED");
     expect(validateBookingSeedGuards({ nodeEnv: "development", databaseName: "the_cut", apply: false }).mode).toBe("dry-run");
+    for (const name of ["selon_dev", "the_cut_test"]) {
+      expect(validateBookingSeedGuards({ nodeEnv: "development", databaseName: name, apply: false }).mode).toBe("dry-run");
+    }
+    expect(() => validateBookingSeedGuards({ nodeEnv: "development", databaseName: "prod", apply: false })).toThrow();
   });
 
   it("stops on legacy service ambiguity before producing a write plan", () => {

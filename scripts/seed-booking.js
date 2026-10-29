@@ -46,7 +46,7 @@ try {
     apply,
   });
 
-  console.log("WARNING: this is the existing 'the_cut' database. Service changes affect the application using this data.");
+  console.log(`WARNING: seeding database ${targetDatabaseName}. Service changes affect the application using this data.`);
   console.log(`Verified target database: ${targetDatabaseName}`);
   console.log(apply ? "Mode: apply approved service/barber upserts." : "Mode: read-only dry run; no records will be changed.");
 
@@ -66,7 +66,7 @@ try {
     clearTimeout(connectWatchdog);
   }
   const db = selectConfiguredDatabase(client, process.env.MONGODB_DB_NAME);
-  if (db.databaseName !== "the_cut") throw new Error("MongoDB target changed during preflight; refusing to continue.");
+  if (db.databaseName !== targetDatabaseName) throw new Error("MongoDB target changed during preflight; refusing to continue.");
 
   const [existingServices, existingBarbers] = await Promise.all([
     db.collection("service").find({}, { projection: { _id: 1, slug: 1, name: 1 } }).toArray(),
