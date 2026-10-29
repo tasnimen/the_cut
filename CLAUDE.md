@@ -12,7 +12,7 @@ Next.js 16.4.3 App Router (breaking changes: read node_modules/next/dist/docs be
 ## Structure
 - `src/app/**` routes: /, /about, /services, /gallery, /pricing, /booking, /contact, /sign-in, /sign-up, /forgot-password, /reset-password, /design-system (dev), `/api/auth/[...all]`, `/api/bookings/**`, `/api/media`
 - `src/components/{layout,ui,motion,contact}`: SiteHeader/HeaderAccount/MobileNavigation/ContactDetails, Button, ButtonLink, CtaBanner, ImageWithFallback; contact cards in `components/contact/ContactInfo.jsx`
-- `src/features/{landing,marketing,services,booking,auth}`; auth client store: `features/auth/session-store.js`
+- `src/features/{landing,marketing,services,booking,auth,dashboard}` (dashboard shell + primitives; routes `/user`, `/admin`, `/super-admin`, rules in `config/dashboard-access.js`, nav in `config/dashboard-nav.js`); auth client store: `features/auth/session-store.js`
 - `src/config`: env.js (zod), routes.js, navigation.js (account menu by role), permissions.js, booking.js (policy and opening hours), booking-services.js (approved catalog), pricing-packages.js, images.js, site.js (contact/social, empty until owner fills)
 - `src/lib/{auth,booking,db}`; `scripts/seed-booking.js`; tokens in `src/styles/tokens.css`, globals in `src/app/globals.css`
 - Images: slots in `src/config/images.js`, read via `getImage(slot)` (`src/lib/images/server.js`); photo list in `docs/IMAGE_SLOTS.md`

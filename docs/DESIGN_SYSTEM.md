@@ -207,3 +207,18 @@ Compared with the contact panel of the public-pages mockup (contact information 
 | Form | Own section with intro column | Card headed "Send us a message"; labels Full name, Email address, Message; button "Send Message"; behaviour unchanged (Zod, honeypot, rate limit, Turnstile hook, toasts) |
 
 Not in the mockup match: a phone field in the form (the contact action and its schema have no phone field; adding one is a separate change to the server action and model) and a real map image. Verified on a production build at 1440, 768 and 375 px: no overflow, submit button 44 px at tablet/mobile widths.
+
+## Dashboard shell and primitives (unit I-2, 2026-10-29)
+
+Look follows `docs/design/deshboard.png` (dark sidebar with gold active item, top bar with breadcrumbs and user chip, glass panels, stat cards). Tokens only; motion is transform/opacity and disabled under `prefers-reduced-motion`.
+
+| Piece | File | Notes |
+|---|---|---|
+| Shell | `features/dashboard/components/DashboardShell.jsx`, `DashboardChrome.jsx` | Server wrapper + client chrome: 248 px sidebar (>= 1024 px), slide-in drawer below with backdrop, Escape, focus trap and focus return; 44 px nav targets; breadcrumbs from `config/dashboard-nav.js`; user chip with avatar/initials and role; "Back to website" and Sign out in the sidebar |
+| Nav config | `config/dashboard-nav.js` | Entries per area with `enabled`; only enabled entries render; a test checks every enabled href has a page; `breadcrumbsFor`, `isNavItemActive`, `greetingFor` (business time zone) |
+| Primitives | `features/dashboard/components/primitives.jsx` | `PageHeader`, `Panel`, `StatCard` (missing value shows an em dash), `EmptyState`, `DataTable` (empty rows become an EmptyState; caption for screen readers), `LoadingBlock`, `DashboardLoading` |
+| Error | `DashboardError.jsx` + `error.jsx` in each area | Generic message and "Try again"; error details are never shown |
+| Loading | `loading.jsx` in each area | Skeleton page header, four stat cards and a panel |
+| Dev showcase | `/design-system` section 04 | Sample values, dev only (404 in production) |
+
+Deliberately not built: the mockup's search box and notification bell (no search or notification system exists), KPI numbers, charts and the hero banner (they need real data from later units). Verified on a production build as a customer: desktop shell (248 px sidebar, active Overview, breadcrumbs, greeting, empty state), 375 px drawer (opens at x=0 with backdrop, Tab wraps, Escape closes and returns focus, menu button 44 px, no overflow). The admin and super-admin shells use the same components but were not viewed live (no seeded admin yet).

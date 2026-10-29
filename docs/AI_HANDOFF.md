@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** I-1 complete (routes and guards). **Next step:** I-2 on the owner's ok.
+**Where I stopped:** I-2 complete (dashboard shell). **Next step:** I-3 on the owner's ok.
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -324,3 +324,10 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - Dummy account to delete in Atlas: `dummy-i1-guard@example.com` (plus older dummies if still present).
 - Tip recorded: to test auth on another port start the server with `SITE_URL` and `BETTER_AUTH_URL` set to that origin.
 - **Where I stopped:** I-1 complete. **Next step:** I-2 (dashboard shell) on the owner's ok; the owner still has to run the admin seed before admin pages can be live-tested.
+
+## Unit I-2 done (2026-10-29): dashboard shell
+- New: `config/dashboard-nav.js` (+ test), icons in `components/ui/Icon.jsx` (dashboard, calendar, users, settings, chart, home, logout, chevronRight, inbox, image, shield, tag, alert), `features/dashboard/components/{DashboardShell,DashboardChrome,DashboardError,primitives,AreaPlaceholder}.jsx`, `loading.jsx` + `error.jsx` for each area, `layout.jsx` of each area now renders the shell (guard unchanged), CSS block `.dash-*` at the end of `globals.css`, section 04 in the dev `/design-system` page. Details in `docs/DESIGN_SYSTEM.md`.
+- Checks: `npm test` 303 passed / 32 files; lint exit 0; build passed. Live on a production server with its own trusted origin (:3002, stopped): customer shell on desktop and 375 px. Admin and Super Admin shells not viewed live (no seeded admin; the owner has not run the seed).
+- Not built on purpose: search box, notification bell, KPI numbers, charts (need real data or features that do not exist).
+- Dummy account used: `dummy-i1-guard@example.com` (delete in Atlas with the other dummies).
+- **Where I stopped:** I-2 complete. **Next step:** I-3 (TOTP enrolment and challenge pages) on the owner's ok. After the owner runs the seed, admin shells can be checked live.
