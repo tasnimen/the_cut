@@ -28,7 +28,7 @@ export const BookingServiceFieldsSchema = ServiceRecordSchema.pick({
   durationMinutes: true,
   currency: true,
   active: true,
-}).extend({ priceMinorUnits: z.unknown() });
+}).extend({ priceMinorUnits: z.unknown() }).loose();
 
 export const BarberRecordSchema = z.object({
   slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(100),

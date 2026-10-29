@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** 2B complete. **Next step:** 2C header dropdown.
+**Where I stopped:** 2C complete. **Next step:** 2D tests and live check.
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -196,3 +196,11 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - Wired: sign-up/sign-in success and failure (generic wording, 429/5xx mapped), sign-out (header and AuthPanel), booking created / slot taken / sign-in required / failures, contact sent/failed. Keys `bookingCancelled`, `bookingRescheduled`, `uploadFailure` exist but no UI calls them yet (no cancel/reschedule/upload UI built).
 - Checks: `src/lib/toast` 3 tests pass; eslint on touched folders clean; /contact renders the toaster with no console errors. Toast appearance on real events not yet viewed.
 - **Where I stopped:** 2B complete. **Next step:** 2C conditional header with avatar dropdown.
+
+## Stage 2C done (2026-10-29)
+- Header: `SiteHeader` is now an async server component using `lib/auth/header-user.js` (`getHeaderUser`, never throws, ACTIVE users only, minimal DTO) so first paint has the right state. `components/layout/HeaderAccount.jsx` (client): signed out = "Sign in" + "Sign up" + "Book Appointment"; signed in = avatar (i.ibb.co image or gold-ringed initials) dropdown with name, email, role badge, role-filtered links, Sign out (toast; redirect home when on a protected path). Dropdown: aria menu, ArrowUp/Down/Home/End, Escape (focus returns), Tab and click-outside close. Mobile menu shows the same identity, links and Sign out inline. Desktop avatar/links hidden at the mobile breakpoint.
+- Menu config in `config/navigation.js` (`accountMenu`, `getAccountMenuItems`, `isProtectedPath`, `ROLE_LABELS`); planned routes (/dashboard, /dashboard/appointments, /dashboard/profile, /admin, /super-admin) are `enabled:false` and appear when flipped. `navigation.test.js` checks role filtering and that every enabled route has a page. `session-store.js` gained `seedSession` (no extra get-session fetch when the server supplied state).
+- **Real defect fixed (found while testing):** `BookingServiceFieldsSchema` was strict, so availability returned 409 `service_unavailable` for every real DB service document. Now `.loose()`; test added. Availability now responds with services/barbers (slots stay empty until barber schedules exist).
+- Verified live: signed-out header shows Sign in / Sign up, no layout overflow. Signed-in dropdown NOT yet exercised in a browser (needs the dummy account in 2D). Obsolete file `src/components/layout/HeaderAccountLink.jsx` is no longer imported: user should delete it.
+- Checks: `src/config` 3 tests, `src/lib/booking` 22 tests pass; eslint clean on touched folders. Full test/lint/build run at the end of 2D.
+- **Where I stopped:** 2C complete. **Next step:** 2D (tests plus browser check with a dummy account on the dev DB; full checks).

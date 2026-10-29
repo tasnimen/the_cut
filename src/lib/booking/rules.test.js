@@ -57,3 +57,12 @@ describe("booking policy config vs docs", () => {
     expect(generateCandidateSlots({ ...base, localDate: "2027-05-10", now })).toEqual([]);
   });
 });
+
+describe("service record validation", () => {
+  it("accepts real database service documents that carry extra fields", async () => {
+    const { BookingServiceFieldsSchema } = await import("@/lib/booking/booking-model");
+    const record = { _id: "x", slug: "haircut", name: "Haircut", description: "d", durationMinutes: 30, priceMinorUnits: 2500, currency: "USD", active: true, displayOrder: 1, createdAt: new Date(), updatedAt: new Date() };
+    expect(BookingServiceFieldsSchema.safeParse(record).success).toBe(true);
+    expect(BookingServiceFieldsSchema.safeParse({ ...record, currency: "EUR" }).success).toBe(false);
+  });
+});
