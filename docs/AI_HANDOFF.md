@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** C2 complete (Cloudinary wired; live checklist pending). **Next step:** owner runs the TESTING.md checklist, then picks the next unit.
+**Where I stopped:** I-22 complete (operational reports; not verified live as admin). **Next step:** Super Admin units, on the owner's ok.
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -451,3 +451,10 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - Services, barbers and packages have no image fields (deferred to I-27), so nothing was rewired there; avatar, gallery and slots are covered. The Super Admin screen that sets slot overrides is I-27.
 - **Not verified live** (needs your Cloudinary values and an admin login): follow the checklist in TESTING.md ("Live test checklist for image uploads").
 - **Where I stopped:** C2 complete. **Next step:** owner runs the checklist, then picks I-22 reports or the Super Admin units.
+
+## Unit I-22 done (2026-10-30): operational reports
+- New: `lib/reports/operational.js` (+ test), `app/admin/reports/page.jsx`, `features/dashboard/reports/BarList.jsx`; "Reports" enabled in the admin sidebar; CSS `.dash-bar*`.
+- Shows counts and rates only (bookings, completed, no-show and cancellation rates, new customers, status, per barber, top services, busiest weekdays and hours, online vs walk-in). No money: revenue and CSV export are I-26 (Super Admin).
+- Not verified live as an admin; steps in TESTING.md.
+- I-21 (review moderation) is skipped: there are no reviews in the product.
+- **Where I stopped:** I-22 complete. **Next step:** Super Admin units (I-23 admin accounts, I-24 audit viewer, I-25 security settings, I-26 revenue and CSV, I-27 image slot screen), then hardening I-28 to I-30, on the owner's ok. Strongly suggested before more building: live-test the admin screens (I-11 to I-14, I-19, I-20, I-22).

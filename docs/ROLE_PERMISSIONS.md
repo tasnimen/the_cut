@@ -96,3 +96,5 @@ Responses for these paths carry `Cache-Control: no-store` and `X-Robots-Tag: noi
 **Gallery (I-19):** `/admin/gallery`, the upload route `/api/admin/gallery` and the edit, show/hide and delete actions need `mediaGalleryManageAll` (ADMIN and SUPER_ADMIN, TOTP). Customers and guests get 404 on the page and "please sign in" or "not allowed" from the endpoints.
 
 **Image storage (C1):** two new permissions, `mediaBannersManageAll` and `mediaSlotsManageAll` (ADMIN and SUPER_ADMIN, scope ALL), cover uploads to the `banners` and `slots` folders; they have no screens yet (C2 and the image-slot work). `mediaAvatarOwn` stays OWN for every signed-in role. Uploads are capped at 4 MB.
+
+**Reports (I-22):** `/admin/reports` needs `operationalReportsAll` (ADMIN and SUPER_ADMIN, TOTP). It shows counts and rates only. Revenue and any money figure are **not** on this page or in its data: they belong to `financialReportsAll` (Super Admin only, unit I-26), and a test checks that the report data contains no price, revenue, email, phone or customer name.

@@ -109,3 +109,7 @@ Set the four variables in `.env`, restart, rebuild.
 7. Upload the same small photo as USER more than 10 times in an hour: toast "Too many attempts" (rate limit); check Admin > audit later for `media.uploaded` entries.
 8. Open the public pages with the browser's Network tab: image requests go to `/_next/image?...&w=<one of 96,160,320,480,640,768,1080,1440,1920>&q=75`, never another width, and none to a raw `res.cloudinary.com` URL on public pages.
 Delete afterwards: any leftover files in the-cut/* in Cloudinary, the dummy test accounts, and the `media`, `galleryItem` and `auditLog` test records in the dev database.
+
+## Operational reports (I-22)
+
+Automated with fakes (range parsing, bounds in New York time including the November clock change, the aggregation pipeline, rates without division by zero, no money or personal data in the output). Live: guest and customer get 404 on /admin/reports. **Not exercised live as an admin.** Please check as an admin: (1) Admin > Reports opens with "Last 30 days"; (2) switch to 7 days, 90 days and "Next 7 days" (the heading dates change); (3) numbers match what you see in Admin > All bookings for the same period (total, completed, cancelled, no-show); (4) a walk-in booking is counted under "walk-in"; (5) a cancelled booking is counted in the cancellation rate but not under the barber or service lists; (6) with no bookings the page says "No bookings in this period" and shows "No data" for rates; (7) at 375 px the bars and table fit.

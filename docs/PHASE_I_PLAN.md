@@ -49,7 +49,7 @@
 | I-19 (done 2026-10-30, upload not verified live) | Gallery manager (ImgBB upload and delete) | M |
 | I-20 (done 2026-10-30, admin screen not exercised live) | Contact messages (read, replied, delete) | S |
 | I-21 | Review moderation (only if reviews exist; otherwise skipped) | S |
-| I-22 | Operational reports with real aggregates | M |
+| I-22 (done 2026-10-30, admin screen not exercised live) | Operational reports with real aggregates | M |
 
 ## Part E: super admin (`/super-admin`)
 

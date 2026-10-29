@@ -21,6 +21,10 @@
 - The reset page is `noindex` with `referrer: no-referrer` so the token in the URL is not leaked.
 - Not tested live against a real mailbox (a real send would use the production SMTP provider).
 
+## Operational reports (I-22, 2026-10-30)
+
+Read-only page: `requireDashboardAccess("admin")` then `requirePrincipal("operationalReportsAll")`. The only input is `?range=`, accepted from a fixed list (last 7, 30 or 90 days, next 7 days; anything else, including objects, becomes the default), so there is no free-form query or date from the browser. One MongoDB aggregation over bookings of the range (a single `$facet`, groups capped at 30 barbers and 10 services) plus one count of new customer accounts. The output holds counts, rates and labels (barber and service names, weekday, hour) only: no prices, no customer names, emails or phones, no ids (tested). Weekday and hour use the shop's time zone, and range bounds are whole business days across the daylight-saving change (tested). Tests: `lib/reports/operational.test.js`.
+
 ## Image uploads in the browser and image delivery (C2, 2026-10-30)
 
 Browser: before sending, photos are shrunk to 2000 px and re-encoded to WebP (`lib/images/client-upload.js`; the canvas also drops EXIF) so they stay under 4 MB; this is a convenience only, and the server repeats every check (type sniffing, size, re-encode). Errors show one clear toast each: too large, wrong type, rate limited, signed out, image service unavailable, network. Failed remote images show the placeholder instead of a broken icon (`ImageWithFallback`), with a blur placeholder and a fixed aspect ratio. Delivery guard (`image-delivery.test.js`): the optimizer config matches the fixed width lists, no `unoptimized`, custom loader or off-list quality, every `fill` image has a `sizes` hint, no plain `<img>`. Slot overrides: `isTrustedImageUrl` guards each address, unknown slot keys are ignored, writes need `mediaSlotsManageAll` (helpers only; no screen yet) and are audited (`images.slot_set`, `images.slot_cleared`). Tests: `client-upload.test.js`, `image-delivery.test.js`, `slot-overrides.test.js`.
