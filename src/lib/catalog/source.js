@@ -10,6 +10,7 @@ import { normalizePublicBarbers } from "@/lib/catalog/barbers";
 import { mergeBookingConfig, normalizeHolidays } from "@/lib/catalog/holidays";
 import { normalizePackages, normalizeServices, resolveCatalog } from "@/lib/catalog/normalize";
 import { SETTING_KEYS, docsToMap, mergeSiteSettings, normalizeHours } from "@/lib/catalog/settings";
+import { normalizePublicGallery } from "@/lib/gallery/gallery-input";
 import { createCooldown } from "@/lib/utils/cooldown";
 import { CATALOG_REVALIDATE_SECONDS, CATALOG_TAGS } from "@/lib/catalog/tags";
 
@@ -18,6 +19,7 @@ const servicesCooldown = createCooldown({ ms: DB_COOLDOWN_MS });
 const packagesCooldown = createCooldown({ ms: DB_COOLDOWN_MS });
 const barbersCooldown = createCooldown({ ms: DB_COOLDOWN_MS });
 const settingsCooldown = createCooldown({ ms: DB_COOLDOWN_MS });
+const galleryCooldown = createCooldown({ ms: DB_COOLDOWN_MS });
 
 // Public catalog reads: MongoDB first (cached, tagged), file data as the fallback.
 // A failed query throws inside the cached function, so failures are never cached; resolveCatalog then
@@ -65,6 +67,28 @@ const loadPackageDocuments = unstable_cache(
   ["catalog-packages-v1"],
   { tags: [CATALOG_TAGS.packages], revalidate: CATALOG_REVALIDATE_SECONDS },
 );
+
+// Shop-uploaded gallery photos: only active items and an allow-list of fields (never the provider's delete
+// address or who uploaded). Any failure means "no uploaded photos", and the built-in gallery is shown.
+const GALLERY_PROJECTION = { title: 1, category: 1, alt: 1, active: 1, displayUrl: 1, width: 1, height: 1, createdAt: 1 };
+
+const loadGalleryDocuments = unstable_cache(
+  async () => {
+    const { db } = await getMongo();
+    const docs = await db.collection("galleryItem").find({ active: true }, { projection: GALLERY_PROJECTION }).sort({ createdAt: -1 }).limit(60).toArray();
+    return docs.map((doc) => ({ id: String(doc._id), title: doc.title, category: doc.category, alt: doc.alt, active: doc.active, displayUrl: doc.displayUrl, width: doc.width, height: doc.height, createdAt: new Date(doc.createdAt).toISOString() }));
+  },
+  ["catalog-gallery-v1"],
+  { tags: [CATALOG_TAGS.gallery], revalidate: CATALOG_REVALIDATE_SECONDS },
+);
+
+export async function getPublicGallery() {
+  try {
+    return normalizePublicGallery(await galleryCooldown(loadGalleryDocuments));
+  } catch {
+    return { items: [], images: {} };
+  }
+}
 
 export function getPublicServices() {
   return resolveCatalog({ fetchDocuments: () => servicesCooldown(loadServiceDocuments), normalize: normalizeServices, fileData: BOOKING_SERVICES });
