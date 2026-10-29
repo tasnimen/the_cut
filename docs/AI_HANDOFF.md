@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** I-4 complete (admin seed). **Next step:** owner runs the seed, then I-1 on the owner's ok.
+**Where I stopped:** I-1 complete (routes and guards). **Next step:** I-2 on the owner's ok.
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -317,3 +317,10 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - I-4: `scripts/seed-admins.js` + `src/lib/auth/admin-seed-core.js` (+8 tests), npm script `seed:admins:dev`. Dry run verified to refuse cleanly while the `SEED_*` variables are unset (prints variable names only). The apply path was NOT run (needs the owner's values); documented in `docs/SECURITY.md` and `docs/TESTING.md`.
 - Phase I order updated in `docs/PHASE_I_PLAN.md` per the owner.
 - **Where I stopped:** I-4 complete. **Next step:** the owner sets the `SEED_*` values and runs the dry run/apply, then I-1 (routes and guards) on the owner's ok.
+
+## Unit I-1 done (2026-10-29): routes and guards
+- `config/routes.js`: `userDashboard`, `admin`, `superAdmin`, `twoFactor`. `config/dashboard-access.js` (areas, role matrix, `decideDashboardAccess`, `landingPathFor`, `areaForPath`) + `dashboard-access.test.js` (matrix). `lib/auth/dashboard-guard.js` (`requireDashboardAccess`). Routes `/user`, `/admin`, `/super-admin` with layouts (guard + noindex metadata) and placeholder pages (`features/dashboard/components/AreaPlaceholder.jsx`, real principal data only). `next.config.mjs`: no-store + noindex headers for the three areas; `robots.js` disallows them. Account menu: `/admin` and `/super-admin` entries enabled; user entries renamed to `/user...` (still disabled). `guest-page.js` and sign-in use `landingPathFor`. Docs: ROLE_PERMISSIONS.md, SECURITY.md.
+- Checks: `npm test` 298 passed; lint exit 0; build passed. Live on a production server with the trusted origin set to its own port (:3002, stopped): guest and customer cases as listed in SECURITY.md; response headers verified. Admin and Super Admin allowed paths NOT live-tested (no seeded admin; the owner has not run the seed). The `/two-factor` redirect target does not exist yet (unit I-3).
+- Dummy account to delete in Atlas: `dummy-i1-guard@example.com` (plus older dummies if still present).
+- Tip recorded: to test auth on another port start the server with `SITE_URL` and `BETTER_AUTH_URL` set to that origin.
+- **Where I stopped:** I-1 complete. **Next step:** I-2 (dashboard shell) on the owner's ok; the owner still has to run the admin seed before admin pages can be live-tested.

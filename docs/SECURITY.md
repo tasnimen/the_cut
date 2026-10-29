@@ -21,6 +21,10 @@
 - The reset page is `noindex` with `referrer: no-referrer` so the token in the URL is not leaked.
 - Not tested live against a real mailbox (a real send would use the production SMTP provider).
 
+## Dashboard route guards (I-1, 2026-10-29)
+
+Unauthorized visitors never learn that the admin areas exist (404, not a redirect or 403); only the customer area sends guests to sign-in. Decisions are a pure function (`decideDashboardAccess`) covered by a role-matrix test (3 areas x 3 roles, suspended, unknown role, stale session, TOTP). Live check on a production build: guest `/admin` and `/super-admin` 404, guest `/user` 307 to sign-in with a validated callback, customer `/user` 200, customer `/admin` and `/super-admin` 404. Admin and Super Admin paths of the guard are unit-tested only (no seeded admin existed yet).
+
 ## Seeded admin accounts (2026-10-29)
 
 `npm run seed:admins:dev` (`scripts/seed-admins.js`, pure logic in `src/lib/auth/admin-seed-core.js`) creates the first SUPER_ADMIN and an optional test ADMIN from `SEED_SUPER_ADMIN_*` / `SEED_ADMIN_*`. Guards: `NODE_ENV=development`; database `the_cut` or ending `_dev`/`_test`; writes need `--apply` plus `ALLOW_ADMIN_SEED=YES_I_REVIEWED_THE_DEV_DATABASE` set in the terminal for that run (not stored in `.env`). Passwords are validated (10 to 128 characters, different per account, not containing the email name), hashed by Better Auth through its own sign-up API, and never printed or logged (errors name variables only; emails are masked). Existing accounts are never changed unless `--promote-existing` is passed, which only changes the role (bumps `sessionVersion`; password untouched). Created accounts start with `twoFactorEnabled=false`, so ADMIN and SUPER_ADMIN must enrol TOTP before privileged routes open (unit I-3). Each creation or promotion writes a `seed.account.*` audit event.

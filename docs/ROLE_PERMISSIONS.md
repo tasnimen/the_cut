@@ -61,3 +61,15 @@ Authorization must be enforced server-side in every Server Action, Route Handler
 Developer tooling: `/design-system` is a development-only route in `src/config/routes.js`, gated by the server page with `notFound()` outside development. It is not a role grant and does not appear in public navigation.
 
 Admin and Super Admin authorization also requires TOTP enrollment. A role change/bootstrap flow is intentionally absent. Session/version invalidation after such a change remains future work because there is no privileged role-management operation yet.
+
+## Dashboard areas (unit I-1, 2026-10-29)
+
+Rules live in `src/config/dashboard-access.js` (pure, tested) and are applied by `requireDashboardAccess(area)` in `src/lib/auth/dashboard-guard.js`.
+
+| Area | Path | Roles | TOTP required | Visitor without access |
+|---|---|---|---|---|
+| User | `/user` | USER, ADMIN, SUPER_ADMIN (own data) | no | Guests are redirected to `/sign-in?callbackUrl=%2Fuser`; other roles/suspended accounts get **404** |
+| Admin | `/admin` | ADMIN, SUPER_ADMIN | yes (redirect to `/two-factor` until enrolled; page arrives in I-3) | **404** (guests too) |
+| Super admin | `/super-admin` | SUPER_ADMIN | yes | **404** (guests too) |
+
+Responses for these paths carry `Cache-Control: no-store` and `X-Robots-Tag: noindex, nofollow` (`next.config.mjs`); `robots.txt` disallows them. Stale sessions (`sessionVersion` mismatch) count as signed out. **Pattern for every unit:** each dashboard page calls `requireDashboardAccess(area)` (a layout alone is not enough because layouts are not re-rendered between sibling pages), and each server action or route handler calls `requirePrincipal(permission)` (`lib/auth/authorization.js`), which re-checks the session, status, permission, session version and TOTP on every call. After sign-in, admins land on their dashboard (`landingPathFor`); customers stay on the public site until the user dashboard is built (`USER_DASHBOARD_ENABLED`).
