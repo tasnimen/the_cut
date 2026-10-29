@@ -815,3 +815,14 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 4; pointer-event
 .dash-fieldset legend { padding: 0 6px; color: var(--text-soft); font-size: 12px; font-weight: 600; }
 .dash-check-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 2px 16px; }
 .barber-focus { margin: 4px 0 0; color: var(--muted); font-size: 11px; }
+
+/* Barber editor: weekly hours grid (I-17) */
+.dash-day { display: grid; grid-template-columns: 150px minmax(0, 1fr) minmax(0, 1.4fr); gap: 8px 14px; align-items: center; padding: 8px 0; border-top: 1px solid var(--border-soft); }
+.dash-day.has-error { border-left: 2px solid var(--error-soft); padding-left: 10px; }
+.dash-day-name { font-weight: 600; }
+.dash-day-times, .dash-day-break { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.dash-day input[type="time"] { min-height: 44px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 4px; background: var(--background); color: var(--text); font: inherit; font-size: 13px; color-scheme: dark; }
+.dash-day input[type="time"]:disabled { opacity: .45; }
+.dash-day input[type="time"]:focus-visible { border-color: var(--gold); outline: 2px solid var(--gold-light); outline-offset: 2px; }
+.dash-day .dash-field-error { grid-column: 1 / -1; }
+@media (max-width: 720px) { .dash-day { grid-template-columns: minmax(0, 1fr); } }
