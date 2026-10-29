@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** C1 complete (Cloudinary adapter, config, security). **Next step:** C2 (wire everything and verify) on the owner's ok.
+**Where I stopped:** C2 complete (Cloudinary wired; live checklist pending). **Next step:** owner runs the TESTING.md checklist, then picks the next unit.
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -444,3 +444,10 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - **Owner:** set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET in `.env`, restart, rebuild (the cloud name is read at build time), then `npm run check:cloudinary`. Until then uploads fail with a message naming the missing variable.
 - Not done (C2): browser-side resize and compress before upload, toasts for each error kind, slot overrides from Media records, tag revalidation checks, live checklist. Services, barbers and packages have no image fields yet (deferred to I-27), so there is nothing to rewire for them.
 - **Where I stopped:** C1 complete. **Next step:** C2 on the owner's ok.
+
+## Unit C2 done (2026-10-30): wire everything and verify
+- New: `lib/images/{client-upload,slot-input,slot-overrides,admin-slots}.js` (+ tests), `image-delivery.test.js`; changed: avatar panel and gallery form (browser resize and compress, one toast per error kind), gallery thumbnails and avatar use `ImageWithFallback` with the presets, `getImage` reads slot overrides, pages call `await primeSlotOverrides()`, `resolve.js` trusts the same hosts as everything else, tags (`catalog:slots`), index `image_slot_unique`, three upload toasts.
+- Gallery changes already refresh the public page through the `catalog:gallery` tag; slot overrides through `catalog:slots`.
+- Services, barbers and packages have no image fields (deferred to I-27), so nothing was rewired there; avatar, gallery and slots are covered. The Super Admin screen that sets slot overrides is I-27.
+- **Not verified live** (needs your Cloudinary values and an admin login): follow the checklist in TESTING.md ("Live test checklist for image uploads").
+- **Where I stopped:** C2 complete. **Next step:** owner runs the checklist, then picks I-22 reports or the Super Admin units.

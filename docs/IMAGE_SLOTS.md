@@ -47,3 +47,7 @@ Single source: `src/config/images.js`. Components read images only through `getI
 ## Gallery photos added through the admin (I-19)
 
 The gallery no longer needs files in `public/images`: photos added at Admin > Gallery are stored on ImgBB and shown first. Once at least one is shown, the labelled concept images (`gallery-studio-wide`, `gallery-barber-chair`, `gallery-scissors-detail`) stop appearing; real photo files placed in the `gallery-04` to `gallery-08` slots still appear after the uploaded ones.
+
+## Overrides from the image service (C2)
+
+A slot can now be overridden by a stored image (collection `imageSlot`, see DATABASE.md). The order is: override, then the local file in `public/images`, then the built-in fallback, so a failed or removed override never leaves a hole. There is no screen for it yet (I-27).

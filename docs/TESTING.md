@@ -96,3 +96,16 @@ Automated with fakes (input rules, public normalization and merge, data layer, a
 ## Image storage on Cloudinary (C1)
 
 Automated: `npm test` (signature determinism and secret never in output, fixed folders, upload and delete requests against a mock `fetch`, bad provider responses, role matrix, spoofed MIME and renamed program files, 4 MB cap, EXIF and GPS stripped, rate limit and permission checks on `/api/media`, no secret in client files). Manual, once you have set the four variables in `.env` (values stay with you): run `npm run check:cloudinary`. Expected output is one line: `SUCCESS: uploaded a 1x1 test image to the-cut/_test and deleted it again.` On failure it prints `FAILURE:` and a code such as `missing_variables`, `provider_rejected_credentials (HTTP 401)` (wrong key, secret or cloud name) or `provider_unreachable`. Nothing secret is printed. Full live checklist: C2.
+
+## Live test checklist for image uploads (C2)
+
+Set the four variables in `.env`, restart, rebuild.
+1. `npm run check:cloudinary` prints SUCCESS. In Cloudinary Media Library > the-cut > `_test` the 1x1 file is gone (the folder may stay).
+2. Sign in as ADMIN > Admin > Gallery > add a 6 MB photo: it is shrunk in the browser and accepted. In Cloudinary: the-cut/gallery has one new file with a random name, WebP, about 2000 px or less. Open /gallery: the photo shows first. Hide it: it disappears from /gallery.
+3. Delete it in Admin > Gallery: it is gone from the list and from Cloudinary (the-cut/gallery).
+4. Sign in as USER > Profile > Profile photo > upload a small JPG: it shows; one file in the-cut/avatars. Upload another: still one file (the old one is deleted). Remove photo: the folder is empty.
+5. As USER open /admin/gallery: 404. In the browser console run `fetch('/api/admin/gallery',{method:'POST',body:new FormData()})`: 401 or 403, never an upload.
+6. Try a file over 4 MB that cannot be shrunk (a very large AVIF/PNG the browser cannot decode): toast "too large". Try a .exe renamed to .jpg: toast "wrong type". Nothing appears in Cloudinary for either.
+7. Upload the same small photo as USER more than 10 times in an hour: toast "Too many attempts" (rate limit); check Admin > audit later for `media.uploaded` entries.
+8. Open the public pages with the browser's Network tab: image requests go to `/_next/image?...&w=<one of 96,160,320,480,640,768,1080,1440,1920>&q=75`, never another width, and none to a raw `res.cloudinary.com` URL on public pages.
+Delete afterwards: any leftover files in the-cut/* in Cloudinary, the dummy test accounts, and the `media`, `galleryItem` and `auditLog` test records in the dev database.
