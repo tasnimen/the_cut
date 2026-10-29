@@ -6,6 +6,14 @@
 
 `AUTH_REQUIRE_EMAIL_VERIFICATION` (default `false`) controls Better Auth `requireEmailVerification`, verification-mail sending, and the `emailVerified` check in `src/lib/auth/authorization.js` (`verification-policy.js`). With it off, an account can be created with an address the registrant does not own; all other protections stay. Turn it on before launch if that risk is unacceptable.
 
+## Auth verification unit (2026-10-29)
+
+- Verified live (dev app, DB `the_cut`, dummy account): sign-up without verification creates no verification token/record or mail; unverified sign-in works; wrong password and unknown email return the identical generic message and each write an `auth.sign_in.failed` audit entry; a guest booking attempt writes `authorization.denied`; sign-out clears the session (`get-session` null, protected API 401); Back shows the signed-out header.
+- **Fixed:** Better Auth users have an ObjectId `_id` and no `id` field; lookups by `{ id }` in booking (create, no-show, confirmation/reminder email), session creation (sessionVersion stamp, admin session audit) and `session-version.js` never matched real users. All now use `userIdFilter` (`src/lib/db/user-filter.js`). Without it, booking creation returned `account_unavailable` and security-field updates (role/status/2FA, password-change version bump) were refused.
+- `callbackUrl` is validated by `safeCallbackPath` (same-origin absolute paths only; no `//`, backslash, control characters, auth pages or `/api/`).
+- Not present: password reset (no `sendResetPassword` configured, no UI); password-based per-account lockout (only IP rate limits, the failed-auth burst alert and TOTP lockout exist). Auth uses database sessions with one cookie; there is no separate refresh token.
+- Live 429 was simulated by stubbing the response (a real 429 needs five failed sign-ins and triggers the owner alert email).
+
 ## Phase G booking controls (updated 2026-10-29)
 
 - Better Auth is mandatory for booking ownership reads and mutations; authorization checks verified email, ACTIVE status, session version, role, and admin TOTP. Customer operations scope Mongo queries to the session user. No-show is restricted to `bookingsManageAll`.

@@ -13,3 +13,21 @@ describe("email verification policy", () => {
     expect(isEmailVerificationSatisfied({ emailVerified: true }, true)).toBe(true);
   });
 });
+
+import { emailVerificationAuthOptions } from "./verification-policy.js";
+
+describe("emailVerificationAuthOptions", () => {
+  it("sends and requires nothing when the flag is off", () => {
+    expect(emailVerificationAuthOptions(false)).toEqual({
+      emailAndPassword: { enabled: true, requireEmailVerification: false },
+      emailVerification: { sendOnSignUp: false, sendOnSignIn: false },
+    });
+  });
+
+  it("restores the verification flow when the flag is on", () => {
+    expect(emailVerificationAuthOptions(true)).toEqual({
+      emailAndPassword: { enabled: true, requireEmailVerification: true },
+      emailVerification: { sendOnSignUp: true, sendOnSignIn: true },
+    });
+  });
+});

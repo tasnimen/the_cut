@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** Stage 2 complete. **Next step:** Stage 3 design pass (home first).
+**Where I stopped:** Auth verification unit complete. **Next step:** Stage 3 (home) after the user says continue.
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -211,3 +211,10 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - **Cleanup for the user:** delete the dummy user (`dummy-header-test@example.com`) and its `account`/`session` documents in `the_cut`, plus the `rateLimit` entries created by the sign-up, via Atlas.
 - Tests added: session-store seed/sign-out state, header menu config, verification policy, toast catalog. Full checks: `npm test` 246 passed / 22 files; `npm run lint` exit 0, no warnings; `npm run build` passed.
 - **Where I stopped:** Stage 2 complete. **Next step:** Stage 3 (design fidelity pass), page order: home, services, booking, about, gallery, pricing, contact, sign-in, sign-up.
+
+## Auth verification unit done (2026-10-29)
+- Dummy account to delete in Atlas (`the_cut`): `dummy-verify-auth@example.com` (plus `dummy-header-test@example.com` from 2D), with their `account`, `session`, `rateLimit`, `auditLog` entries as desired.
+- Fixes: `userIdFilter` for ObjectId users (booking creation was broken for every real user); `callbackUrl` support (`lib/auth/callback.js`, sign-in/sign-up pages, AuthPanel, BookingForm sends guests to `/sign-in?callbackUrl=%2Fbooking`); flag wiring extracted to `emailVerificationAuthOptions` and tested for on/off.
+- Not built: password reset, per-account password lockout. See `docs/SECURITY.md`.
+- Checks: `npm test` 253 passed / 24 files; lint exit 0; build passed.
+- **Where I stopped:** verification unit complete. **Next step:** user decision on password reset, then Stage 3 (home page) after "continue".
