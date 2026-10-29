@@ -69,6 +69,6 @@
 | I-29 | Live media tests with real USER and ADMIN sessions (allowed and denied) and a live ImgBB upload | M |
 | I-30 | Barber schedules entered by the owner, then Atlas booking race tests from `docs/TESTING.md` | M (needs owner data) |
 
-Suggested order: I-4, I-1, I-2, I-3 (admin pages become reachable), I-5, I-8, I-9, I-11, I-12, then the CRUD units, then super admin, then hardening. Small units first where they unblock others (I-4).
+**Approved order (owner, 2026-10-29):** Round 1 = I-4, I-1, I-2, I-3. Round 2, "control the data myself" = I-5, I-15, I-16, I-6, I-17, I-7. Then bookings and the user dashboard (I-8 to I-14, with I-11, I-12 and I-13 first), then the rest of Admin (I-18 to I-22), then Super Admin (I-23 to I-27), then hardening (I-28 to I-30). Each unit still waits for the owner's ok.
 
 **Rules for every unit:** per-action role check (`can()`), ownership scoping, strict Zod, mass-assignment protection, rate limits, an audit event for every privileged change, no fake data, empty states, no secrets in the client.

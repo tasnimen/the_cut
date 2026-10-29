@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** Stage 3 closed; Phase I plan written (docs/PHASE_I_PLAN.md), waiting for the owner's ok on the first unit.
+**Where I stopped:** I-4 complete (admin seed). **Next step:** owner runs the seed, then I-1 on the owner's ok.
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -310,3 +310,10 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - Decision recorded: pricing packages stay Basic $25 / Standard $40 / Premium $60 in `config/pricing-packages.js`, separate from catalog prices. The package preselect still maps Standard to the Combo service ($35 in booking); the owner accepted this separation.
 - Phase I plan written to `docs/PHASE_I_PLAN.md` (30 units with costs). `CLAUDE.md` updated.
 - **Where I stopped:** Stage 3 closed; waiting for the owner's "ok" on the first Phase I unit. **Next step:** Phase I unit I-4 (seed first SUPER_ADMIN/ADMIN) or I-1, per the owner.
+
+## .env.example rewrite and unit I-4 done (2026-10-29)
+- `.env.example` regrouped (Local setup, FILL THESE FIRST, App, Database, Auth, Seed accounts, Email, Images, Security, terminal-only opt-ins) with placeholders only. Fixed the example `BETTER_AUTH_URL` (was port 2000; the dev app and trusted origin are `http://localhost:3000`).
+- Names compared (names only, no values read): the code reads 17 names; the owner's `.env` has 12, all used by the code. Missing from `.env`: `AUTH_REQUIRE_EMAIL_VERIFICATION` (optional, defaults false), `TURNSTILE_SECRET_KEY` and `NEXT_PUBLIC_TURNSTILE_SITE_KEY` (optional), plus the new seed names; `ALLOW_*` and `NODE_ENV` are set in the terminal. Unused in `.env`: none.
+- I-4: `scripts/seed-admins.js` + `src/lib/auth/admin-seed-core.js` (+8 tests), npm script `seed:admins:dev`. Dry run verified to refuse cleanly while the `SEED_*` variables are unset (prints variable names only). The apply path was NOT run (needs the owner's values); documented in `docs/SECURITY.md` and `docs/TESTING.md`.
+- Phase I order updated in `docs/PHASE_I_PLAN.md` per the owner.
+- **Where I stopped:** I-4 complete. **Next step:** the owner sets the `SEED_*` values and runs the dry run/apply, then I-1 (routes and guards) on the owner's ok.

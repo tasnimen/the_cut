@@ -32,3 +32,7 @@ The seed has not been run by this task. No live database write, email, upload, s
 8. Test confirmation/reminder email only in a configured test environment with mock transport or an explicitly authorized test recipient.
 
 Live Atlas transaction/session behavior, real barber schedule accuracy, provider delivery, and visual browser behavior remain unverified.
+
+## Admin seed
+
+Dry run (read-only): `$env:NODE_ENV='development'; npm run seed:admins:dev`. Apply: also set `$env:ALLOW_ADMIN_SEED='YES_I_REVIEWED_THE_DEV_DATABASE'` and add `-- --apply`. Unit tests: `src/lib/auth/admin-seed-core.test.js` (credential rules, guards, plan, no password in messages). The live write has not been run by the assistant (the owner has not set the `SEED_*` values yet).

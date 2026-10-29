@@ -21,6 +21,10 @@
 - The reset page is `noindex` with `referrer: no-referrer` so the token in the URL is not leaked.
 - Not tested live against a real mailbox (a real send would use the production SMTP provider).
 
+## Seeded admin accounts (2026-10-29)
+
+`npm run seed:admins:dev` (`scripts/seed-admins.js`, pure logic in `src/lib/auth/admin-seed-core.js`) creates the first SUPER_ADMIN and an optional test ADMIN from `SEED_SUPER_ADMIN_*` / `SEED_ADMIN_*`. Guards: `NODE_ENV=development`; database `the_cut` or ending `_dev`/`_test`; writes need `--apply` plus `ALLOW_ADMIN_SEED=YES_I_REVIEWED_THE_DEV_DATABASE` set in the terminal for that run (not stored in `.env`). Passwords are validated (10 to 128 characters, different per account, not containing the email name), hashed by Better Auth through its own sign-up API, and never printed or logged (errors name variables only; emails are masked). Existing accounts are never changed unless `--promote-existing` is passed, which only changes the role (bumps `sessionVersion`; password untouched). Created accounts start with `twoFactorEnabled=false`, so ADMIN and SUPER_ADMIN must enrol TOTP before privileged routes open (unit I-3). Each creation or promotion writes a `seed.account.*` audit event.
+
 ## Phase G booking controls (updated 2026-10-29)
 
 - Better Auth is mandatory for booking ownership reads and mutations; authorization checks verified email, ACTIVE status, session version, role, and admin TOTP. Customer operations scope Mongo queries to the session user. No-show is restricted to `bookingsManageAll`.
