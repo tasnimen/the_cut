@@ -858,3 +858,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 4; pointer-event
 .dash-file-button { position: relative; cursor: pointer; }
 .dash-file-button:focus-within { outline: 2px solid var(--gold-light); outline-offset: 2px; }
 @media (max-width: 520px) { .dash-avatar { flex-direction: column; align-items: flex-start; } }
+
+/* Admin bookings (I-11) */
+.dash-date-form { align-items: end; max-width: 420px; }
+.dash-row-actions { flex-wrap: wrap; }
