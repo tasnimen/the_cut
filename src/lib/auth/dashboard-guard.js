@@ -1,0 +1,34 @@
+import "server-only";
+import { headers } from "next/headers";
+import { notFound, redirect } from "next/navigation";
+import { DASHBOARD_AREAS, decideDashboardAccess } from "@/config/dashboard-access";
+import { ROUTES } from "@/config/routes";
+import { getAuth } from "@/lib/auth/server";
+import { signInUrlFor } from "@/lib/auth/callback";
+import { isSessionVersionCurrent } from "@/lib/auth/session-version";
+
+// Call from EVERY dashboard page (and from the layout for the shell). A layout alone is not enough:
+// Next.js does not re-render layouts when navigating between sibling pages. Server actions must
+// additionally call requirePrincipal(permission) from lib/auth/authorization.js (it re-checks the
+// session, status, permission and TOTP on every call).
+export async function requireDashboardAccess(areaKey) {
+  const area = DASHBOARD_AREAS[areaKey];
+  if (!area) notFound();
+
+  const auth = await getAuth();
+  const session = await auth.api.getSession({ headers: await headers() });
+  const normalized = session?.user
+    ? {
+        user: session.user,
+        versionCurrent: isSessionVersionCurrent(session.session?.sessionVersion, session.user.sessionVersion),
+      }
+    : null;
+
+  const decision = decideDashboardAccess(area, normalized);
+  if (decision.action === "notFound") notFound();
+  if (decision.action === "signIn") redirect(signInUrlFor(area.path));
+  if (decision.action === "twoFactor") redirect(ROUTES.twoFactor);
+
+  const { id, name, email, role } = session.user;
+  return Object.freeze({ id, name: name || "", email: email || "", role });
+}
