@@ -29,7 +29,15 @@ const nextConfig = {
       securityHeaders.push({ key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" });
     }
 
-    return [{ source: "/:path*", headers: securityHeaders }];
+    const privateAreaHeaders = [
+      { key: "Cache-Control", value: "no-store, max-age=0" },
+      { key: "X-Robots-Tag", value: "noindex, nofollow" },
+    ];
+
+    return [
+      { source: "/:path*", headers: securityHeaders },
+      { source: "/:area(user|admin|super-admin)/:path*", headers: privateAreaHeaders },
+    ];
   },
 };
 

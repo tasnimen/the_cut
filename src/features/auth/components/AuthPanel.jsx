@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { landingPathFor } from "@/config/dashboard-access";
 import { ROUTES } from "@/config/routes";
 import { notify } from "@/lib/toast/notify";
 import { toastKeyForStatus } from "@/lib/toast/messages";
@@ -78,7 +79,9 @@ export function AuthPanel({ mode, callbackPath = ROUTES.home }) {
         markSignedIn(result.user || null);
         setMessage("You are signed in.");
         notify("signInSuccess");
-        if (callbackPath !== ROUTES.home) router.push(callbackPath);
+        // An explicit callback wins; otherwise go to the role's landing page.
+        const target = callbackPath !== ROUTES.home ? callbackPath : landingPathFor(result.user?.role);
+        if (target !== ROUTES.home) router.push(target);
       }
     } catch {
       setError("We couldn't reach the sign-in service. Try again.");

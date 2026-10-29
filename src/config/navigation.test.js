@@ -23,7 +23,7 @@ describe("account menu", () => {
   });
 
   it("recognizes protected paths", () => {
-    expect(isProtectedPath("/dashboard/profile")).toBe(true);
+    expect(isProtectedPath("/user/profile")).toBe(true);
     expect(isProtectedPath("/admin")).toBe(true);
     expect(isProtectedPath("/booking")).toBe(false);
     expect(isProtectedPath("/administrators")).toBe(false);

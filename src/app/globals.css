@@ -702,3 +702,6 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 4; pointer-event
 .auth-password-toggle:focus-visible { outline: 2px solid var(--gold-light); outline-offset: -2px; border-radius: 4px; }
 .auth-hint { color: var(--muted); font-size: 10px; font-weight: 400; }
 .auth-field input:focus-visible { box-shadow: var(--glow-gold); }
+.dashboard-placeholder { padding-block: 56px 96px; }
+.dashboard-placeholder .contact-card { max-width: 640px; }
+.dashboard-placeholder h1 { margin: 0 0 10px; font-size: clamp(34px, 5vw, 48px); }
