@@ -3,15 +3,15 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Icon } from "@/components/ui/Icon";
-import { useSessionNav } from "@/components/layout/HeaderAccountLink";
-import { siteNavigation } from "@/config/navigation";
+import { AccountIdentity, Avatar, useSessionNav } from "@/components/layout/HeaderAccount";
+import { getAccountMenuItems, siteNavigation } from "@/config/navigation";
 import { ROUTES } from "@/config/routes";
 
-export function MobileNavigation({ activePath = ROUTES.home }) {
+export function MobileNavigation({ activePath = ROUTES.home, initialUser }) {
   const [isOpen, setIsOpen] = useState(false);
   const navigationRef = useRef(null);
   const toggleRef = useRef(null);
-  const { status, signingOut, error, handleSignOut } = useSessionNav();
+  const { status, user, signingOut, error, handleSignOut } = useSessionNav(initialUser);
 
   useEffect(() => {
     if (!isOpen) return undefined;
@@ -73,21 +73,27 @@ export function MobileNavigation({ activePath = ROUTES.home }) {
           </Link>
         ))}
         <div className="mobile-nav-account-links">
-          {status === "authenticated" ? (
-            <button
-              type="button"
-              className="mobile-nav-signout"
-              disabled={signingOut}
-              onClick={async () => { if (await handleSignOut()) setIsOpen(false); }}
-            >
-              {signingOut ? "Signing out…" : "Sign out"}
-            </button>
+          {status === "authenticated" && user ? (
+            <>
+              <div className="mobile-nav-identity"><Avatar user={user} /><AccountIdentity user={user} /></div>
+              {getAccountMenuItems(user.role).map((item) => (
+                <Link href={item.href} key={item.href} onClick={() => setIsOpen(false)}>{item.label}</Link>
+              ))}
+              <button
+                type="button"
+                className="mobile-nav-signout"
+                disabled={signingOut}
+                onClick={async () => { if (await handleSignOut()) setIsOpen(false); }}
+              >
+                {signingOut ? "Signing out…" : "Sign out"}
+              </button>
+            </>
           ) : status === "loading" ? (
             <span aria-hidden="true" style={{ minHeight: 40 }} />
           ) : (
             <>
               <Link href={ROUTES.signIn} onClick={() => setIsOpen(false)}>Sign in</Link>
-              <Link href={ROUTES.signUp} onClick={() => setIsOpen(false)}>Create account</Link>
+              <Link href={ROUTES.signUp} onClick={() => setIsOpen(false)}>Sign up</Link>
             </>
           )}
           {error ? <p className="header-account-error" role="alert">{error}</p> : null}

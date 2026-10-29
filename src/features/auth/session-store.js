@@ -37,6 +37,14 @@ export function refreshSession() {
   return inflight;
 }
 
+// Server-rendered header state is authoritative on load; no extra get-session round trip.
+export function seedSession(user) {
+  if (state.signingOut) return;
+  const status = user ? "authenticated" : "anonymous";
+  if (state.status === status && (state.user?.email ?? null) === (user?.email ?? null)) return;
+  setState({ status, user: user ?? null });
+}
+
 export function ensureSession() {
   if (state.status === "loading") refreshSession();
 }

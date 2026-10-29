@@ -1,12 +1,15 @@
 import Link from "next/link";
 import { BrandMark } from '@/components/ui/BrandMark';
 import { ButtonLink } from '@/components/ui/ButtonLink';
-import { HeaderAccountLink } from '@/components/layout/HeaderAccountLink';
+import { HeaderAccount } from '@/components/layout/HeaderAccount';
 import { MobileNavigation } from '@/components/layout/MobileNavigation';
 import { siteNavigation } from '@/config/navigation';
 import { ROUTES } from '@/config/routes';
+import { getHeaderUser } from '@/lib/auth/header-user';
 
-export function SiteHeader({ activePath = ROUTES.home, variant = "overlay" }) {
+export async function SiteHeader({ activePath = ROUTES.home, variant = "overlay" }) {
+  // Read on the server so the first paint already has the right header state.
+  const initialUser = await getHeaderUser();
   return (
     <header className={`site-header site-header--${variant}`}>
       <div className="header-inner page-shell">
@@ -24,11 +27,11 @@ export function SiteHeader({ activePath = ROUTES.home, variant = "overlay" }) {
           ))}
         </nav>
         <div className="header-actions">
-          <HeaderAccountLink />
+          <HeaderAccount initialUser={initialUser} />
           <ButtonLink href={ROUTES.booking} size="small">
             Book Appointment
           </ButtonLink>
-          <MobileNavigation activePath={activePath} />
+          <MobileNavigation activePath={activePath} initialUser={initialUser} />
         </div>
       </div>
     </header>
