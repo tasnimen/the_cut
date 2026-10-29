@@ -86,3 +86,5 @@ Responses for these paths carry `Cache-Control: no-store` and `X-Robots-Tag: noi
 **Admin bookings (I-11):** `/admin/bookings` and its Server Action need `bookingsManageAll` (ADMIN and SUPER_ADMIN, scope ALL, TOTP enrolled). Customers and guests get 404 on the page. The action takes only a booking id and a target status; the status rules are re-checked on the server.
 
 **All bookings (I-12):** `/admin/bookings/all` needs `bookingsManageAll` like the day view (same guard, same row actions). It is a read of every customer's bookings, limited to name and phone for contact; customers' user ids are not returned.
+
+**Walk-in (I-13):** `/admin/bookings/walk-in` and its two actions need `bookingsManageAll` (ADMIN and SUPER_ADMIN, TOTP enrolled). Customers and guests get 404.

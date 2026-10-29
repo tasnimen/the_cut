@@ -76,3 +76,7 @@ Checked by the assistant on a production build: a guest and a signed-in customer
 ## All bookings search (I-12)
 
 Automated only (fake database); the screen needs an admin with two-step verification, so it was not exercised live. Please check as an admin at Admin > Bookings > All bookings: (1) the list shows newest appointments first with the same Confirm/Complete/Cancel buttons as the day view; (2) search a customer's first letters, then their phone number with spaces or dashes, then a booking number copied from a URL or the database; (3) filter by status, by barber and by a date range, and combine them; (4) with more than 25 bookings, Next and Previous keep your filters; (5) a nonsense search shows "No bookings match" and Clear filters resets; (6) at 375 px the filter fields stack and the table scrolls inside its box.
+
+## Walk-in booking (I-13)
+
+Automated (fake database): booking with no account, no lead-time or cap, taken slot refused, bad phone refused, walk-in no-show with no account, availability starting now. Live: guest and customer get 404 on /admin/bookings/walk-in. **Not exercised live as an admin.** Please check as an admin: (1) Bookings > New walk-in; (2) enter a name, tick a service, pick today and a barber, times appear and the first slot is not in the past; (3) Book walk-in returns to today's list with a "Walk-in" tag, status Confirmed; (4) try the same slot as an online customer: it is gone; (5) later, Mark completed works; Cancel does not try to send an email; (6) at 375 px the form stacks and the time chips wrap.

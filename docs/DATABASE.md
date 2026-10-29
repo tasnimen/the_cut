@@ -90,3 +90,7 @@ Every value is validated again when read (`lib/catalog/settings.js`), so a malfo
 ## accountDeletionRequest (I-10)
 
 One document per user who asked the shop to delete their account: `userId` (unique index `account_deletion_user_unique`), `email`, `status` (`pending` or `cancelled`), `requestedAt`, `createdAt`, `cancelledAt`. Nothing is deleted automatically; the admin screen that processes requests comes with the customers unit (I-14). The user's avatar is `user.image` plus a `media` document (`category: "avatar"`, `ownerId`).
+
+## Walk-in bookings (I-13)
+
+A walk-in is a normal `booking` document with `source: "walk-in"`, `createdBy` (the admin's user id) and a synthetic owner `userId: "walkin:<bookingId>"`, which never equals a real user id, so it never appears in any customer's account and no active-booking cap applies. There is no email, `smsConsent` is false and `reminderDueAt` is null, so no reminder or message is ever sent. Online bookings have no `source` field (treated as "online"). No-shows on walk-ins are not counted against anyone.

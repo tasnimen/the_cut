@@ -40,7 +40,7 @@
 |---|---|---|
 | I-11 (done 2026-10-29, admin screen not exercised live) | Today's bookings with status changes (confirm, complete, no_show, cancel) | M |
 | I-12 (done 2026-10-29, admin screen not exercised live) | All bookings: search, filter, pagination | M |
-| I-13 | Walk-in booking | M |
+| I-13 (done 2026-10-29, admin screen not exercised live) | Walk-in booking | M |
 | I-14 | Customers list (limited fields) | S |
 | I-15 (done 2026-10-29, image field deferred to the image-slot work in I-27) | Services CRUD (name, price, duration, active, order) | M |
 | I-16 (done 2026-10-29) | Pricing packages CRUD | S |

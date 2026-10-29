@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** I-12 complete (all bookings search; not verified live as admin). **Next step:** I-13 on the owner's ok.
+**Where I stopped:** I-13 complete (walk-in booking; not verified live as admin). **Next step:** I-14 on the owner's ok.
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -411,3 +411,9 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - Not verified live as an admin (same reason as I-11); steps in TESTING.md.
 - **Cleanup for the owner:** none new (dummies from I-8 to I-11 are listed above).
 - **Where I stopped:** I-12 complete. **Next step:** I-13 (walk-in booking) on the owner's ok.
+
+## Unit I-13 done (2026-10-29): walk-in booking
+- New: `lib/booking/walk-in.js` (+ test), repository `adminAvailability` and `createWalkIn` (and `markNoShow` skips the customer record for walk-ins), `app/admin/bookings/walk-in/{page,actions}` (+ test), `features/dashboard/bookings/WalkInForm.jsx`, "New walk-in" button on the day view, "Walk-in" tag in both lists, `publicBooking` now has `source`. `adminBarberOptions` also returns slugs.
+- Design choice to confirm with the owner: walk-ins are anonymous (name and optional phone only, no account, no emails or texts). Linking a walk-in to an existing customer account was not built.
+- Not verified live as an admin; steps in TESTING.md.
+- **Where I stopped:** I-13 complete. **Next step:** I-14 (customers list, limited fields) on the owner's ok.
