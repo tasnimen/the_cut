@@ -6,7 +6,7 @@ import { GALLERY_CATEGORIES } from "@/lib/gallery/gallery-input";
 import { notify } from "@/lib/toast/notify";
 
 const ACCEPT = "image/jpeg,image/png,image/webp,image/avif";
-const MAX_BYTES = 5 * 1024 * 1024;
+const MAX_BYTES = 4 * 1024 * 1024;
 
 export function GalleryUploadForm() {
   const router = useRouter();
@@ -21,7 +21,7 @@ export function GalleryUploadForm() {
     const form = new FormData(event.currentTarget);
     const file = form.get("file");
     if (!file || typeof file === "string" || file.size === 0) { setErrors({ file: "Choose a photo." }); return; }
-    if (file.size > MAX_BYTES) { setErrors({ file: "The photo must be 5 MB or smaller." }); return; }
+    if (file.size > MAX_BYTES) { setErrors({ file: "The photo must be 4 MB or smaller." }); return; }
     setBusy(true);
     setErrors({});
     setMessage("");
@@ -49,7 +49,7 @@ export function GalleryUploadForm() {
       <div className="dash-field">
         <label htmlFor="g-file">Photo</label>
         <input id="g-file" name="file" type="file" accept={ACCEPT} disabled={busy} aria-invalid={errors.file ? "true" : undefined} />
-        <small>JPG, PNG, WebP or AVIF, up to 5 MB. Only upload photos you have the right to show, and with the permission of anyone who is recognisable in them.</small>
+        <small>JPG, PNG, WebP or AVIF, up to 4 MB. Only upload photos you have the right to show, and with the permission of anyone who is recognisable in them.</small>
         {errors.file ? <small className="dash-field-error" role="alert">{errors.file}</small> : null}
       </div>
       <div className="dash-form-row">

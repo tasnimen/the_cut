@@ -3,15 +3,11 @@ import { headers } from "next/headers";
 import { getAuth } from "@/lib/auth/server";
 import { getDeletionRequest } from "@/lib/account/deletion-request";
 import { getMongo } from "@/lib/db/mongo";
+import { isTrustedImageUrl } from "@/lib/images/trusted-url";
 
-// Only photos hosted by our image provider are ever rendered.
+// Only photos hosted by our image provider are ever rendered (Cloudinary, plus older ImgBB photos).
 export function safeAvatarUrl(value) {
-  try {
-    const url = new URL(String(value));
-    return url.protocol === "https:" && url.hostname === "i.ibb.co" ? url.toString() : null;
-  } catch {
-    return null;
-  }
+  return isTrustedImageUrl(value) ? new URL(String(value)).toString() : null;
 }
 
 // Photo and pending deletion request of the signed-in user.

@@ -20,7 +20,7 @@ export async function POST(request) {
   try {
     const rawLength = request.headers.get("content-length");
     if (!rawLength || !/^\d+$/.test(rawLength)) return json({ message: "Content length is required." }, 411);
-    if (Number(rawLength) > MAX_IMAGE_BYTES + 128 * 1024) return json({ message: "Image must be 5 MB or smaller." }, 413);
+    if (Number(rawLength) > MAX_IMAGE_BYTES + 128 * 1024) return json({ message: "Image must be 4 MB or smaller." }, 413);
 
     const principal = await requirePrincipal("mediaGalleryManageAll");
     const rate = await consumeUserRateLimit(principal.id, { bucket: "admin-gallery-upload", limit: 30, windowMs: 60 * 60 * 1000 });
@@ -29,7 +29,7 @@ export async function POST(request) {
     const formData = await request.formData();
     const file = formData.get("file");
     if (!file || typeof file === "string" || typeof file.arrayBuffer !== "function") return json({ message: "Choose a photo." }, 400);
-    if (file.size > MAX_IMAGE_BYTES) return json({ message: "Image must be 5 MB or smaller." }, 413);
+    if (file.size > MAX_IMAGE_BYTES) return json({ message: "Image must be 4 MB or smaller." }, 413);
     const title = String(formData.get("title") ?? "");
     const parsed = GalleryMetaSchema.safeParse({ title, category: String(formData.get("category") ?? ""), alt: String(formData.get("alt") ?? "") || title });
     if (!parsed.success) return json({ message: "Check the highlighted fields.", fieldErrors: galleryFieldErrors(parsed.error) }, 400);
@@ -37,7 +37,7 @@ export async function POST(request) {
     const { db } = await getMongo();
     if ((await countGalleryItems(db)) >= MAX_GALLERY_ITEMS) return json({ message: `The gallery is full (${MAX_GALLERY_ITEMS} photos). Delete one first.` }, 409);
 
-    const media = await buildMediaService(db).upload({ principal, target: "gallery", file, alt: parsed.data.alt });
+    const media = await buildMediaService(db, principal.id).upload({ principal, target: "gallery", file, alt: parsed.data.alt });
     try {
       const id = await createGalleryItem(db, { media, meta: parsed.data }, principal.id);
       revalidateCatalog(["gallery"]);
@@ -49,7 +49,7 @@ export async function POST(request) {
   } catch (error) {
     if (error instanceof AuthorizationError) return json({ message: "Please sign in again to continue." }, error.status);
     if (error instanceof UploadValidationError) {
-      return json({ message: ["file_too_large", "processed_file_too_large"].includes(error.code) ? "Image must be 5 MB or smaller." : "Choose a JPG, PNG, WebP or AVIF image." }, 400);
+      return json({ message: ["file_too_large", "processed_file_too_large"].includes(error.code) ? "Image must be 4 MB or smaller." : "Choose a JPG, PNG, WebP or AVIF image." }, 400);
     }
     console.error("gallery upload failed:", error?.name, error?.message);
     return json({ message: "The photo could not be saved. Check the image service settings and try again." }, 500);

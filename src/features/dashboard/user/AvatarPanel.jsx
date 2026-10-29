@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { notify } from "@/lib/toast/notify";
 
 const ACCEPT = "image/jpeg,image/png,image/webp,image/avif";
-const MAX_BYTES = 5 * 1024 * 1024;
+const MAX_BYTES = 4 * 1024 * 1024;
 
 export function AvatarPanel({ name, image }) {
   const router = useRouter();
@@ -34,7 +34,7 @@ export function AvatarPanel({ name, image }) {
   function choose(event) {
     const file = event.target.files?.[0];
     if (!file) return;
-    if (file.size > MAX_BYTES) { setError("Image must be 5 MB or smaller."); return; }
+    if (file.size > MAX_BYTES) { setError("Image must be 4 MB or smaller."); return; }
     const body = new FormData();
     body.set("file", file);
     send({ method: "POST", body });
@@ -44,7 +44,7 @@ export function AvatarPanel({ name, image }) {
     <div className="dash-avatar">
       {image ? <Image className="dash-avatar-image" src={image} alt={`${name} profile photo`} width={96} height={96} referrerPolicy="no-referrer" /> : <span className="dash-avatar-image dash-avatar-empty" aria-hidden="true">{(name || "?").trim().charAt(0).toUpperCase()}</span>}
       <div className="dash-avatar-body">
-        <p className="dash-muted">JPG, PNG, WebP or AVIF, up to 5 MB. It appears on your account page.</p>
+        <p className="dash-muted">JPG, PNG, WebP or AVIF, up to 4 MB. It appears on your account page.</p>
         <div className="dash-form-actions">
           <label className="button button-small button-outline dash-file-button">
             <span>{busy ? "Working…" : image ? "Change photo" : "Upload photo"}</span>

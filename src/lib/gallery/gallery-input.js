@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { GALLERY_CATEGORY_ORDER } from "@/features/marketing/data/gallery";
+import { isTrustedImageUrl } from "@/lib/images/trusted-url";
 
 // Gallery items uploaded by the shop (pure helpers shared by the admin screens and the public page).
 
@@ -31,15 +32,8 @@ export function shapeFor(width, height) {
   return "square";
 }
 
-// Only photos hosted by our image provider are ever shown.
-export function isTrustedImageUrl(value) {
-  try {
-    const url = new URL(String(value));
-    return url.protocol === "https:" && url.hostname === "i.ibb.co" && !url.username && !url.password;
-  } catch {
-    return false;
-  }
-}
+// Only photos hosted by our image provider are ever shown (Cloudinary, plus older ImgBB photos).
+export { isTrustedImageUrl };
 
 // Public gallery from database documents: only active items with a trusted image, newest first.
 // Returns the shapes GalleryGrid expects, plus an id -> image address map.
