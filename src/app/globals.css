@@ -471,7 +471,10 @@ h2 { margin-bottom: 0; color: var(--text); font-size: clamp(32px, 4vw, 47px); le
   .pricing-card .eyebrow { margin: 0 0 4px; color: var(--gold-light); }
   .pricing-card h3 { margin: 0; font-family: var(--font-display); font-size: 39px; font-weight: 500; }
   .pricing-card > p:not(.eyebrow) { min-height: 50px; margin: 9px 0 16px; color: var(--muted); font-size: 11px; line-height: 1.7; }
-  .pricing-pending { margin-bottom: 19px; color: var(--text-soft); font-size: 12px; }
+  .pricing-price { margin: 6px 0 0; color: var(--gold-light); font-family: var(--font-display); font-size: 34px; }
+  .pricing-card > p.pricing-price { min-height: 0; margin: 6px 0 4px; color: var(--gold-light); font-size: 34px; }
+  .pricing-inclusions { display: grid; gap: 6px; margin: 0 0 19px; padding: 0; list-style: none; color: var(--text-soft); font-size: 11px; }
+  .pricing-inclusions li::before { content: "✓"; margin-right: 8px; color: var(--gold); }
   .pricing-card .button { margin-top: auto; }
   .contact-preview { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1fr); gap: 48px; align-items: center; padding-block: 78px 96px; }
   .contact-preview > div:first-child { max-width: 540px; }

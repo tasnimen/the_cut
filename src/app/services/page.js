@@ -40,12 +40,12 @@ export default function ServicesPage() {
           <SectionHeading
             eyebrow="The menu"
             id="service-catalog-title"
-            aside="Illustrative services · final menu and prices pending"
+            aside="Prices in USD, before tax"
           >
             Find your <em>kind of care.</em>
           </SectionHeading>
           <p className="service-menu-disclosure">
-            The service names and descriptions below are examples, not a confirmed shop menu. Final availability and prices have not been supplied.
+            Prices are in USD before tax and are paid at the shop.
           </p>
           <ServiceCatalog />
         </section>
