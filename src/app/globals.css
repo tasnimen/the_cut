@@ -866,3 +866,6 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 4; pointer-event
 /* Admin all-bookings search (I-12) */
 .dash-filter-form { max-width: none; }
 .dash-pager { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 16px; }
+
+/* Admin messages (I-20) */
+.dash-message-body { margin: 12px 0; padding: 14px 16px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface-muted); color: var(--text); font-size: 14px; line-height: 1.7; white-space: pre-wrap; overflow-wrap: anywhere; }
