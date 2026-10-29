@@ -17,7 +17,7 @@ export const DASHBOARD_NAV = Object.freeze({
     item("Bookings", "/admin/bookings", "calendar"),
     item("Customers", "/admin/customers", "users"),
     item("Services", "/admin/services", "scissors", true),
-    item("Packages", "/admin/packages", "tag"),
+    item("Packages", "/admin/packages", "tag", true),
     item("Barbers", "/admin/barbers", "razor"),
     item("Gallery", "/admin/gallery", "image"),
     item("Messages", "/admin/messages", "inbox"),

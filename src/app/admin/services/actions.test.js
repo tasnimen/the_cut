@@ -17,7 +17,7 @@ class AuthorizationError extends Error {
 
 vi.mock("@/lib/auth/authorization", () => ({ requirePrincipal: mocks.requirePrincipal, AuthorizationError }));
 vi.mock("@/lib/security/public-rate-limit", () => ({ consumeUserRateLimit: mocks.consume }));
-vi.mock("@/lib/db/mongo", () => ({ getMongo: mocks.getMongo }));
+vi.mock("@/lib/db/mongo", () => ({ getMongo: mocks.getMongo, ensureApplicationIndexes: vi.fn() }));
 vi.mock("@/lib/catalog/revalidate", () => ({ revalidateCatalog: mocks.revalidate }));
 vi.mock("next/navigation", () => ({ redirect: mocks.redirect }));
 vi.mock("@/lib/catalog/admin-services", () => ({ createAdminService: mocks.create, updateAdminService: mocks.update, setAdminServiceActive: mocks.setActive }));

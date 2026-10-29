@@ -809,3 +809,8 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 4; pointer-event
 .dash-link-button { min-height: 44px; display: inline-flex; align-items: center; padding: 0; border: 0; background: none; color: var(--gold-light); font: inherit; font-size: 12px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .dash-link-button:disabled { opacity: .6; cursor: wait; }
 .dash-link-button:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 2px; }
+
+/* Package editor (I-16) */
+.dash-fieldset { margin: 0; padding: 14px 16px; border: 1px solid var(--border); border-radius: 6px; }
+.dash-fieldset legend { padding: 0 6px; color: var(--text-soft); font-size: 12px; font-weight: 600; }
+.dash-check-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 2px 16px; }

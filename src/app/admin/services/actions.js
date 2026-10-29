@@ -5,7 +5,7 @@ import { AuthorizationError, requirePrincipal } from "@/lib/auth/authorization";
 import { createAdminService, setAdminServiceActive, updateAdminService } from "@/lib/catalog/admin-services";
 import { revalidateCatalog } from "@/lib/catalog/revalidate";
 import { readServiceForm, SERVICE_SLUG_PATTERN } from "@/lib/catalog/service-input";
-import { getMongo } from "@/lib/db/mongo";
+import { ensureApplicationIndexes, getMongo } from "@/lib/db/mongo";
 import { consumeUserRateLimit } from "@/lib/security/public-rate-limit";
 
 // Every export below is a public HTTP endpoint (Server Action): it re-checks the session, role,
@@ -39,6 +39,7 @@ export async function createServiceAction(_previous, formData) {
   if (!parsed.ok) return { status: "error", code: "invalid", message: "Check the highlighted fields.", fieldErrors: parsed.fieldErrors, values: valuesOf(formData) };
 
   const { db } = await getMongo();
+  await ensureApplicationIndexes(db);
   const result = await createAdminService(db, parsed.data, auth.principal.id);
   if (!result.ok) return { status: "error", code: "duplicate", message: "That identifier is already in use.", fieldErrors: { slug: "That identifier is already in use." }, values: valuesOf(formData) };
 
