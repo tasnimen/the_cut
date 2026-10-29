@@ -5,11 +5,12 @@ import { AuthorizationError, requirePrincipal } from "@/lib/auth/authorization";
 import { ensureApplicationIndexes, getMongo } from "@/lib/db/mongo";
 import { consumePublicRateLimit } from "@/lib/security/public-rate-limit";
 import { appendAuditEvent } from "@/lib/security/audit-log";
-import { sendBookingCancellation, sendBookingConfirmation, sendBookingReschedule } from "@/lib/mail/mailer";
+import { sendBookingConfirmation } from "@/lib/mail/mailer";
 import { getBookingConfig } from "@/lib/catalog/source";
 import { BookingAvailabilityQuerySchema, BookingIdSchema, CreateBookingSchema, RescheduleBookingSchema } from "@/lib/booking/booking-model";
 import { BookingError, loadBookingOptions } from "@/lib/booking/availability";
 import { createBookingRepository } from "@/lib/booking/repository";
+import { notifyBookingChange } from "@/lib/booking/notify";
 
 const RATE = { limit: 20, windowMs: 10 * 60 * 1000 };
 const CREATE_RATE = { limit: 5, windowMs: 60 * 60 * 1000 };
@@ -92,16 +93,7 @@ export async function mutateBooking(request, { params }, operation) {
       if (!parsed.success) return json({ error: "invalid_booking" }, 400);
       booking = await repository.reschedule({ principal, bookingId: id, ...parsed.data });
     } else booking = await repository.markNoShow({ principal, bookingId: id });
-    if (operation !== "no-show") after(async () => {
-      try {
-        const user = await db.collection("user").findOne(userIdFilter(principal.id), { projection: { email: 1 } });
-        if (!user?.email) throw new Error("recipient unavailable");
-        const send = operation === "cancel" ? sendBookingCancellation : sendBookingReschedule;
-        await send({ to: user.email, name: booking.customerName, booking });
-      } catch {
-        try { await appendAuditEvent(db, { actorId: principal.id, action: `booking.${operation}.delivery_failed`, targetType: "Booking", targetId: booking.id, outcome: "failure" }); } catch { /* No provider details in logs. */ }
-      }
-    });
+    if (operation !== "no-show") after(() => notifyBookingChange({ db, principal, operation, booking }));
     return json({ booking });
   } catch (error) { return failure(error); }
 }
