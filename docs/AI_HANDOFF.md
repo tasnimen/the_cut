@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** Stage 3 services page complete. **Next step:** Stage 3 booking page.
+**Where I stopped:** Stage 3 booking page complete. **Next step:** Stage 3 about page.
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -272,3 +272,10 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - Checks: `npm test` 271 passed / 28 files; eslint clean; build passed; verified on a temporary production server (:3002, stopped): tab filtering, no stale text, 375 px no overflow, 44 px tabs. 768 px not re-screenshotted (grid is the same 3 columns as home).
 - Remaining Stage 3 pages: booking, about, gallery, pricing, contact, sign-in, sign-up (and the home leftovers: barbers/footer details). Reviews, newsletter, Shop, dashboards stay TODO.
 - **Where I stopped:** Stage 3 services page complete. **Next step:** Stage 3 booking page (compare with the mockup's booking panel).
+
+## Stage 3 unit: booking page (2026-10-29)
+- `BookingForm`: service price right-aligned, barber radio list (real barbers from availability), time chips, "Confirm Appointment", account copy without "verified", guest sign-in link fixed to `callbackUrl` via `signInUrlFor`. Page intro copy from the mockup. New CSS block at the end of `globals.css`.
+- Checks: `npm test` 271 passed / 28 files; lint exit 0; build passed. Production server on :3002 (stopped) with stubbed availability: chips and barber radios work, summary and Confirm update; 375 px no overflow, rows >= 44 px.
+- NOT tested live: a real booking (barbers have no schedules, so there are no slots). Needs the user's real barber names/schedules, then the Atlas race tests in `docs/TESTING.md`.
+- Still open for booking: month calendar (native date input today), dead code `DatePreferencePicker.jsx` and its calendar CSS (delete candidate for the user).
+- **Where I stopped:** Stage 3 booking page complete. **Next step:** Stage 3 about page, then gallery, pricing, contact, sign-in, sign-up.

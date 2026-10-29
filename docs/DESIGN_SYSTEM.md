@@ -137,3 +137,19 @@ Compared with the services panel of `docs/design/The Cut_ Luxury Barbershop Webs
 | Metadata | "illustrative ... being confirmed" | Real description |
 
 Still different from the mockup: per-service photos and the barber-washing hero photo (no photos yet; slots `service-*` and `hero-services`), 4-card row (we have 6 services, 3 columns), and the "Book Your Appointment" offer banner (replaced by an offer-free CTA band). Checked on a production build: tabs filter correctly (Haircut: Haircut + Combo; Color; Treatment; Beard; Shave), 375 px has no overflow and 44 px tabs.
+
+## Booking page alignment (2026-10-29)
+
+Compared with the booking panel of the public-pages mockup. The three-panel layout, progress bar, details panel and summary already matched; changes:
+
+| Item | Before | After |
+|---|---|---|
+| Service rows | "30 minutes · $25.00" under the name | Duration under the name, price right-aligned in gold (as in the mockup) |
+| Barber step | `<select>` | Radio list: "Any barber" plus the active barbers, initials badge, selected state |
+| Time step | `<select>` | Time chips (radio group, 44 px tall) showing time and barber |
+| Intro copy | "Choose your services, barber, and an available time." | "Choose your service, barber, date and time, in just a few steps." |
+| Submit label | Confirm Booking | Confirm Appointment (mockup) |
+| Details copy | "Your verified account..." | "Your account supplies your name and email." (verification is off) |
+| Guest sign-in link | `?callbackURL=` (the sign-in page reads `callbackUrl`, so the return never worked) | `signInUrlFor(ROUTES.booking)` |
+
+Still different from the mockup: a month calendar instead of the native date input (an unused `DatePreferencePicker` and calendar CSS exist), Full name and Email fields in "Your Details" (the account supplies them; booking requires sign-in), and the 2x2 chip grid look. Verified on a production build with stubbed availability (no barber schedules exist yet, so no real slots): barber radios from the real barbers, chips select a time, the summary updates, Confirm enables; 375 px has no overflow.
