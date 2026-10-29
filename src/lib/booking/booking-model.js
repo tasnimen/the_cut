@@ -41,6 +41,10 @@ export const BarberRecordSchema = z.object({
   weeklySchedule: z.object({ sunday: weekdaySchedule.optional(), monday: weekdaySchedule.optional(), tuesday: weekdaySchedule.optional(), wednesday: weekdaySchedule.optional(), thursday: weekdaySchedule.optional(), friday: weekdaySchedule.optional(), saturday: weekdaySchedule.optional() }).strict(),
   breaks: z.object({ sunday: weekdaySchedule.optional(), monday: weekdaySchedule.optional(), tuesday: weekdaySchedule.optional(), wednesday: weekdaySchedule.optional(), thursday: weekdaySchedule.optional(), friday: weekdaySchedule.optional(), saturday: weekdaySchedule.optional() }).strict(),
   daysOff: z.array(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).max(400),
+  publicProfile: z.boolean().optional(),
+  role: z.string().max(60).optional(),
+  focus: z.string().max(120).optional(),
+  displayOrder: z.number().int().min(0).max(999).optional(),
   createdAt: z.date(),
   updatedAt: z.date(),
 }).strict();
