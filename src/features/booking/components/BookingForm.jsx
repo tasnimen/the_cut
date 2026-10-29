@@ -63,7 +63,7 @@ export function BookingForm({ today }) {
       });
       const result = await response.json();
       if (response.status === 401 || response.status === 403) {
-        setStatus("Sign in with a verified account to confirm your booking.");
+        setStatus("Sign in to confirm your booking.");
       } else if (response.status === 409 && result.error === "price_not_configured") {
         setStatus("Prices are being finalized. Please check back soon.");
       } else if (!response.ok) {

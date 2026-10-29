@@ -48,13 +48,22 @@ export function AuthPanel({ mode }) {
       if (!response.ok) {
         setError(isSignUp
           ? "We couldn't complete sign-up. Check the details and try again."
-          : "Sign-in failed. Check your details or verify your email.");
+          : "Sign-in failed. Check your email and password and try again.");
         return;
       }
 
       if (isSignUp) {
         formElement.reset();
-        setMessage("If this address can be registered, check your inbox for a verification link. If you need another link, try signing in with this address.");
+        // With email verification off, sign-up signs the user in; the session cookie decides.
+        const session = await fetch(`${ROUTES.auth}/get-session`, { credentials: "same-origin", cache: "no-store" })
+          .then((res) => (res.ok ? res.json() : null)).catch(() => null);
+        if (session?.user) {
+          setUser(session.user);
+          markSignedIn(session.user);
+          setMessage("Your account is ready and you are signed in.");
+        } else {
+          setMessage("If this address can be registered, check your inbox for a verification link, then sign in.");
+        }
       } else {
         setUser(result.user || null);
         markSignedIn(result.user || null);
