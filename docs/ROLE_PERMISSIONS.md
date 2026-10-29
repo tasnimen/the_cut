@@ -30,6 +30,7 @@ Roles are `GUEST` (unauthenticated; not stored), `USER`, `ADMIN`, and `SUPER_ADM
 | `customersRead` | — | — | LIMITED | ALL |
 | `barbersManageAll` | — | — | ALL | ALL |
 | `servicesManageAll` | — | — | ALL | ALL |
+| `packagesManageAll` | — | — | ALL | ALL |
 | `productsManageAll` | — | — | ALL | ALL |
 | `galleryManageAll` | — | — | ALL | ALL |
 | `mediaGalleryManageAll` | — | — | ALL | ALL |

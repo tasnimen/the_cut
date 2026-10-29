@@ -21,6 +21,10 @@
 - The reset page is `noindex` with `referrer: no-referrer` so the token in the URL is not leaked.
 - Not tested live against a real mailbox (a real send would use the production SMTP provider).
 
+## Pricing packages editor (I-16, 2026-10-29)
+
+Same write pattern as the services editor, with permission `packagesManageAll` (ADMIN and SUPER_ADMIN; new row in the permission matrix, covered by the generated role test) and its own rate bucket (30 per minute per admin). Specifics: price in dollars converted to cents; up to 12 included items of at most 80 characters; `bookingServiceSlugs` must be existing services (rejected, not silently dropped) and at most 3; the slug and currency cannot change on edit; the unique index `pricing_package_slug_unique` is created by `ensureApplicationIndexes` (the services editor now calls it before creating too). Only one package can be "Popular": featuring one clears the others. No hard delete (hide instead). Because the first saved package would replace the built-in file packages on the public site, an empty list shows an explicit "Import the current packages" action (`importDefaultPackages`, allowed only into an empty collection, audited as `catalog.package.imported`). Audit actions: `catalog.package.created|updated|activated|deactivated|imported`. Tests: `package-input`, `admin-packages`, `actions.test.js` (denied writes nothing on all four actions, rate limit, unknown services rejected, slug ignored on edit, import only when empty). Not run live with an Admin session.
+
 ## Admin write pattern and the services editor (I-15, 2026-10-29)
 
 Pattern every admin write follows (reuse it in later units): the page calls `requireDashboardAccess("admin")`; each Server Action calls `requirePrincipal(<permission>)` itself (session, status, role, session version, TOTP enrolment, denial audit), then a per-admin rate limit (`consumeUserRateLimit`, 30 per minute for services), then strict Zod parsing of **only the known form keys** (unknown keys are ignored; the schemas are `.strict()`), then the repository write, an audit event, and `revalidateCatalog()`. Errors shown to the user are generic.

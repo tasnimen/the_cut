@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** I-15 complete (services editor). **Next step:** I-16 on the owner's ok.
+**Where I stopped:** I-16 complete (packages editor). **Next step:** I-6 on the owner's ok.
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -351,3 +351,9 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - Not built on purpose: hard delete (hide instead), service images (images come from the image slots; per-service overrides arrive with I-27), seeding of display fields (the first save of a legacy document stores them).
 - Checks: `npm test` 342 passed / 39 files; lint clean. Build passed (compiled; it took 42 min because a dev server was running at the same time: stop `npm run dev` before `npm run build`). **Not run live with an Admin session** (no credentials); owner steps are in `docs/TESTING.md`.
 - **Where I stopped:** I-15 complete. **Next step:** I-16 (pricing packages CRUD) on the owner's ok.
+
+## Unit I-16 done (2026-10-29): pricing packages editor
+- New: `lib/catalog/{package-input,admin-packages}.js`, `app/admin/packages/{page,new/page,[slug]/page,actions}`, `features/dashboard/packages/{PackageForm,PackageActions}.jsx`, permission `packagesManageAll`, unique index for `pricingPackage.slug`, "Packages" enabled in the admin sidebar, CSS for the form. The services editor now also calls `ensureApplicationIndexes` before creating. Details in `docs/SECURITY.md`, `docs/DATABASE.md`, `docs/TESTING.md`.
+- Notable behaviour: while the collection is empty the pricing page keeps showing the built-in packages; the editor offers "Import the current packages" so the first save does not replace them.
+- Checks: `npm test` 362 passed / 42 files; lint clean. Production build passed (compiled; admin/packages routes listed; it took about one minute this time). Not run live with an Admin session; owner steps in `docs/TESTING.md`.
+- **Where I stopped:** I-16 complete. **Next step:** I-6 (barbers and holidays in the data layer) on the owner's ok.

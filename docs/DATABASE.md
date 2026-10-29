@@ -64,3 +64,5 @@ Rules (`lib/catalog/normalize.js`, tested): the database is authoritative once t
 **Outage behavior:** a failed read serves the file data; a 30-second cooldown (`lib/utils/cooldown.js`) stops every request waiting for the 8 s database timeout. The site header uses the same cooldown for its session lookup (it shows the signed-out header while the cooldown is active; authorization itself is unaffected).
 
 **Written by the services editor (I-15):** `slug`, `name`, `description`, `durationMinutes`, `priceMinorUnits`, `currency` ("USD", set on create only), `active`, `displayOrder`, `category`, `icon`, `createdAt`, `updatedAt`. Editing a legacy document (seeded before display fields existed) stores its `displayOrder`, `category` and `icon` permanently.
+
+**Written by the packages editor (I-16), collection `pricingPackage`:** `slug` (unique), `name`, `note`, `priceMinorUnits`, `inclusions[]`, `featured`, `active`, `displayOrder`, `bookingServiceSlugs[]`, `currency`, `createdAt`, `updatedAt`. The collection is created by "Import the current packages" or the first new package; until it has a document the public pricing page uses the file packages.
