@@ -6,7 +6,8 @@ import { BOOKING_COLLECTION, BOOKING_SLOT_COLLECTION, ACTIVE_BOOKING_STATUSES } 
 import { BookingError, loadBookingOptions } from "@/lib/booking/availability";
 import { normalizeUsPhone } from "@/lib/booking/input";
 import { reservationSlotStarts, calculateBookingDuration } from "@/lib/booking/rules";
-import { businessDate, formatBookingDateTime } from "@/lib/booking/time";
+import { adminAllowedActions } from "@/lib/booking/admin-bookings";
+import { businessDate, formatBookingDateTime, getLocalDayRange, isValidLocalDate } from "@/lib/booking/time";
 import { transitionBooking } from "@/lib/booking/state-machine";
 import { appendAuditEvent } from "@/lib/security/audit-log";
 
@@ -229,6 +230,47 @@ export function createBookingRepository({ client, db, config = BOOKING_CONFIG, c
         }, { session });
         await appendAuditEvent(db, bookingAudit({ actorId: principal.id, bookingId: id, action: "booking.rescheduled" }), { session });
         return publicBooking(updated);
+      });
+    },
+
+    // Admin: every booking that starts on one business day, earliest first. The caller must have
+    // authorized bookingsManageAll; no ownership filter applies.
+    async adminListDay({ localDate }) {
+      if (!isValidLocalDate(localDate)) throw new BookingError("invalid_date", 400);
+      const { start, end } = getLocalDayRange(localDate, config.timeZone);
+      const records = await db.collection(BOOKING_COLLECTION)
+        .find({ startsAt: { $gte: start, $lt: end } }, { projection: { userId: 0 } })
+        .sort({ startsAt: 1, _id: 1 })
+        .limit(300)
+        .toArray();
+      return records.map(publicBooking);
+    },
+
+    // Admin: confirm, complete or cancel one booking (no-show goes through markNoShow). Returns the booking
+    // and the customer's user id so the caller can send the customer an email.
+    async adminChangeStatus({ principal, bookingId, to }) {
+      const id = asObjectId(bookingId);
+      if (!id) throw new BookingError("booking_not_found", 404);
+      if (to === "no_show") {
+        const { userId } = (await db.collection(BOOKING_COLLECTION).findOne({ _id: id }, { projection: { userId: 1 } })) ?? {};
+        if (!userId) throw new BookingError("booking_not_found", 404);
+        return { booking: await this.markNoShow({ principal, bookingId }), customerId: userId };
+      }
+      return transaction(async (session) => {
+        const booking = await db.collection(BOOKING_COLLECTION).findOne({ _id: id }, { session });
+        if (!booking) throw new BookingError("booking_not_found", 404);
+        const nowDate = clock();
+        if (!adminAllowedActions(booking, { now: nowDate, graceMinutes: config.lateArrivalGraceMinutes }).includes(to)) {
+          throw new BookingError("booking_status_change_not_allowed", 409);
+        }
+        const nextStatus = transitionBooking(booking.status, to);
+        const set = { status: nextStatus, updatedAt: nowDate, ...(to === "cancelled" ? { cancelledAt: nowDate } : {}), ...(to === "completed" ? { completedAt: nowDate } : {}) };
+        const result = await db.collection(BOOKING_COLLECTION).updateOne({ _id: id, status: booking.status }, { $set: set }, { session });
+        if (result.matchedCount !== 1) throw new BookingError("booking_status_change_not_allowed", 409);
+        if (to === "cancelled" || to === "completed") await db.collection(BOOKING_SLOT_COLLECTION).deleteMany({ bookingId: id }, { session });
+        const action = { confirmed: "booking.confirmed_by_admin", completed: "booking.completed", cancelled: "booking.cancelled_by_admin" }[to];
+        await appendAuditEvent(db, bookingAudit({ actorId: principal.id, bookingId: id, action }), { session });
+        return { booking: publicBooking({ ...booking, ...set }), customerId: booking.userId };
       });
     },
 

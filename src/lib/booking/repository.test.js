@@ -117,3 +117,60 @@ describe("booking repository boundaries", () => {
     expect(data.bookingSlot).toHaveLength(0);
   });
 });
+
+describe("admin booking changes", () => {
+  const admin = { id: "admin-1" };
+  function seeded(status = "confirmed", startsAt = "2027-04-05T14:00:00Z") {
+    const { db, client, data } = bookingDb();
+    const id = new ObjectId();
+    data.booking.push({ _id: id, userId: "customer-1", customerName: "Customer", status, startsAt: new Date(startsAt), endsAt: new Date("2027-04-05T14:30:00Z"), createdAt: new Date(), services: [], barberId: "b", barberName: "Alex", totalPriceMinorUnits: 2500, currency: "USD" });
+    data.bookingSlot.push({ bookingId: id, barberId: "b", slotStart: new Date(startsAt) });
+    return { db, client, data, id: String(id) };
+  }
+
+  it("lists one business day without exposing the customer's user id", async () => {
+    const { db, client, data } = seeded();
+    data.booking.push({ _id: new ObjectId(), userId: "x", customerName: "Other day", status: "confirmed", startsAt: new Date("2027-04-06T14:00:00Z"), endsAt: new Date("2027-04-06T14:30:00Z"), createdAt: new Date(), services: [], barberId: "b", barberName: "Alex", totalPriceMinorUnits: 1, currency: "USD" });
+    const repository = createBookingRepository({ client, db });
+    const list = await repository.adminListDay({ localDate: "2027-04-05" });
+    expect(list.map((booking) => booking.customerName)).toEqual(["Customer"]);
+    expect(JSON.stringify(list)).not.toMatch(/customer-1/);
+    await expect(repository.adminListDay({ localDate: "nope" })).rejects.toMatchObject({ status: 400 });
+  });
+
+  it("cancels any customer's booking, frees its slots, audits it and returns the customer id", async () => {
+    const { db, client, data, id } = seeded();
+    const repository = createBookingRepository({ client, db, clock: () => new Date("2027-04-05T13:00:00Z") });
+    const result = await repository.adminChangeStatus({ principal: admin, bookingId: id, to: "cancelled" });
+    expect(result.customerId).toBe("customer-1");
+    expect(data.booking[0].status).toBe("cancelled");
+    expect(data.bookingSlot).toHaveLength(0);
+    expect(data.auditLog[0]).toMatchObject({ actorId: "admin-1", action: "booking.cancelled_by_admin" });
+  });
+
+  it("refuses to complete a booking that has not started, then completes it afterwards", async () => {
+    const { db, client, data, id } = seeded();
+    let now = new Date("2027-04-05T13:00:00Z");
+    const repository = createBookingRepository({ client, db, clock: () => now });
+    await expect(repository.adminChangeStatus({ principal: admin, bookingId: id, to: "completed" })).rejects.toMatchObject({ code: "booking_status_change_not_allowed" });
+    now = new Date("2027-04-05T14:20:00Z");
+    await repository.adminChangeStatus({ principal: admin, bookingId: id, to: "completed" });
+    expect(data.booking[0].status).toBe("completed");
+  });
+
+  it("does not change finished bookings or unknown ids", async () => {
+    const { db, client, id } = seeded("cancelled");
+    const repository = createBookingRepository({ client, db, clock: () => new Date("2027-04-05T15:00:00Z") });
+    await expect(repository.adminChangeStatus({ principal: admin, bookingId: id, to: "completed" })).rejects.toMatchObject({ code: "booking_status_change_not_allowed" });
+    await expect(repository.adminChangeStatus({ principal: admin, bookingId: String(new ObjectId()), to: "cancelled" })).rejects.toMatchObject({ code: "booking_not_found" });
+    await expect(repository.adminChangeStatus({ principal: admin, bookingId: "bad", to: "cancelled" })).rejects.toMatchObject({ code: "booking_not_found" });
+  });
+
+  it("marks a no-show through the existing rule and counts it against the customer", async () => {
+    const { db, client, data, id } = seeded();
+    const repository = createBookingRepository({ client, db, clock: () => new Date("2027-04-05T14:30:00Z") });
+    const result = await repository.adminChangeStatus({ principal: admin, bookingId: id, to: "no_show" });
+    expect(result.customerId).toBe("customer-1");
+    expect(data.booking[0].status).toBe("no_show");
+  });
+});
