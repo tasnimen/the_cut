@@ -21,6 +21,8 @@ export const ROUTES = Object.freeze({
   contact: "/contact",
   signIn: "/sign-in",
   signUp: "/sign-up",
+  forgotPassword: "/forgot-password",
+  resetPassword: "/reset-password",
   contactSection: `/#${ANCHORS.contact}`,
   designSystem: "/design-system",
   auth: "/api/auth",

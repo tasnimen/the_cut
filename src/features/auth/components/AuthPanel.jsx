@@ -153,6 +153,7 @@ export function AuthPanel({ mode, callbackPath = ROUTES.home }) {
           <span>{busy ? "Please wait…" : isSignUp ? "Create account" : "Sign in"}</span>
         </button>
       </form>
+      {!isSignUp ? <p className="auth-switch"><Link href={ROUTES.forgotPassword}>Forgot your password?</Link></p> : null}
       <p className="auth-switch">
         {isSignUp ? "Already have an account? " : "New to The Cut? "}
         <Link href={isSignUp ? ROUTES.signIn : ROUTES.signUp}>{isSignUp ? "Sign in" : "Create an account"}</Link>
