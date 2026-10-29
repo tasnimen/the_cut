@@ -1,4 +1,5 @@
 import { SiteFrame } from "@/components/layout/SiteFrame";
+import { primeSlotOverrides } from "@/lib/images/slot-overrides";
 import { getImage } from "@/lib/images/server";
 import { ContactInfoCard, MapCard, OpeningHoursCard } from "@/components/contact/ContactInfo";
 import { ROUTES } from "@/config/routes";
@@ -15,7 +16,8 @@ export const metadata = {
   openGraph: { title: `Contact | ${site.name}`, description: "Get in touch with The Cut Barbershop.", type: "website" },
 };
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  await primeSlotOverrides();
   const formTicket = createContactFormTicket({ secret: requireEnv("BETTER_AUTH_SECRET") });
   return (
     <SiteFrame activePath={ROUTES.contact}>

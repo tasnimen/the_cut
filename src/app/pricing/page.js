@@ -1,4 +1,5 @@
 import { SiteFrame } from "@/components/layout/SiteFrame";
+import { primeSlotOverrides } from "@/lib/images/slot-overrides";
 import { getImage } from "@/lib/images/server";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { ROUTES } from "@/config/routes";
@@ -16,6 +17,7 @@ export const metadata = {
 };
 
 export default async function PricingPage() {
+  await primeSlotOverrides();
   const packages = await getPublicPackages();
   return (
     <SiteFrame activePath={ROUTES.pricing}>

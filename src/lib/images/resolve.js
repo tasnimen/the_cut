@@ -1,19 +1,13 @@
 import { BLUR_DATA_URL, IMAGE_EXTENSIONS, IMAGE_SLOTS } from "@/config/images";
+import { isTrustedImageUrl } from "@/lib/images/trusted-url";
 
-// Only ImgBB-hosted URLs may override a slot (matches the allow-listed next/image host).
-const OVERRIDE_HOST = "i.ibb.co";
-
+// Only our own image host (Cloudinary, plus older ImgBB images) may override a slot.
 function validOverrideUrl(url) {
-  try {
-    const parsed = new URL(url);
-    return parsed.protocol === "https:" && parsed.hostname === OVERRIDE_HOST;
-  } catch {
-    return false;
-  }
+  return isTrustedImageUrl(url);
 }
 
 // Pure resolver. `available` is the list of file names present in public/images,
-// `overrides` maps slot key -> { url, alt?, width?, height? } (Phase I Media records).
+// `overrides` maps slot key -> { url, alt?, width?, height? } (from Media records, see slot-overrides.js).
 export function resolveImage(slotKey, { available = [], overrides = {} } = {}) {
   const definition = IMAGE_SLOTS[slotKey];
   if (!definition) throw new Error(`Unknown image slot: ${slotKey}`);

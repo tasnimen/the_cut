@@ -106,6 +106,7 @@ export async function ensureApplicationIndexes(db) {
       db.collection("booking").createIndex({ status: 1, reminderDueAt: 1, startsAt: 1 }, { name: "booking_reminder_due" }),
       db.collection("bookingSlot").createIndex({ barberId: 1, slotStart: 1 }, { unique: true, name: "booking_slot_barber_start_unique" }),
       db.collection("bookingSlot").createIndex({ bookingId: 1 }, { name: "booking_slot_booking" }),
+      db.collection("imageSlot").createIndex({ slot: 1 }, { unique: true, name: "image_slot_unique" }),
       db.collection("galleryItem").createIndex({ active: 1, createdAt: -1 }, { name: "gallery_active_created" }),
       db.collection("accountDeletionRequest").createIndex({ userId: 1 }, { unique: true, name: "account_deletion_user_unique" }),
       db.collection("bookingUserLock").createIndex({ userId: 1 }, { unique: true, name: "booking_user_lock_unique" }),

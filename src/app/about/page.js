@@ -1,4 +1,5 @@
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
+import { primeSlotOverrides } from "@/lib/images/slot-overrides";
 import { getImage } from "@/lib/images/server";
 import { SiteFrame } from "@/components/layout/SiteFrame";
 import { ButtonLink } from "@/components/ui/ButtonLink";
@@ -21,7 +22,8 @@ const principles = [
   { number: "03", title: "Make room to reset", text: "The chair should feel like a pause in the day, with time to settle in and feel at ease." },
 ];
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  await primeSlotOverrides();
   const story = getImage("about-story");
   return (
     <SiteFrame activePath={ROUTES.about}>

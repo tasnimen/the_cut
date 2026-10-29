@@ -1,4 +1,5 @@
 import { SiteFrame } from "@/components/layout/SiteFrame";
+import { primeSlotOverrides } from "@/lib/images/slot-overrides";
 import { getImage } from "@/lib/images/server";
 import { getPublicGallery } from "@/lib/catalog/source";
 import { mergeGallery } from "@/lib/gallery/gallery-input";
@@ -16,6 +17,7 @@ export const metadata = {
 };
 
 export default async function GalleryPage() {
+  await primeSlotOverrides();
   const resolved = Object.fromEntries(galleryItems.map((item) => [item.id, getImage(`gallery-${item.id}`)]));
   const builtIn = visibleGalleryItems(galleryItems, (item) => resolved[item.id].source !== "fallback");
   const builtInImages = Object.fromEntries(builtIn.map((item) => [item.id, resolved[item.id].src]));

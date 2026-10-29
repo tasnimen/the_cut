@@ -5,6 +5,7 @@ export const CATALOG_TAGS = Object.freeze({
   barbers: "catalog:barbers",
   settings: "catalog:settings",
   gallery: "catalog:gallery",
+  slots: "catalog:slots",
 });
 
 export const CATALOG_REVALIDATE_SECONDS = 300;

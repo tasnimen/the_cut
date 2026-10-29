@@ -1,4 +1,5 @@
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
+import { primeSlotOverrides } from "@/lib/images/slot-overrides";
 import { getImage } from "@/lib/images/server";
 import { SiteFrame } from "@/components/layout/SiteFrame";
 import { ButtonLink } from "@/components/ui/ButtonLink";
@@ -15,6 +16,7 @@ export const metadata = {
 };
 
 export default async function ServicesPage() {
+  await primeSlotOverrides();
   const services = await getPublicServices();
   return (
     <SiteFrame activePath={ROUTES.services}>
