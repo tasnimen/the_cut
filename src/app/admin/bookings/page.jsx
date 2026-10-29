@@ -27,7 +27,7 @@ export default async function AdminBookingsPage({ searchParams }) {
     id: booking.id,
     cells: {
       time: <strong>{TIME_LABEL.format(new Date(booking.startsAt))}</strong>,
-      customer: <>{booking.customerName}<br /><small className="dash-muted">{booking.phone}</small></>,
+      customer: <>{booking.customerName}{booking.source === "walk-in" ? <> <span className="dash-badge is-off">Walk-in</span></> : null}<br /><small className="dash-muted">{booking.phone}</small></>,
       services: booking.services.map((service) => service.name).join(" + "),
       barber: booking.barber.name,
       total: formatMoney(booking.totalPriceMinorUnits, booking.currency),
@@ -48,6 +48,7 @@ export default async function AdminBookingsPage({ searchParams }) {
             <Link className="button button-small button-outline" href={`/admin/bookings?date=${addLocalCalendarDays(date, -1)}`}><span>Previous day</span></Link>
             {isToday ? null : <Link className="button button-small button-outline" href="/admin/bookings"><span>Today</span></Link>}
             <Link className="button button-small button-outline" href="/admin/bookings/all"><span>All bookings</span></Link>
+            <Link className="button button-small" href="/admin/bookings/walk-in"><span>New walk-in</span></Link>
             <Link className="button button-small button-outline" href={`/admin/bookings?date=${addLocalCalendarDays(date, 1)}`}><span>Next day</span></Link>
           </span>
         )}

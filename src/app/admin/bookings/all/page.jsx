@@ -23,7 +23,7 @@ export default async function AdminAllBookingsPage({ searchParams }) {
     id: booking.id,
     cells: {
       when: <strong>{WHEN.format(new Date(booking.startsAt))}</strong>,
-      customer: <>{booking.customerName}<br /><small className="dash-muted">{booking.phone}</small></>,
+      customer: <>{booking.customerName}{booking.source === "walk-in" ? <> <span className="dash-badge is-off">Walk-in</span></> : null}<br /><small className="dash-muted">{booking.phone}</small></>,
       services: booking.services.map((service) => service.name).join(" + "),
       barber: booking.barber.name,
       total: formatMoney(booking.totalPriceMinorUnits, booking.currency),

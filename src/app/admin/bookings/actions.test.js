@@ -46,6 +46,12 @@ describe("changeBookingStatusAction", () => {
     expect(mocks.notify).not.toHaveBeenCalled();
   });
 
+  it("does not try to email a walk-in customer", async () => {
+    mocks.change.mockResolvedValue({ booking: { id: ID }, customerId: "walkin:" + ID });
+    expect((await changeBookingStatusAction(ID, "cancelled")).status).toBe("success");
+    expect(mocks.notify).not.toHaveBeenCalled();
+  });
+
   it("returns friendly text for rule failures and rethrows unexpected errors", async () => {
     mocks.change.mockRejectedValue(new BookingError("late_arrival_grace_not_elapsed"));
     expect((await changeBookingStatusAction(ID, "no_show")).message).toMatch(/grace/);

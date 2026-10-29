@@ -22,6 +22,7 @@ export const TOAST_MESSAGES = Object.freeze({
   avatarSaved: { type: "success", text: "Your profile photo was updated." },
   deletionRequested: { type: "success", text: "Deletion request sent. The shop will contact you." },
   deletionCancelled: { type: "success", text: "Your deletion request was cancelled." },
+  walkInBooked: { type: "success", text: "Walk-in booked." },
   sessionRevoked: { type: "success", text: "Signed out on that device." },
   bookingCreated: { type: "success", text: "Your appointment is confirmed." },
   bookingCancelled: { type: "success", text: "Your appointment was cancelled." },
