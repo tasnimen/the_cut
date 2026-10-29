@@ -153,3 +153,17 @@ Compared with the booking panel of the public-pages mockup. The three-panel layo
 | Guest sign-in link | `?callbackURL=` (the sign-in page reads `callbackUrl`, so the return never worked) | `signInUrlFor(ROUTES.booking)` |
 
 Still different from the mockup: a month calendar instead of the native date input (an unused `DatePreferencePicker` and calendar CSS exist), Full name and Email fields in "Your Details" (the account supplies them; booking requires sign-in), and the 2x2 chip grid look. Verified on a production build with stubbed availability (no barber schedules exist yet, so no real slots): barber radios from the real barbers, chips select a time, the summary updates, Confirm enables; 375 px has no overflow.
+
+## About page alignment (2026-10-29)
+
+Compared with the about panel of the public-pages mockup.
+
+| Item | Before | After |
+|---|---|---|
+| Hero | Eyebrow "About The Cut", short description | Eyebrow "About us", description adds the mockup's craftsmanship/style/respect line |
+| Team | None | The existing `BarbersSection` (same component as home) after the principles section |
+| Closing | None | `CtaBanner` (offer-free) |
+| Stats row (6+ years, 3,000+ clients, 15+ barbers, rating) | Not present | **Intentionally not added:** the figures are not supplied by the owner and would be fabricated; add a stats row only with real numbers |
+| Reviews ("What Our Clients Say") | Not present | Hidden until real reviews exist (Phase I) |
+
+Still different: team portraits and names (no photos or confirmed barber details; cards use the neutral placeholder and generic roles), page-specific story photo (`about-story` slot), and the placeholder sentence "Our story, team details, and shop history will be added when the business information is confirmed" (kept: it is honest). Verified on a production build: sections render in order, no broken images after scrolling, no overflow.

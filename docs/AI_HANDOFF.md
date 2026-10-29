@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** Stage 3 booking page complete. **Next step:** Stage 3 about page.
+**Where I stopped:** Stage 3 about page complete. **Next step:** Stage 3 gallery page.
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -279,3 +279,9 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - NOT tested live: a real booking (barbers have no schedules, so there are no slots). Needs the user's real barber names/schedules, then the Atlas race tests in `docs/TESTING.md`.
 - Still open for booking: month calendar (native date input today), dead code `DatePreferencePicker.jsx` and its calendar CSS (delete candidate for the user).
 - **Where I stopped:** Stage 3 booking page complete. **Next step:** Stage 3 about page, then gallery, pricing, contact, sign-in, sign-up.
+
+## Stage 3 unit: about page (2026-10-29)
+- Hero copy/eyebrow from the mockup, team section (reused `BarbersSection`) and `CtaBanner` added. No fake stats or reviews. Details in `docs/DESIGN_SYSTEM.md`.
+- Checks: `npm test` 271 passed / 28 files; eslint on `src/app` clean; build passed; production check on :3002 (stopped): sections in order, 0 broken images after scrolling, no overflow, no fabricated figures. Not screenshotted at 375/768 px this unit (about uses shared sections already checked).
+- TODO for the owner: real story text, years/clients/barber counts (if a stats row is wanted), team photos and roles.
+- **Where I stopped:** Stage 3 about page complete. **Next step:** Stage 3 gallery page, then pricing, contact, sign-in, sign-up.
