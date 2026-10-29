@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** U2b part 1 complete. **Next step:** U2b part 2 (decoration) after the user's ok, then Stage 3.
+**Where I stopped:** Stage 3 services page complete. **Next step:** Stage 3 booking page.
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -260,3 +260,15 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - **Part 2 (not started, needs the user's ok):** decoration with tokens (gold dividers, glow, grain overlay, hover zoom with transform/opacity only and reduced-motion respected, offer/CTA/footer backdrops).
 - **Photos still needed** (see `docs/IMAGE_SLOTS.md`; save in `public/images/` using the filename shown there, then restart/rebuild): service photos ×6, barber portraits ×4 (real barbers only), hero (+ optional hero-mobile), page heroes (about, services, gallery, pricing, contact), team-intro, about-story, gallery ×3 existing slots (studio-wide, barber-chair, scissors-detail) plus gallery-04..08, offer-banner, cta-background, footer-backdrop, contact-map-backdrop, product-1..3 (future Shop).
 - **Where I stopped:** U2b part 1 complete. **Next step:** U2b part 2 after the user's ok, then Stage 3 services page.
+
+## U2b part 2 done (2026-10-29): decoration
+- Tokens (`--gold-line`, `--glow-gold`, `--grain-image`), gold dividers on section headings, hover/focus glow layer on service/barber/pricing cards, grain overlay, `CtaBanner` (home and services page; no offer copy), footer backdrop; reduced-motion respected. Details in `docs/DESIGN_SYSTEM.md`. `offer-banner` slot intentionally not rendered (no real offer).
+- Checks: `npm test` 271 passed / 28 files; lint exit 0; build passed. Checked on a temporary production server (:3002, stopped) at 1440/768/375 px: no overflow, CTA and footer backdrop render, grain does not block pointer events.
+- Known leftovers: the services page note still says the online booking flow is "still being prepared" (stale); barber cards show the neutral placeholder until real portraits exist; services grid is 3 columns at 768 px (tight but no overflow).
+- **Where I stopped:** U2 complete. **Next step:** Stage 3 services page (fix stale note, compare with mockup), then booking, about, gallery, pricing, contact, sign-in, sign-up.
+
+## Stage 3 unit: services page (2026-10-29)
+- Tabs now match the mockup (All Services, Haircut, Beard, Shave, Color, Treatment), hero copy from the mockup, stale/illustrative disclaimers removed, metadata fixed. Details in `docs/DESIGN_SYSTEM.md`.
+- Checks: `npm test` 271 passed / 28 files; eslint clean; build passed; verified on a temporary production server (:3002, stopped): tab filtering, no stale text, 375 px no overflow, 44 px tabs. 768 px not re-screenshotted (grid is the same 3 columns as home).
+- Remaining Stage 3 pages: booking, about, gallery, pricing, contact, sign-in, sign-up (and the home leftovers: barbers/footer details). Reviews, newsletter, Shop, dashboards stay TODO.
+- **Where I stopped:** Stage 3 services page complete. **Next step:** Stage 3 booking page (compare with the mockup's booking panel).

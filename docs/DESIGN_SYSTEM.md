@@ -109,3 +109,31 @@ Compared against `docs/design/The Cut_ Luxury Barbershop Website Collection.png`
 | Toasts | n/a | `sonner/dist/styles.css` is imported by `AppToaster` because CSP (`style-src` nonce) blocks sonner's runtime `<style>` injection; the console still logs two blocked-inline-style notices, harmless |
 
 Open for the home page: barber section layout (mockup: four photo cards with names and roles under "Meet Our Expert Barbers"), reviews heading and aggregate rating ("What Our Clients Say", figures not supplied), footer newsletter and social icons, nav search icon and Shop link (Shop not built), and per-service photos (only the shared `card-image` exists). Not screenshot-compared at 768 and 375 px in this unit.
+
+## Decoration pass (2026-10-29, U2b part 2)
+
+Tokens added in `src/styles/tokens.css`: `--gold-line` (fading gold divider), `--glow-gold`, `--grain-image` (SVG noise). All motion is transform or opacity only and is disabled under `prefers-reduced-motion`.
+
+| Element | Treatment |
+|---|---|
+| Section headings (`.section-heading`, `.marketing-section-heading`) | 1 px gold divider underneath (`::after`, `--gold-line`) |
+| Service, barber and pricing cards | Soft gold glow and warm border on hover/focus via a `::after` layer whose opacity animates (no box-shadow animation); existing 1.035 image zoom kept for service, barber and gallery images |
+| Grain | `body::before`, fixed, 3.5% opacity, `pointer-events: none` |
+| CTA band | New `CtaBanner` (slot `cta-background`) on home and services; copy has no offers or discounts |
+| Footer | Slot `footer-backdrop` at 10% opacity behind the footer content |
+| `offer-banner` slot | Defined but not rendered: no real offer exists |
+
+Verified on a production build at 1440, 768 and 375 px: no horizontal overflow, grain does not block clicks, CTA button 44 px tall at 375 px. Barber cards use the neutral placeholder (not the watermarked sample) until real portraits exist.
+
+## Services page alignment (2026-10-29)
+
+Compared with the services panel of `docs/design/The Cut_ Luxury Barbershop Website Collection.png`.
+
+| Item | Before | After |
+|---|---|---|
+| Category tabs | All services, Hair, Beard, Shave | All Services, Haircut, Beard, Shave, Color, Treatment (mockup order); `category` values in `config/booking-services.js` updated (Combo sits under Haircut) |
+| Hero copy | "Considered cuts and grooming, shaped around the person in the chair." | "Premium grooming services designed to keep you looking sharp, confident, and fresh." |
+| Disclaimers | "Illustrative services", "final menu and prices pending", "booking flow still being prepared" | Removed; one line "Prices are in USD, before tax. Payment is at the shop." and a booking-flow sentence that matches reality; the shared-sample-image note stays (honest) |
+| Metadata | "illustrative ... being confirmed" | Real description |
+
+Still different from the mockup: per-service photos and the barber-washing hero photo (no photos yet; slots `service-*` and `hero-services`), 4-card row (we have 6 services, 3 columns), and the "Book Your Appointment" offer banner (replaced by an offer-free CTA band). Checked on a production build: tabs filter correctly (Haircut: Haircut + Combo; Color; Treatment; Beard; Shave), 375 px has no overflow and 44 px tabs.
