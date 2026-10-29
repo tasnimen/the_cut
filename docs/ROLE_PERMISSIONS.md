@@ -94,3 +94,5 @@ Responses for these paths carry `Cache-Control: no-store` and `X-Robots-Tag: noi
 **Messages (I-20):** `/admin/messages` and `/admin/messages/[id]` need `contactManageAll` (ADMIN and SUPER_ADMIN, TOTP). Changing status uses the same permission. **Deleting needs `contactDeleteAll`, which the owner decided on 2026-10-30 should be held by Admin as well as Super Admin** (it was Super Admin only before). The Delete button follows the permission and the Server Action checks it on every call.
 
 **Gallery (I-19):** `/admin/gallery`, the upload route `/api/admin/gallery` and the edit, show/hide and delete actions need `mediaGalleryManageAll` (ADMIN and SUPER_ADMIN, TOTP). Customers and guests get 404 on the page and "please sign in" or "not allowed" from the endpoints.
+
+**Image storage (C1):** two new permissions, `mediaBannersManageAll` and `mediaSlotsManageAll` (ADMIN and SUPER_ADMIN, scope ALL), cover uploads to the `banners` and `slots` folders; they have no screens yet (C2 and the image-slot work). `mediaAvatarOwn` stays OWN for every signed-in role. Uploads are capped at 4 MB.

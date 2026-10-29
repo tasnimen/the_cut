@@ -98,3 +98,7 @@ A walk-in is a normal `booking` document with `source: "walk-in"`, `createdBy` (
 ## galleryItem (I-19)
 
 One document per photo the shop added to the public gallery: `mediaId` (the `media` document that holds the provider's delete address), `title`, `category` (one of the gallery categories), `alt`, `active`, `displayUrl`, `thumbUrl`, `width`, `height`, `createdBy`, `createdAt`, `updatedAt`. Index `gallery_active_created` (`active`, `createdAt` desc). The public site reads active items only (cache tag `catalog:gallery`, 5 minutes, refreshed on every admin change) and only an allow-list of fields. Order is newest first; manual ordering was not built. Maximum 200 photos.
+
+## media (updated for Cloudinary, C1)
+
+New records: `provider: "cloudinary"`, `publicId` (`the-cut/<folder>/<uuid>`, used for deletes), `resourceType: "image"`, `secureUrl`, `width`, `height`, `format`, `bytes`, `folder`, `category` (gallery, products, barbers, services, avatar, banners, slots), `ownerId` (set for avatars), `uploadedBy`, `alt`, `createdAt`. Browsers get `id`, `secureUrl`, size and alt only (`toPublicMediaRecord`), never `publicId`. Older records (ImgBB) have no `provider` and carry `url`, `displayUrl`, `thumbUrl`, `deleteUrl`, `byteSize`; they stay readable and are deleted through the legacy adapter. Features should keep the Media id (as `galleryItem.mediaId` does) and read the address from the record; `galleryItem` and `user.image` still hold a copy of the address for fast reads (C2 reviews this).

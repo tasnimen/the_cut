@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** I-19 complete (gallery manager; upload not verified live). **Next step:** owner picks I-22 or Super Admin, or live-tests the admin screens.
+**Where I stopped:** C1 complete (Cloudinary adapter, config, security). **Next step:** C2 (wire everything and verify) on the owner's ok.
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -437,3 +437,10 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - **Not verified live:** no admin session and the ImgBB upload failed earlier (I-10). Owner: check `IMGBB_API_KEY` (name only) and follow TESTING.md.
 - Not built: manual ordering, bulk upload, replacing the file of an existing item (delete and re-add instead).
 - **Where I stopped:** I-19 complete. **Next step:** I-22 (reports), then Super Admin units; or live-test the admin screens first (I-11 to I-14, I-19, I-20).
+
+## Unit C1 done (2026-10-30): Cloudinary adapter, config, security
+- New: `lib/storage/{cloudinary,storage-env,build-service}.js`, `lib/images/trusted-url.js`, `config/image-sizes.mjs`, `scripts/check-cloudinary.js` (`npm run check:cloudinary`), tests listed in SECURITY.md. Changed: `lib/storage/{index,media-service,media-model,upload-policy}.js` (provider-neutral Media record, fixed folders, 4 MB, audit hook), `config/env.js` (STORAGE_PROVIDER, CLOUDINARY_*; IMGBB optional), `config/permissions.js` (+banners, +slots), `config/images.js` (presets re-exported), `next.config.mjs` (remotePatterns, fixed sizes), `proxy.js` (CSP), `.env.example`, `api/media/route.js` (per-user rate limit, audit, all targets), avatar and gallery routes (shared service builder, 4 MB text), `lib/gallery/gallery-input.js` and `lib/account/account-data.js` (accept Cloudinary addresses), a latent `catch (error)` bug in the legacy ImgBB adapter.
+- Decisions recorded in DECISIONS.md: why Cloudinary replaced ImgBB, default Next loader with fixed widths (no Cloudinary transformations), storage env checked on first use.
+- **Owner:** set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET in `.env`, restart, rebuild (the cloud name is read at build time), then `npm run check:cloudinary`. Until then uploads fail with a message naming the missing variable.
+- Not done (C2): browser-side resize and compress before upload, toasts for each error kind, slot overrides from Media records, tag revalidation checks, live checklist. Services, barbers and packages have no image fields yet (deferred to I-27), so there is nothing to rewire for them.
+- **Where I stopped:** C1 complete. **Next step:** C2 on the owner's ok.
