@@ -7,10 +7,8 @@ import { Icon } from "@/components/ui/Icon";
 import { BookingProgress } from "@/features/booking/components/BookingProgress";
 import { services } from "@/features/landing/data/services";
 import { ROUTES } from "@/config/routes";
+import { formatMoney } from "@/lib/format/money";
 
-function money(minor) {
-  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(minor / 100);
-}
 
 export function BookingForm({ today }) {
   const [selected, setSelected] = useState([services[0]?.slug].filter(Boolean));
@@ -92,7 +90,7 @@ export function BookingForm({ today }) {
             {services.map((service) => (
               <label className={`booking-service-option${selected.includes(service.slug) ? " is-selected" : ""}`} key={service.slug}>
                 <span className="booking-service-icon" aria-hidden="true"><Icon name={service.icon} size={15} /></span>
-                <span className="booking-service-copy"><span>{service.name}</span><small>{service.durationMinutes} minutes · {Number.isInteger(service.priceMinorUnits) ? money(service.priceMinorUnits) : "Price to be confirmed"}</small></span>
+                <span className="booking-service-copy"><span>{service.name}</span><small>{service.durationMinutes} minutes · {Number.isInteger(service.priceMinorUnits) ? formatMoney(service.priceMinorUnits) : "Price to be confirmed"}</small></span>
                 <input type="checkbox" value={service.slug} checked={selected.includes(service.slug)} onChange={() => toggleService(service.slug)} aria-label={`Select ${service.name}`} />
               </label>
             ))}
@@ -142,7 +140,7 @@ export function BookingForm({ today }) {
             <div><dt>Services</dt><dd>{selectedServices.length ? selectedServices.map((item) => item.name).join(", ") : "Select a service"}</dd></div>
             <div><dt>Barber</dt><dd>{chosenSlot?.barberName || (barber === "any" ? "Any barber" : availability?.barbers?.find((item) => item.slug === barber)?.name || barber)}</dd></div>
             <div><dt>Date &amp; time</dt><dd>{chosenSlot ? `${date} · ${chosenSlot.label}` : "Choose an available time"}</dd></div>
-            <div><dt>Price before tax</dt><dd>{priceIsConfigured ? money(total) : "To be confirmed"}</dd></div>
+            <div><dt>Price before tax</dt><dd>{priceIsConfigured ? formatMoney(total) : "To be confirmed"}</dd></div>
             <div><dt>Payment</dt><dd>At the shop</dd></div>
           </dl>
           {status ? <p className="booking-status" role="status" aria-live="polite">{status}{/sign in/i.test(status) ? <> <Link href={`${ROUTES.signIn}?callbackURL=${encodeURIComponent(ROUTES.booking)}`}>Sign in</Link></> : null}</p> : null}

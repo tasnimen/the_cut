@@ -44,7 +44,7 @@ export function HeroSection() {
         </div>
         <div className="hero-caption">
           <span>THE CUT</span>
-          <span>DHAKA · BANGLADESH</span>
+          <span>NEW YORK</span>
         </div>
       </div>
     </section>
