@@ -38,7 +38,7 @@
 
 | Unit | What | Cost |
 |---|---|---|
-| I-11 | Today's bookings with status changes (confirm, complete, no_show, cancel) | M |
+| I-11 (done 2026-10-29, admin screen not exercised live) | Today's bookings with status changes (confirm, complete, no_show, cancel) | M |
 | I-12 | All bookings: search, filter, pagination | M |
 | I-13 | Walk-in booking | M |
 | I-14 | Customers list (limited fields) | S |

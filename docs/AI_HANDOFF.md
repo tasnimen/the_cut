@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** I-10 complete (avatar upload not verified live; deletion request done). **Next step:** I-11 on the owner's ok.
+**Where I stopped:** I-11 complete (admin bookings, not verified live as admin). **Next step:** I-12 on the owner's ok.
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -398,3 +398,10 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - Account deletion is a request only (no automatic deletion). Showing the avatar in the header/sidebar was not done.
 - **Cleanup for the owner (Atlas, dev database):** delete user `dummy-i10@example.invalid` with its `account`/`session` documents and its `accountDeletionRequest` document, plus the I-8 and I-9 dummies.
 - **Where I stopped:** I-10 complete (upload unverified). **Next step:** I-11 (admin bookings) on the owner's ok.
+
+## Unit I-11 done (2026-10-29): admin bookings (today and by day)
+- New: `lib/booking/admin-bookings.js` (+ test), repository methods `adminListDay` and `adminChangeStatus` (+ tests), `app/admin/bookings/{page,actions}` (+ test), `features/dashboard/bookings/BookingActions.jsx`; "Bookings" enabled in the admin sidebar; `notifyBookingChange` accepts `recipientUserId`. Page: stats, date navigation and picker, table with Confirm/Complete/No-show/Cancel (cancel and no-show ask first).
+- **Not verified live as an admin** (needs a TOTP admin; owner decides role grants). Steps in TESTING.md.
+- Search, filters and pagination are I-12; walk-in booking is I-13.
+- **Cleanup for the owner (Atlas, dev database):** delete user `dummy-i11@example.invalid` with its `account`/`session` documents, plus earlier dummies (I-8, I-9, I-10).
+- **Where I stopped:** I-11 complete. **Next step:** I-12 (all bookings, search, filter, pagination) on the owner's ok.

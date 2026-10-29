@@ -82,3 +82,5 @@ Responses for these paths carry `Cache-Control: no-store` and `X-Robots-Tag: noi
 **Profile page (I-9):** `/user/profile` (customers, admins and super admins can all use it for their own account) uses the `profileOwn` and `sessionsOwn` permissions, both OWN scope. The Server Actions in `app/user/profile/actions.js` act only on the signed-in user; no user or session owner id is accepted from the client. Seeing or ending other people's sessions stays a Super Admin permission (`otherUsersSessionsManage`) for a later unit.
 
 **Avatar and deletion request (I-10):** the photo route `/api/account/avatar` needs `mediaAvatarOwn` (OWN) and only ever touches the caller's own avatar records; the deletion request actions need `profileOwn`. Admins and super admins can use both for their own account.
+
+**Admin bookings (I-11):** `/admin/bookings` and its Server Action need `bookingsManageAll` (ADMIN and SUPER_ADMIN, scope ALL, TOTP enrolled). Customers and guests get 404 on the page. The action takes only a booking id and a target status; the status rules are re-checked on the server.
