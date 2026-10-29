@@ -848,3 +848,13 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 4; pointer-event
 .dash-session strong { color: var(--text); font-size: 13px; }
 .dash-session p.dash-muted { margin: 4px 0 0; font-size: 12px; }
 .dash-field input[readonly] { color: var(--muted); }
+
+/* Profile photo and file button (I-10) */
+.dash-avatar { display: flex; align-items: center; gap: 18px; max-width: 760px; }
+.dash-avatar-image { width: 96px; height: 96px; flex: none; border: 1px solid var(--border-warm); border-radius: 50%; object-fit: cover; }
+.dash-avatar-empty { display: grid; place-items: center; background: var(--surface-muted); color: var(--gold-light); font-family: var(--font-display); font-size: 36px; }
+.dash-avatar-body { display: grid; gap: 10px; }
+.dash-avatar-body p { margin: 0; font-size: 12px; }
+.dash-file-button { position: relative; cursor: pointer; }
+.dash-file-button:focus-within { outline: 2px solid var(--gold-light); outline-offset: 2px; }
+@media (max-width: 520px) { .dash-avatar { flex-direction: column; align-items: flex-start; } }
