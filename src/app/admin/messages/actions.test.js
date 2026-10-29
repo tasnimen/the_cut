@@ -26,13 +26,14 @@ describe("message actions", () => {
     expect(mocks.setStatus).toHaveBeenCalledWith({}, ID, "read", "admin-1");
   });
 
-  it("delete only with contactDeleteAll, so an Admin is refused", async () => {
-    mocks.requirePrincipal.mockImplementation(async (permission) => { if (permission === "contactDeleteAll") throw new AuthorizationError(); return { id: "admin-1" }; });
+  it("delete only when the caller holds contactDeleteAll", async () => {
+    mocks.requirePrincipal.mockRejectedValue(new AuthorizationError());
     expect((await deleteMessageAction(ID)).code).toBe("denied");
     expect(mocks.remove).not.toHaveBeenCalled();
-    mocks.requirePrincipal.mockResolvedValue({ id: "super-1" });
+    mocks.requirePrincipal.mockResolvedValue({ id: "admin-1" });
     expect((await deleteMessageAction(ID)).status).toBe("success");
-    expect(mocks.remove).toHaveBeenCalledWith({}, ID, "super-1");
+    expect(mocks.requirePrincipal).toHaveBeenLastCalledWith("contactDeleteAll");
+    expect(mocks.remove).toHaveBeenCalledWith({}, ID, "admin-1");
   });
 
   it("reject unknown statuses and stop when rate limited", async () => {

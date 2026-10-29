@@ -3,7 +3,8 @@ import { MESSAGE_STATUSES, MESSAGE_STATUS_LABELS } from "@/lib/contact/message-s
 import { appendAuditEvent } from "@/lib/security/audit-log";
 
 // Admin side of the contact form: list, read, set status and (Super Admin only) delete. The callers
-// authorize first (contactManageAll to read and change status, contactDeleteAll to delete).
+// authorize first (contactManageAll to read and change status, contactDeleteAll to delete; both are
+// held by Admin and Super Admin).
 
 export const MESSAGE_PAGE_SIZE = 25;
 export { MESSAGE_STATUSES, MESSAGE_STATUS_LABELS };

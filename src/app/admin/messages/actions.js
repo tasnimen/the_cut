@@ -6,8 +6,8 @@ import { getMongo } from "@/lib/db/mongo";
 import { consumeUserRateLimit } from "@/lib/security/public-rate-limit";
 
 // Every export is a public HTTP endpoint: each call re-checks session, role, TOTP and the permission.
-// Changing status needs contactManageAll (Admin and Super Admin); deleting needs contactDeleteAll
-// (Super Admin only), so an Admin calling deleteMessageAction directly is refused here.
+// Changing status needs contactManageAll and deleting needs contactDeleteAll (both Admin and Super
+// Admin today); each action checks its own permission so the two can be split again in one place.
 
 const RATE = { bucket: "admin-messages", limit: 60, windowMs: 60_000 };
 const DENIED = { status: "error", code: "denied", message: "You are not allowed to do that." };

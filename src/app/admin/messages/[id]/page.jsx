@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { MessageActions } from "@/features/dashboard/messages/MessageActions";
 import { PageHeader, Panel } from "@/features/dashboard/components/primitives";
 import { requirePrincipal } from "@/lib/auth/authorization";
+import { hasPermission } from "@/lib/auth/policy";
 import { requireDashboardAccess } from "@/lib/auth/dashboard-guard";
 import { getMessage, MESSAGE_STATUS_LABELS, replyHref } from "@/lib/contact/admin-messages";
 import { getMongo } from "@/lib/db/mongo";
@@ -37,7 +38,7 @@ export default async function AdminMessagePage({ params }) {
         </div>
       </Panel>
       <Panel title="Mark this message">
-        <MessageActions id={message.id} status={message.status} canDelete={user.role === "SUPER_ADMIN"} />
+        <MessageActions id={message.id} status={message.status} canDelete={hasPermission(user.role, "contactDeleteAll")} />
       </Panel>
     </>
   );
