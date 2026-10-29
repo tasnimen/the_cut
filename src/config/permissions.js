@@ -23,6 +23,7 @@ export const PERMISSIONS = Object.freeze({
   customersRead: Object.freeze({ ADMIN: "LIMITED", SUPER_ADMIN: "ALL" }),
   barbersManageAll: Object.freeze({ ADMIN: "ALL", SUPER_ADMIN: "ALL" }),
   servicesManageAll: Object.freeze({ ADMIN: "ALL", SUPER_ADMIN: "ALL" }),
+  packagesManageAll: Object.freeze({ ADMIN: "ALL", SUPER_ADMIN: "ALL" }),
   productsManageAll: Object.freeze({ ADMIN: "ALL", SUPER_ADMIN: "ALL" }),
   galleryManageAll: Object.freeze({ ADMIN: "ALL", SUPER_ADMIN: "ALL" }),
   mediaGalleryManageAll: Object.freeze({ ADMIN: "ALL", SUPER_ADMIN: "ALL" }),
