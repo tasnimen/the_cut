@@ -46,6 +46,23 @@ export function createAuthMailer({ transport, from, alertTo, allowedOrigin }) {
       });
     },
 
+    async sendPasswordResetEmail({ to, name, url }) {
+      const recipient = validateAddress(to, "password reset recipient");
+      const resetUrl = new URL(url);
+      if (resetUrl.origin !== expectedOrigin || !["http:", "https:"].includes(resetUrl.protocol)) {
+        throw new Error("Refusing to send an email with an unexpected password reset origin");
+      }
+      const greeting = name ? `Hello ${String(name).slice(0, 100)},` : "Hello,";
+      const link = resetUrl.toString();
+      await transport.sendMail({
+        from: sender,
+        to: recipient,
+        subject: "Reset your password | The Cut Barbershop",
+        text: `${greeting}\n\nUse this link to choose a new password. It expires in one hour and works once.\n${link}\n\nIf you did not ask for this, you can ignore this email; your password stays the same.`,
+        html: `<p>${escapeHtml(greeting)}</p><p>Use the link below to choose a new password. It expires in one hour and works once.</p><p><a href="${escapeHtml(link)}">Reset your password</a></p><p>If you did not ask for this, you can ignore this email; your password stays the same.</p>`,
+      });
+    },
+
     async sendFailedAuthAlert({ ip, userAgent, occurredAt }) {
       const timestamp = new Date(occurredAt).toISOString();
       const sourceIp = String(ip || "unknown").slice(0, 64);

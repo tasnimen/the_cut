@@ -16,7 +16,7 @@ import { AUTH_RATE_LIMIT_POLICY } from "@/lib/auth/request-security";
 import { getAuthFailureWindowStart, queueAuthFailureAlert } from "@/lib/auth/failure-bursts";
 import { registerEmailVerificationToken } from "@/lib/auth/email-verification-tokens";
 import { resolveAuthBaseUrl } from "@/lib/auth/base-url";
-import { sendFailedAuthAlert, sendVerificationEmail } from "@/lib/mail/mailer";
+import { sendFailedAuthAlert, sendPasswordResetEmail, sendVerificationEmail } from "@/lib/mail/mailer";
 import { scheduleMailDelivery } from "@/lib/mail/mailer-core";
 import {
   createStepUpToken,
@@ -41,7 +41,29 @@ export async function getAuth() {
         secret: requireEnv("BETTER_AUTH_SECRET"),
         trustedOrigins: baseURL ? [baseURL] : [],
         database: mongodbAdapter(db, { client }),
-        emailAndPassword: verificationOptions.emailAndPassword,
+        emailAndPassword: {
+          ...verificationOptions.emailAndPassword,
+          resetPasswordTokenExpiresIn: 60 * 60,
+          revokeSessionsOnPasswordReset: true,
+          // Always answers the same way whether or not the address has an account; mail is sent in the background.
+          sendResetPassword: async ({ user, url }) => {
+            scheduleMailDelivery({
+              schedule: after,
+              send: () => sendPasswordResetEmail({ to: user.email, name: user.name, url }),
+              onFailure: () => appendAuditEvent(db, {
+                actorId: null,
+                action: "auth.password_reset.delivery_failed",
+                targetType: "AuthIdentity",
+                targetId: hashAuthIdentifier(user.email, requireEnv("BETTER_AUTH_SECRET")),
+                outcome: "failure",
+              }),
+            });
+          },
+          onPasswordReset: async ({ user }) => {
+            await bumpSessionVersionAfterPasswordChange(db, user.id);
+            await appendAuditEvent(db, { actorId: user.id, action: "auth.password_reset.completed", targetType: "User", targetId: user.id, outcome: "success" });
+          },
+        },
         emailVerification: {
           ...verificationOptions.emailVerification,
           expiresIn: 60 * 60,

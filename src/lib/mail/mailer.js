@@ -54,6 +54,10 @@ export async function sendVerificationEmail(message) {
   return getAuthMailer().sendVerificationEmail(message);
 }
 
+export async function sendPasswordResetEmail(message) {
+  return getAuthMailer().sendPasswordResetEmail(message);
+}
+
 export async function sendFailedAuthAlert(message) {
   return getAuthMailer().sendFailedAuthAlert(message);
 }
