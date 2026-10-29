@@ -69,8 +69,20 @@ Rules (`lib/catalog/normalize.js`, tested): the database is authoritative once t
 
 ## Closed dates and public team profiles (unit I-6, 2026-10-29)
 
-**`siteSetting`** (new, unique `key`): the document `{ key: "holidays", value: { newYearsDay, memorialDay, independenceDay, laborDay, thanksgiving, christmasDay: boolean, december24EarlyClose: boolean, december24EarlyCloseAt: "HH:MM", additionalClosedDates: ["YYYY-MM-DD", ...] }, updatedAt }`. Read by `getBookingConfig()` (`lib/catalog/source.js`), which merges it field by field over `config/booking.js` (`holidays`) using `normalizeHolidays`: invalid fields are ignored (the file value stays), real calendar dates only, at most 120 extra dates. The merged config is passed to **both** availability and booking creation (`route-core.js`) and to the contact page's opening-hours card, so a closed date removes its slots, refuses a booking for it and is listed publicly from one source. Cached with tag `catalog:holidays` (5-minute safety refresh) and a 30-second outage cooldown; when unreachable or unset, the file values apply. The editor arrives in I-18; until then the document can only be set by hand.
 
 **`barber`** gains optional public-profile fields: `publicProfile` (boolean, default off), `role`, `focus`, `displayOrder`. The home team section shows a barber with name, role and focus **only** when `publicProfile: true` and `active`; otherwise the generic nameless file profiles (`config/team-profiles.js`) stay, because the real team is not confirmed. Only `slug`, `name`, `role`, `focus`, `displayOrder` are read for the public site: schedules, breaks, days off, service assignments and timestamps never leave the server. A photo uses the slot `barber-<slug>` when that slot exists in `config/images.js` (otherwise the placeholder). Tag `catalog:barbers`. The schedule fields used by booking are unchanged; the barbers editor is I-17.
 
 **Written by the barbers editor (I-17), collection `barber`:** `slug` (unique, create only), `name`, `active`, `serviceSlugs[]`, `weeklySchedule`, `breaks`, `daysOff[]`, `publicProfile`, `role`, `focus`, `displayOrder`, `createdAt`, `updatedAt`. `BarberRecordSchema` (booking model) accepts the new optional fields.
+
+## Business settings (unit I-7, 2026-10-29)
+
+`siteSetting` (unique `key`) now holds four documents, each `{ key, value, updatedAt, createdAt }`, all read in one cached query by `getBookingConfig()` and `getSiteSettings()` (`lib/catalog/source.js`, tag `catalog:settings`, 5-minute safety refresh, 30-second outage cooldown). The file values stay the defaults when a document is missing or the database is unreachable.
+
+| `key` | `value` | Used by |
+|---|---|---|
+| `hours` | `{ monday: { open, close }, ... }`; a missing day means closed; a document with no valid day is ignored | booking (`config.openingHours`), contact page, footer |
+| `holidays` | flags (`newYearsDay`, `memorialDay`, `independenceDay`, `laborDay`, `thanksgiving`, `christmasDay`, `december24EarlyClose`), `december24EarlyCloseAt`, `additionalClosedDates[]` | booking (availability and creation), contact page |
+| `contact` | `phone`, `email`, `streetAddress`, `postalCode` (empty = hidden) | contact page, footer, Maps link |
+| `social` | `instagram`, `facebook`, `tiktok`, `x`, `youtube` (https links on each network's own domain only) | contact page, footer |
+
+Every value is validated again when read (`lib/catalog/settings.js`), so a malformed or tampered document cannot publish a script URL, a broken phone link or close the whole shop.
