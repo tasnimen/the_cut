@@ -127,3 +127,7 @@ Not built yet: archive, restore and hard delete (D2); the Super Admin permission
 - 2026-10-30 Admin switches are default deny (overview only until saved); current set saved first (26 on). Live-verified as the real Admin through the Super Admin screen: View off, Edit off, all off, restored (docs/TESTING.md). Open: Site images switch never takes effect (bug), denied pages return HTTP 200 with the 404 view.
 
 - 2026-10-30 Fixed both live-test findings: Site images switch now effective (group without a view switch depends only on its own switch); revoked Admin pages return a real HTTP 404 (admin layout checks the page switch via the proxy's x-pathname header). 712 tests, lint, build pass; verified live as the Admin; all 26 switches restored on.
+
+- 2026-10-31 D2a built on branch feature/d2-archive-restore: archive and restore for services, packages and barbers (shared `lib/catalog/archive.js`, 6 new default-off switches, Active/Archived tabs, read-only archived records, barber block with upcoming bookings, seed and public readers cannot revive archived records). 747 tests, lint, build pass. Not live-verified, not committed.
+
+- 2026-10-30 D2a live-verified with the real Super Admin and Admin (docs/TESTING.md): archive, restore, barber block, read-only archived records, public hiding, per-switch isolation. All 32 switches on, data intact. Still uncommitted on feature/d2-archive-restore.

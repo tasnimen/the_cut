@@ -118,3 +118,6 @@ One document, `_id: "admin-grants"`: `grants` (`{ "<group>.<action>": boolean }`
 ### Barber picture: what is stored where (checked on the dev database, 2026-10-30)
 
 The only picture field is `image` on the `barber` document (also `service`, `pricingPackage`): `{ mediaId, secureUrl, width, height, alt }`. There is no `imageUrl`, `photo` or `avatar` field. The upload itself creates a `media` document (`category: "barbers"`, `provider: "cloudinary"`) with `attachedTo: null`; it only gets `attachedTo: { kind, slug }` and the barber only gets `image` when the barber form is saved. A `media` document with `attachedTo: null` is an upload nobody saved (swept after 24 hours).
+
+## Archive fields (D2a, 2026-10-31)
+`service`, `pricingPackage` and `barber` documents gain optional `archivedAt` (Date) and `archivedBy` (user id). A document that was never archived has no `archivedAt` field at all (queries use `{ archivedAt: { $exists: false } }`). Archiving also sets `active: false` (and `featured: false` for a package); restoring removes both fields and keeps `active: false`. No new collection or index; the unique slug index keeps an archived slug reserved. Bookings are untouched (they hold snapshots; `barberId` stays valid).

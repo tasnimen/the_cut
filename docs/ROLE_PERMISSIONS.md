@@ -108,3 +108,5 @@ On top of the static matrix above, a Super Admin can switch individual Admin cap
 **Permission screen (P2):** `/super-admin/permissions` and `saveAdminPermissionsAction` need `securitySettingsManage` (SUPER_ADMIN only) plus a recent authenticator code. Admins, customers and guests get 404 on the page and "not allowed" from the action.
 
 Admin switches are default deny (2026-10-30): until the Super Admin saves, the Admin has the dashboard overview only. See ADMIN_PERMISSIONS.md.
+
+Archive and restore (services, packages, barbers) are Admin switches `<group>.archive` / `<group>.restore`, default off; permanent delete stays Super Admin only (D2b). See ADMIN_PERMISSIONS.md.

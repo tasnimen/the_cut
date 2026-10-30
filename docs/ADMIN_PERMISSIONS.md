@@ -17,7 +17,7 @@ Status (2026-10-30): **engine (P1) and the Super Admin screen (P2) are built, te
 - The dashboard overview `/admin` is always open to every Admin (it is the landing page; it shows no data from a switchable area).
 - A test (`capability-coverage.test.js`) fails if a new admin action, API route or page forgets its capability, or uses an unknown one.
 
-## Capabilities (all on by default)
+## Capabilities (32 switches; default deny, nothing is on until the Super Admin saves it)
 
 | Group | Capability | Controls | Enforced in |
 |---|---|---|---|
@@ -26,9 +26,9 @@ Status (2026-10-30): **engine (P1) and the Super Admin screen (P2) are built, te
 | | `bookings.changeStatus` | Confirm, complete, mark no-show | status action, `POST /api/bookings/[id]/no-show` |
 | | `bookings.cancel` | Cancel a booking (the customer is emailed) | status action |
 | Customers | `customers.view` | Read-only customers list and search | page guard |
-| Services | `services.view` / `.create` / `.edit` | List; create (with picture); edit, picture, show or hide | page guards, service actions, `/api/admin/catalog-image`, `/api/media` |
-| Packages | `packages.view` / `.create` / `.edit` | Same for pricing packages | same |
-| Barbers | `barbers.view` / `.create` / `.edit` | Same for barbers | same |
+| Services | `services.view` / `.create` / `.edit` / `.archive` / `.restore` | List (Active and Archived tabs); create (with picture); edit, picture, show or hide; archive; restore | page guards, service actions, `/api/admin/catalog-image`, `/api/media` |
+| Packages | `packages.view` / `.create` / `.edit` / `.archive` / `.restore` | Same for pricing packages | same |
+| Barbers | `barbers.view` / `.create` / `.edit` / `.archive` / `.restore` | Same for barbers (archive is refused while the barber has upcoming bookings) | same |
 | Gallery | `gallery.view` | The gallery manager page | page guard |
 | | `gallery.upload` | Adding photos | `POST /api/admin/gallery`, `/api/media` |
 | | `gallery.edit` | Title, category and description | gallery action |
@@ -70,3 +70,14 @@ Saving (`saveAdminPermissionsAction`): Super Admin only, rate limited (20 per mi
 ## Fixes after the live test (2026-10-30, both verified live as the Admin)
 - **Site images switch:** `capabilityAllowed` required the group's `.view` switch for every action. The `siteImages` group has no page and no view switch, so `siteImages.manage` could never be effective. Rule now: an action needs its group's view switch **only when the group has one**. No new capability was added (the 26 saved switches stay as they are). The upload path is `POST /api/media` with target `banners`, `slots` or `products` (`capabilityForMediaTarget`); off or unsaved gives 403, on passes the switch, Super Admin is never limited.
 - **Real HTTP 404 for a revoked page:** the admin loading shell streamed with status 200 before a page's own check ran. `src/proxy.js` now sets an `x-pathname` request header on every request (overwriting any client value), `capabilityForAdminPath(pathname)` in `config/admin-capabilities.js` maps a path to its switch (exact route first, then `[slug]`/`[id]` routes; the overview and unknown paths need none), and `src/app/admin/layout.jsx` passes that switch to `requireDashboardAccess("admin", { capability })`, so `notFound()` fires before anything streams. Every page still checks its own switch (defence in depth), APIs and Server Actions are unchanged. Limit: after a soft navigation inside the app the layout is not re-run, so there the page check applies (the user still sees the 404 view; the status code only matters for full page loads and direct URLs). The denied page's tab title is now the generic "Admin | The Cut Barbershop".
+
+## Archive and restore (D2a, built 2026-10-31 and live-verified with the real Super Admin and Admin, see TESTING.md)
+- **What:** services, pricing packages and barbers can be archived and restored (`src/lib/catalog/archive.js`, one shared implementation). Archiving sets `archivedAt` and `archivedBy` and `active: false`; restoring clears both fields and leaves the record **hidden**. Gallery photos and messages are D2b. Nothing is deleted: slug reserved (unique index), pictures stay attached and stored, old bookings keep their own snapshots, audit history stays.
+- **Switches:** `<group>.archive` and `<group>.restore` for services, packages and barbers (6 new, default off, so the catalog is now 32 switches; a saved record without them keeps them off). They need the group's View switch like the other actions. They are independent of Edit. The Super Admin is never limited.
+- **Permanent delete:** not built. It stays Super Admin only and comes with D2b (a Super Admin permission, no Admin switch). No Admin hard delete exists for these three kinds.
+- **Barber rule:** archive is refused while the barber has an upcoming booking with status pending or confirmed (`startsAt` in the future); the message says how many. A small race (a booking created between the check and the write) is possible but the booking engine reads `active: true` at booking time, so the barber stops taking bookings the moment the archive lands.
+- **Server:** `archive<Kind>Action(slug)` and `restore<Kind>Action(slug)` in each `actions.js`: `requirePrincipal("<kind>ManageAll", { capability: "<kind>.archive|restore" })`, rate limit (existing bucket), slug check, repository, audit (`catalog.<kind>.archived` / `.restored`), cache refresh. An archived record is read-only: `update…` and `set…Active` refuse it (`archived`), and its edit page shows a notice instead of the form.
+- **Screens:** each list has an Active / Archived tab (`?view=archived`, needs only the View switch). Archive and Restore buttons follow the switches. Hide/Show stays for non-archived records.
+- **Public data:** the public readers treat an archived record as inactive (`hideArchived`), the booking engine already filters `active: true`, and the seed script skips archived records (a test proves it cannot bring one back).
+- **Package badge:** archiving a package clears its Popular badge and restoring does not bring it back (tick it again in the edit form if wanted).
+- **Limits:** no auto-purge; restore returns hidden by design; a package list with only archived packages shows an empty list, not the built-in packages notice.

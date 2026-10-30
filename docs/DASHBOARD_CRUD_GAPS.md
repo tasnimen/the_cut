@@ -34,3 +34,6 @@ Services, packages and barbers now have an optional picture: upload (drag and dr
 ## Update after unit P1 (2026-10-30)
 
 The question in gap 5 (who may delete contact messages) is now answered by the capability `messages.delete`, which the Super Admin will switch from the permission screen (P2). Until P2 it is on, as before. The same switches already cover gallery delete (`gallery.delete`) and hide (`gallery.hide`).
+
+## D2a status (2026-10-31)
+Archive and restore are built for services, packages and barbers (Active/Archived tabs, `archivedAt`/`archivedBy`, read-only archived records, barber block while upcoming bookings exist). Open: gallery photos and messages (D2b), Super Admin permanent delete (D2b), live verification.

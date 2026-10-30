@@ -7,7 +7,7 @@ Pending, in this order:
 1. **Owner:** set the correct `CLOUDINARY_CLOUD_NAME` in `.env` (the check with the name `swthle87` printed SUCCESS), restart, rebuild, run `npm run check:cloudinary`.
 2. **Owner:** live-test the admin side (checklist given in chat; steps also in `docs/TESTING.md`) and report results. Nothing new is built on untested admin screens until then, unless the owner says so.
 3. **Owner:** live-test the permission screen (checklist in `docs/TESTING.md`, "Admin permission screen (P2)") together with the admin checklist; report what you see.
-4. Unit D2 (archive, restore, delete everywhere), built on the capabilities (add `archive` and `delete` capabilities as the features are built). The open question about message deletion is now the switch `messages.delete`.
+4. Unit D2: **D2a (services, packages, barbers) is built and live-verified on branch `feature/d2-archive-restore`; pending the owner's commit and push.** D2b (gallery photos and messages archive/restore, Super Admin permanent delete, removal of the Admin `gallery.delete` and `messages.delete` switches) needs the owner's ok.
 5. Super Admin units I-23 (admin accounts), I-24 (audit viewer), I-25 (security settings), I-26 (revenue, CSV), I-27 (image slot screen); then hardening I-28 to I-30.
 6. Diagnose the home hero image on the live site (needs the live address, the host and the network status of the `banner1` request).
 

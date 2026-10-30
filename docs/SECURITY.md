@@ -206,3 +206,6 @@ No security rule changed. The fix is interface only: a clearer two-step flow, a 
 
 ## Real HTTP 404 and site images switch (2026-10-30)
 The admin layout refuses a revoked page before streaming (proxy header `x-pathname` plus `capabilityForAdminPath`), so direct URLs return a genuine 404 and no protected data or page name streams. The header is always overwritten by the proxy; a spoofed value could only cause a 404 for the sender, and pages, APIs and Server Actions keep their own checks. Site image uploads (`/api/media`, targets banners, slots, products) need `siteImages.manage`: default deny, 403 when off. Details in ADMIN_PERMISSIONS.md.
+
+## Archive and restore (D2a, 2026-10-31)
+Every archive or restore is a Server Action that re-checks session, role, TOTP and its own default-deny switch (`<kind>.archive` / `<kind>.restore`), rate limits, validates the slug and writes an audit event with the actor. No Admin can delete records permanently (no such action exists for these kinds; permanent delete is Super Admin only and arrives with D2b). An archived record cannot be edited or shown by an Admin until restored. The public readers and the seed script cannot bring an archived record back. A barber with upcoming pending or confirmed bookings cannot be archived. Live-verified with the real accounts on 2026-10-30.
