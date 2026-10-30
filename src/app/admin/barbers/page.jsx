@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BarberActiveToggle } from "@/features/dashboard/barbers/BarberActiveToggle";
+import { CatalogThumb } from "@/features/dashboard/components/CatalogThumb";
 import { DataTable, PageHeader, Panel, StatCard } from "@/features/dashboard/components/primitives";
 import { listAdminBarbers } from "@/lib/catalog/admin-barbers";
 import { WEEKDAYS } from "@/lib/catalog/barber-input";
@@ -20,6 +21,7 @@ export default async function AdminBarbersPage() {
   const rows = barbers.map((barber) => ({
     id: barber.slug,
     cells: {
+      picture: <CatalogThumb image={barber.image} name={barber.name} />,
       order: barber.displayOrder,
       name: <><strong>{barber.name}</strong><br /><small className="dash-muted">{barber.slug}</small></>,
       days: `${WEEKDAYS.filter((day) => barber.weeklySchedule[day]).length} days a week`,
@@ -53,6 +55,7 @@ export default async function AdminBarbersPage() {
         <DataTable
           caption="Barbers"
           columns={[
+            { key: "picture", label: "Picture" },
             { key: "order", label: "Order" },
             { key: "name", label: "Barber" },
             { key: "days", label: "Hours" },

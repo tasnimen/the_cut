@@ -34,7 +34,7 @@ export async function BarbersSection() {
         <ScrollReveal className="barber-grid" id={ANCHORS.teamProfiles} stagger>
           {profiles.map((barber) => {
             const image = pictureFor(barber, barber.photoSlot ? getImage(barber.photoSlot) : { src: PLACEHOLDER_SRC, alt: "" });
-            return <BarberCard key={barber.key} barber={barber} imageSrc={image.src} imageAlt={image.alt} />;
+            return <BarberCard key={barber.key} barber={barber} imageSrc={image.src} imageAlt={image.alt} isOwnPicture={image.source === "upload"} />;
           })}
         </ScrollReveal>
       </div>

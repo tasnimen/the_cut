@@ -35,7 +35,7 @@ export async function ServicesSection() {
           );
         })}
       </ScrollReveal>
-      <p className="section-footnote">Shared sample image shown · service photos pending</p>
+      {services.some((service) => !service.image) ? <p className="section-footnote">Shared sample image shown · service photos pending</p> : null}
     </section>
   );
 }

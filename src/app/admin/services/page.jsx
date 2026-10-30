@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CatalogThumb } from "@/features/dashboard/components/CatalogThumb";
 import { DataTable, PageHeader, Panel, StatCard } from "@/features/dashboard/components/primitives";
 import { ServiceActiveToggle } from "@/features/dashboard/services/ServiceActiveToggle";
 import { listAdminServices } from "@/lib/catalog/admin-services";
@@ -19,6 +20,7 @@ export default async function AdminServicesPage() {
   const rows = services.map((service) => ({
     id: service.slug,
     cells: {
+      picture: <CatalogThumb image={service.image} name={service.name} />,
       order: service.displayOrder,
       name: <><strong>{service.name}</strong><br /><small className="dash-muted">{service.slug}</small></>,
       category: service.category,
@@ -52,6 +54,7 @@ export default async function AdminServicesPage() {
         <DataTable
           caption="Services"
           columns={[
+            { key: "picture", label: "Picture" },
             { key: "order", label: "Order" },
             { key: "name", label: "Service" },
             { key: "category", label: "Category" },
