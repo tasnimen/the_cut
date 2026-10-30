@@ -115,3 +115,9 @@ export function filtersToQueryString(filters, overrides = {}) {
   const text = params.toString();
   return text ? `?${text}` : "";
 }
+
+// Keeps only the status buttons an Admin may use: Cancel needs bookings.cancel, every other change
+// needs bookings.changeStatus. Interface only; the action checks the same switches on the server.
+export function permittedActions(actions, can) {
+  return actions.filter((to) => (to === "cancelled" ? can?.["bookings.cancel"] === true : can?.["bookings.changeStatus"] === true));
+}

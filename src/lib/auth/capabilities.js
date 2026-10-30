@@ -47,3 +47,24 @@ export async function saveAdminGrants(db, input, actorId, now = new Date()) {
   await appendAuditEvent(db, { actorId, action: "permissions.admin_grants_updated", targetType: "AdminPermission", targetId: GRANTS_ID, outcome: "success", details: { changed: String(changed.length), granted: String(granted), revoked: String(changed.length - granted) } });
   return { ok: true, changed };
 }
+
+// Everything the screens need to hide what an Admin may not do: { "<capability>": boolean } for the whole catalog.
+// SUPER_ADMIN gets all true; ADMIN gets the effective grants; anyone else, or any failure, gets all false.
+// This only shapes the interface. The server still refuses the action or page on its own.
+export async function effectiveCapabilities(role, db) {
+  const all = (value) => Object.fromEntries(ADMIN_CAPABILITIES.map((id) => [id, value]));
+  if (role === "SUPER_ADMIN") return all(true);
+  if (role !== "ADMIN") return all(false);
+  try {
+    const grants = await loadAdminGrants(db);
+    return Object.fromEntries(ADMIN_CAPABILITIES.map((id) => [id, capabilityAllowed(grants, id)]));
+  } catch {
+    return all(false);
+  }
+}
+
+// Who changed the switches last, and when (for the Super Admin screen). Null parts when never saved.
+export async function loadAdminGrantsMeta(db) {
+  const doc = await readGrantsDocument(db);
+  return { version: Number.isInteger(doc?.version) ? doc.version : 0, updatedAt: doc?.updatedAt instanceof Date ? doc.updatedAt.toISOString() : null, updatedBy: typeof doc?.updatedBy === "string" ? doc.updatedBy : null };
+}

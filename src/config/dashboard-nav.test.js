@@ -7,7 +7,7 @@ describe("dashboard navigation", () => {
   it("lists only enabled entries", () => {
     expect(visibleNav("user").map((entry) => entry.label)).toEqual(["Overview", "Appointments", "Profile"]);
     expect(visibleNav("admin").map((entry) => entry.label)).toEqual(["Overview", "Bookings", "Customers", "Services", "Packages", "Barbers", "Gallery", "Messages", "Reports", "Settings"]);
-    expect(visibleNav("superAdmin").map((entry) => entry.href)).toEqual(["/super-admin", "/admin"]);
+    expect(visibleNav("superAdmin").map((entry) => entry.href)).toEqual(["/super-admin", "/admin", "/super-admin/permissions"]);
     expect(visibleNav("nope")).toEqual([]);
   });
 
@@ -42,5 +42,23 @@ describe("dashboard navigation", () => {
     expect(greetingFor(new Date("2027-04-05T18:00:00Z"), "America/New_York")).toBe("Good afternoon");
     expect(greetingFor(new Date("2027-04-05T23:30:00Z"), "America/New_York")).toBe("Good evening");
     expect(greetingFor(new Date("2027-04-05T04:30:00Z"), "America/New_York")).toBe("Good evening");
+  });
+});
+
+import { filterNavByCapabilities as filterByCapabilities } from "./dashboard-nav.js";
+
+describe("admin menu follows the Super Admin switches", () => {
+  const entries = visibleNav("admin");
+  const allOn = Object.fromEntries(["bookings.view", "customers.view", "services.view", "packages.view", "barbers.view", "gallery.view", "messages.view", "reports.view", "settings.view"].map((id) => [id, true]));
+  it("hides entries whose page is switched off, and keeps the overview", () => {
+    const labels = (can) => filterByCapabilities(entries, can).map((entry) => entry.label);
+    expect(labels(allOn)).toEqual(entries.map((entry) => entry.label));
+    expect(labels({ ...allOn, "reports.view": false, "gallery.view": false })).not.toContain("Reports");
+    expect(labels({ ...allOn, "reports.view": false, "gallery.view": false })).not.toContain("Gallery");
+    expect(labels({})).toEqual(["Overview"]);
+  });
+  it("does not filter for a Super Admin (no switches given)", () => {
+    expect(filterByCapabilities(entries, null)).toBe(entries);
+    expect(filterByCapabilities(entries, undefined)).toBe(entries);
   });
 });

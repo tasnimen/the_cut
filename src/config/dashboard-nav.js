@@ -1,3 +1,4 @@
+import { ADMIN_ROUTE_CAPABILITIES } from "@/config/admin-capabilities";
 import { DASHBOARD_AREAS } from "@/config/dashboard-access";
 import { ROUTES } from "@/config/routes";
 
@@ -27,6 +28,7 @@ export const DASHBOARD_NAV = Object.freeze({
   superAdmin: Object.freeze([
     item("Overview", "/super-admin", "dashboard", true),
     item("Admin dashboard", "/admin", "scissors", true),
+    item("Admin permissions", "/super-admin/permissions", "shield", true),
     item("Admin accounts", "/super-admin/admins", "users"),
     item("Audit log", "/super-admin/audit", "shield"),
     item("Revenue", "/super-admin/revenue", "chart"),
@@ -64,4 +66,15 @@ export function greetingFor(date, timeZone) {
   if (hour >= 5 && hour < 12) return "Good morning";
   if (hour >= 12 && hour < 18) return "Good afternoon";
   return "Good evening";
+}
+
+// Hides admin sidebar entries whose page a Super Admin switched off. `can` is { capability: boolean } from
+// effectiveCapabilities(); null or undefined means no filtering (Super Admin). Entries without a switch
+// (the overview) always stay. This only shapes the menu; each page still checks on the server.
+export function filterNavByCapabilities(entries, can) {
+  if (!can) return entries;
+  return entries.filter((entry) => {
+    const capability = ADMIN_ROUTE_CAPABILITIES[entry.href];
+    return !capability || can[capability] === true;
+  });
 }

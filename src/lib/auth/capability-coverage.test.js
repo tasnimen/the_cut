@@ -77,3 +77,18 @@ describe("every admin entry point carries a Super Admin switch", () => {
     }
   });
 });
+
+describe("the Super Admin permission screen is locked down", () => {
+  const actionSource = read(path.join(SRC, "app", "super-admin", "permissions", "actions.js"));
+  const pageSource = read(path.join(SRC, "app", "super-admin", "permissions", "page.jsx"));
+  it("the action checks the Super Admin only permission, then a recent authenticator code, then saves", () => {
+    const order = ['requirePrincipal("securitySettingsManage")', "requireRecentStepUp(principal)", "saveAdminGrants("].map((text) => actionSource.indexOf(text));
+    expect(order.every((index) => index >= 0)).toBe(true);
+    expect(order).toEqual([...order].sort((a, b) => a - b));
+  });
+  it("the page needs the Super Admin area and the same permission, and is never an Admin route", () => {
+    expect(pageSource).toContain('requireDashboardAccess("superAdmin")');
+    expect(pageSource).toContain('requirePrincipal("securitySettingsManage")');
+    expect(Object.keys(ADMIN_ROUTE_CAPABILITIES).some((route) => route.includes("permissions"))).toBe(false);
+  });
+});

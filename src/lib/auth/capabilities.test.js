@@ -101,3 +101,35 @@ describe("saveAdminGrants", () => {
     expect(mocks.audit).not.toHaveBeenCalled();
   });
 });
+
+describe("effectiveCapabilities and loadAdminGrantsMeta", async () => {
+  const { effectiveCapabilities, loadAdminGrantsMeta } = await import("./capabilities.js");
+  const { ADMIN_CAPABILITIES } = await import("@/config/admin-capabilities");
+
+  it("gives a Super Admin everything, a customer nothing, and an Admin what is switched on", async () => {
+    const { db } = store({ _id: GRANTS_ID, grants: { "gallery.view": false, "messages.delete": false } });
+    mocks.getMongo.mockResolvedValue({ db });
+    const superAdmin = await effectiveCapabilities("SUPER_ADMIN");
+    expect(Object.values(superAdmin).every(Boolean)).toBe(true);
+    expect(Object.keys(superAdmin).sort()).toEqual([...ADMIN_CAPABILITIES].sort());
+    const user = await effectiveCapabilities("USER");
+    expect(Object.values(user).some(Boolean)).toBe(false);
+    const admin = await effectiveCapabilities("ADMIN");
+    expect(admin["gallery.view"]).toBe(false);
+    expect(admin["gallery.delete"]).toBe(false); // the page is off, so its actions are off
+    expect(admin["messages.delete"]).toBe(false);
+    expect(admin["messages.markStatus"]).toBe(true);
+    expect(admin["bookings.view"]).toBe(true);
+  });
+
+  it("gives an Admin nothing when the switches cannot be read", async () => {
+    mocks.getMongo.mockRejectedValue(new Error("db down"));
+    expect(Object.values(await effectiveCapabilities("ADMIN")).some(Boolean)).toBe(false);
+  });
+
+  it("reports when the switches were last saved", async () => {
+    expect(await loadAdminGrantsMeta(store(null).db)).toEqual({ version: 0, updatedAt: null, updatedBy: null });
+    const when = new Date("2026-10-30T12:00:00Z");
+    expect(await loadAdminGrantsMeta(store({ _id: GRANTS_ID, version: 3, updatedAt: when, updatedBy: "super-1", grants: {} }).db)).toEqual({ version: 3, updatedAt: when.toISOString(), updatedBy: "super-1" });
+  });
+});

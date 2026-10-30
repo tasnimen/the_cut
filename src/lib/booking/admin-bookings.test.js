@@ -94,3 +94,16 @@ describe("filtersToQueryString", () => {
     expect(filtersToQueryString({ q: "", status: "", barber: "", from: "", to: "", page: 1 })).toBe("");
   });
 });
+
+import { permittedActions } from "@/lib/booking/admin-bookings";
+
+describe("permittedActions", () => {
+  const all = ["completed", "no_show", "cancelled"];
+  it("keeps what the Super Admin allows: Cancel needs bookings.cancel, the rest bookings.changeStatus", () => {
+    expect(permittedActions(all, { "bookings.cancel": true, "bookings.changeStatus": true })).toEqual(all);
+    expect(permittedActions(all, { "bookings.cancel": false, "bookings.changeStatus": true })).toEqual(["completed", "no_show"]);
+    expect(permittedActions(all, { "bookings.cancel": true, "bookings.changeStatus": false })).toEqual(["cancelled"]);
+    expect(permittedActions(all, {})).toEqual([]);
+    expect(permittedActions(all, undefined)).toEqual([]);
+  });
+});
