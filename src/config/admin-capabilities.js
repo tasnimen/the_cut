@@ -112,25 +112,42 @@ export const ADMIN_ROUTE_CAPABILITIES = Object.freeze({
   "/admin/settings": "settings.view",
 });
 
-// Everything on, which is what an Admin could do before the permission system existed.
-export function defaultGrants() {
+// Which capability an admin page path needs (null: none, e.g. the overview or a path that is not an admin page).
+// Used by the admin layout so a revoked page is refused before anything streams (a real HTTP 404). Pages still check too.
+const ROUTE_PATTERNS = Object.entries(ADMIN_ROUTE_CAPABILITIES).map(([route, capability]) => [new RegExp(`^${route.replace(/\[[a-z]+\]/g, "[^/]+")}$`), capability, route.includes("[")]);
+export function capabilityForAdminPath(pathname) {
+  const path = typeof pathname === "string" && pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
+  if (typeof path !== "string") return null;
+  const exact = ADMIN_ROUTE_CAPABILITIES[path];
+  if (exact) return exact;
+  return ROUTE_PATTERNS.find(([pattern, , dynamic]) => dynamic && pattern.test(path))?.[1] ?? null;
+}
+
+// Everything on (the Super Admin screen's "switch everything on" button).
+export function allGrants() {
   return Object.fromEntries(ADMIN_CAPABILITIES.map((id) => [id, true]));
 }
 
+// Default deny: an Admin can do nothing beyond the dashboard overview until the Super Admin saves a switch on.
+export function denyAllGrants() {
+  return Object.fromEntries(ADMIN_CAPABILITIES.map((id) => [id, false]));
+}
+
 // Stored document -> a complete { capability: boolean } map. Unknown keys and non-boolean values are ignored
-// (a missing capability keeps its default), so a stale or hand-edited document can never grant anything new.
+// (a missing capability stays off), so a stale, empty or hand-edited document can never grant anything new.
 export function resolveGrants(stored) {
-  const grants = defaultGrants();
+  const grants = denyAllGrants();
   if (!stored || typeof stored !== "object" || Array.isArray(stored)) return grants;
   for (const id of ADMIN_CAPABILITIES) if (typeof stored[id] === "boolean") grants[id] = stored[id];
   return grants;
 }
 
-// Is the capability (or any of several) effectively on? A non-view capability needs its group's "view" too.
+// Is the capability (or any of several) effectively on? A non-view capability needs its group's "view" too,
+// when the group has one (a group without a page, like site images, depends only on its own switch).
 // Unknown ids are never granted.
 export function capabilityAllowed(grants, capability) {
   const ids = Array.isArray(capability) ? capability : [capability];
-  return ids.some((id) => isKnownCapability(id) && grants[id] === true && (id === viewOf(id) || grants[viewOf(id)] === true));
+  return ids.some((id) => isKnownCapability(id) && grants[id] === true && (id === viewOf(id) || !isKnownCapability(viewOf(id)) || grants[viewOf(id)] === true));
 }
 
 // Super Admin input: exactly the known capabilities as booleans, nothing else. Returns the full map to store.

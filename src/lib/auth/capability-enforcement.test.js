@@ -8,6 +8,7 @@ vi.mock("@/lib/auth/server", () => ({ getAuth: async () => ({ api: { getSession:
 vi.mock("@/lib/db/mongo", () => ({ getMongo: async () => ({ db: { collection: () => ({ findOne: async () => mocks.grantsDoc.current }) } }) }));
 vi.mock("@/lib/security/audit-log", () => ({ appendAuditEvent: mocks.audit }));
 
+const { allGrants, capabilityForMediaTarget } = await import("@/config/admin-capabilities");
 const { AuthorizationError, requirePrincipal } = await import("./authorization.js");
 const { requireDashboardAccess } = await import("./dashboard-guard.js");
 
@@ -15,14 +16,14 @@ const sessionFor = (role, overrides = {}) => ({
   user: { id: "u1", role, status: "ACTIVE", sessionVersion: 0, twoFactorEnabled: true, emailVerified: true, name: "N", email: "n@example.com", ...overrides },
   session: { id: "s1", sessionVersion: 0 },
 });
-const revoke = (...ids) => { mocks.grantsDoc.current = { _id: "admin-grants", grants: Object.fromEntries(ids.map((id) => [id, false])) }; };
+const revoke = (...ids) => { mocks.grantsDoc.current = { _id: "admin-grants", grants: { ...allGrants(), ...Object.fromEntries(ids.map((id) => [id, false])) } }; };
 
 beforeEach(() => {
   mocks.getSession.mockReset();
   mocks.audit.mockReset();
   mocks.notFound.mockClear();
   mocks.redirect.mockClear();
-  mocks.grantsDoc.current = null;
+  mocks.grantsDoc.current = { _id: "admin-grants", grants: allGrants() }; // everything saved on; each test revokes what it checks
 });
 
 describe("requirePrincipal with a capability", () => {
@@ -99,5 +100,29 @@ describe("requireDashboardAccess with a capability", () => {
     mocks.getSession.mockResolvedValue(sessionFor("ADMIN"));
     mocks.grantsDoc.current = { _id: "admin-grants", grants: {} };
     await expect(requireDashboardAccess("superAdmin")).rejects.toThrow("NOT_FOUND");
+  });
+
+  it("default deny: with nothing saved the Admin keeps only the dashboard overview", async () => {
+    mocks.getSession.mockResolvedValue(sessionFor("ADMIN"));
+    mocks.grantsDoc.current = null;
+    await expect(requireDashboardAccess("admin")).resolves.toMatchObject({ role: "ADMIN" });
+    for (const capability of ["bookings.view", "services.view", "settings.view"]) await expect(requireDashboardAccess("admin", { capability })).rejects.toThrow("NOT_FOUND");
+    await expect(requirePrincipal("servicesManageAll", { capability: "services.edit" })).rejects.toBeInstanceOf(AuthorizationError);
+  });
+
+  it("site images: an Admin can upload banner, slot and product images only while the switch is on (default deny otherwise)", async () => {
+    mocks.getSession.mockResolvedValue(sessionFor("ADMIN"));
+    for (const target of ["banners", "slots", "products"]) {
+      const permission = { banners: "mediaBannersManageAll", slots: "mediaSlotsManageAll", products: "mediaProductsManageAll" }[target];
+      revoke("siteImages.manage");
+      await expect(requirePrincipal(permission, { capability: capabilityForMediaTarget(target) })).rejects.toBeInstanceOf(AuthorizationError);
+      mocks.grantsDoc.current = { _id: "admin-grants", grants: allGrants() };
+      await expect(requirePrincipal(permission, { capability: capabilityForMediaTarget(target) })).resolves.toMatchObject({ role: "ADMIN" });
+      mocks.grantsDoc.current = null;
+      await expect(requirePrincipal(permission, { capability: capabilityForMediaTarget(target) })).rejects.toBeInstanceOf(AuthorizationError);
+    }
+    mocks.getSession.mockResolvedValue(sessionFor("SUPER_ADMIN"));
+    mocks.grantsDoc.current = null;
+    await expect(requirePrincipal("mediaBannersManageAll", { capability: capabilityForMediaTarget("banners") })).resolves.toMatchObject({ role: "SUPER_ADMIN" });
   });
 });

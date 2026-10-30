@@ -4,6 +4,7 @@ const mocks = vi.hoisted(() => ({ getMongo: vi.fn(), audit: vi.fn() }));
 vi.mock("@/lib/db/mongo", () => ({ getMongo: mocks.getMongo }));
 vi.mock("@/lib/security/audit-log", () => ({ appendAuditEvent: mocks.audit }));
 
+const { allGrants } = await import("@/config/admin-capabilities");
 const { GRANTS_ID, loadAdminGrants, roleHasCapability, saveAdminGrants } = await import("./capabilities.js");
 
 // A one-document store standing in for the adminPermission collection.
@@ -29,25 +30,26 @@ describe("roleHasCapability", () => {
     expect(mocks.getMongo).not.toHaveBeenCalled();
   });
 
-  it("uses the defaults for an Admin when nothing was ever saved", async () => {
+  it("denies an Admin everything when nothing was ever saved (default deny)", async () => {
     mocks.getMongo.mockResolvedValue({ db: store(null).db });
-    expect(await roleHasCapability("ADMIN", "messages.delete")).toBe(true);
-    expect(await roleHasCapability("ADMIN", "gallery.upload")).toBe(true);
+    expect(await roleHasCapability("ADMIN", "messages.delete")).toBe(false);
+    expect(await roleHasCapability("ADMIN", "gallery.upload")).toBe(false);
+    expect(await roleHasCapability("ADMIN", "bookings.view")).toBe(false);
   });
 
   it("denies a revoked capability and applies a change on the very next check (no re-login)", async () => {
-    const { db, state } = store(null);
+    const { db, state } = store({ _id: GRANTS_ID, grants: allGrants() });
     mocks.getMongo.mockResolvedValue({ db });
     expect(await roleHasCapability("ADMIN", "messages.delete")).toBe(true);
-    state.doc = { _id: GRANTS_ID, grants: { "messages.delete": false } };
+    state.doc = { _id: GRANTS_ID, grants: { ...allGrants(), "messages.delete": false } };
     expect(await roleHasCapability("ADMIN", "messages.delete")).toBe(false);
     expect(await roleHasCapability("ADMIN", "messages.markStatus")).toBe(true);
-    state.doc = { _id: GRANTS_ID, grants: { "messages.delete": true } };
+    state.doc = { _id: GRANTS_ID, grants: allGrants() };
     expect(await roleHasCapability("ADMIN", "messages.delete")).toBe(true);
   });
 
   it("denies the whole group when its view is off", async () => {
-    mocks.getMongo.mockResolvedValue({ db: store({ _id: GRANTS_ID, grants: { "gallery.view": false } }).db });
+    mocks.getMongo.mockResolvedValue({ db: store({ _id: GRANTS_ID, grants: { ...allGrants(), "gallery.view": false } }).db });
     for (const id of ["gallery.upload", "gallery.delete", "gallery.hide"]) expect(await roleHasCapability("ADMIN", id)).toBe(false);
   });
 
@@ -65,7 +67,7 @@ describe("roleHasCapability", () => {
   });
 
   it("accepts an explicit database handle", async () => {
-    const { db } = store({ _id: GRANTS_ID, grants: { "reports.view": false } });
+    const { db } = store({ _id: GRANTS_ID, grants: { ...allGrants(), "reports.view": false } });
     expect(await roleHasCapability("ADMIN", "reports.view", db)).toBe(false);
     expect(mocks.getMongo).not.toHaveBeenCalled();
     expect((await loadAdminGrants(db))["reports.view"]).toBe(false);
@@ -74,8 +76,8 @@ describe("roleHasCapability", () => {
 
 describe("saveAdminGrants", () => {
   it("stores the full validated map, bumps the version and audits counts only", async () => {
-    const { db, state } = store(null);
-    const result = await saveAdminGrants(db, { "messages.delete": false, "gallery.hide": false }, "super-1", new Date("2026-10-30T12:00:00Z"));
+    const { db, state } = store({ _id: GRANTS_ID, grants: allGrants() });
+    const result = await saveAdminGrants(db, { ...allGrants(), "messages.delete": false, "gallery.hide": false }, "super-1", new Date("2026-10-30T12:00:00Z"));
     expect(result.ok).toBe(true);
     expect(result.changed.sort()).toEqual(["gallery.hide", "messages.delete"]);
     expect(state.doc.grants["messages.delete"]).toBe(false);
@@ -87,8 +89,8 @@ describe("saveAdminGrants", () => {
   });
 
   it("counts grants as well as revocations", async () => {
-    const { db } = store({ _id: GRANTS_ID, grants: { "messages.delete": false } });
-    await saveAdminGrants(db, { "messages.delete": true, "gallery.hide": false }, "super-1");
+    const { db } = store({ _id: GRANTS_ID, grants: { ...allGrants(), "messages.delete": false } });
+    await saveAdminGrants(db, { ...allGrants(), "gallery.hide": false }, "super-1");
     expect(mocks.audit.mock.calls[0][1].details).toEqual({ changed: "2", granted: "1", revoked: "1" });
   });
 
@@ -107,7 +109,7 @@ describe("effectiveCapabilities and loadAdminGrantsMeta", async () => {
   const { ADMIN_CAPABILITIES } = await import("@/config/admin-capabilities");
 
   it("gives a Super Admin everything, a customer nothing, and an Admin what is switched on", async () => {
-    const { db } = store({ _id: GRANTS_ID, grants: { "gallery.view": false, "messages.delete": false } });
+    const { db } = store({ _id: GRANTS_ID, grants: { ...allGrants(), "gallery.view": false, "messages.delete": false } });
     mocks.getMongo.mockResolvedValue({ db });
     const superAdmin = await effectiveCapabilities("SUPER_ADMIN");
     expect(Object.values(superAdmin).every(Boolean)).toBe(true);

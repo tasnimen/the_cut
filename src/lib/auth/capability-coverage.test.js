@@ -92,3 +92,13 @@ describe("the Super Admin permission screen is locked down", () => {
     expect(Object.keys(ADMIN_ROUTE_CAPABILITIES).some((route) => route.includes("permissions"))).toBe(false);
   });
 });
+
+describe("the proxy tells the admin layout which page was asked for", () => {
+  it("overwrites x-pathname on every request, and the layout reads it", () => {
+    const proxy = fs.readFileSync(path.join(process.cwd(), "src/proxy.js"), "utf8");
+    expect(proxy).toMatch(/requestHeaders\.set\("x-pathname", request\.nextUrl\.pathname\)/);
+    const layout = fs.readFileSync(path.join(process.cwd(), "src/app/admin/layout.jsx"), "utf8");
+    expect(layout).toContain("x-pathname");
+    expect(layout).toContain("capabilityForAdminPath");
+  });
+});

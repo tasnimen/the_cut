@@ -3,7 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { saveAdminPermissionsAction } from "@/app/super-admin/permissions/actions";
-import { ADMIN_CAPABILITIES, ADMIN_CAPABILITY_GROUPS, defaultGrants, describeEffectiveGrants, groupOf, resolveGrants } from "@/config/admin-capabilities";
+import { ADMIN_CAPABILITIES, ADMIN_CAPABILITY_GROUPS, allGrants, describeEffectiveGrants, groupOf, resolveGrants } from "@/config/admin-capabilities";
 import { ROUTES } from "@/config/routes";
 import { notify } from "@/lib/toast/notify";
 
@@ -125,7 +125,7 @@ export function PermissionMatrix({ initial }) {
       <div className="dash-form-actions">
         <button className="button" type="button" disabled={pending || changedIds.length === 0 || needsCode} onClick={save}><span>{pending ? "Saving…" : "Save changes"}</span></button>
         <button className="button button-outline" type="button" disabled={pending || changedIds.length === 0} onClick={() => { setGrants(saved); setNeedsCode(false); setMessage(""); }}><span>Discard changes</span></button>
-        <button className="dash-link-button" type="button" disabled={pending} onClick={() => { setGrants(defaultGrants()); setMessage(""); }}>Switch everything on</button>
+        <button className="dash-link-button" type="button" disabled={pending} onClick={() => { setGrants(allGrants()); setMessage(""); }}>Switch everything on</button>
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   ADMIN_CAPABILITIES, ADMIN_CAPABILITY_GROUPS, ADMIN_ROUTE_CAPABILITIES, capabilityAllowed, capabilityForMediaTarget, catalogImageCapability,
-  defaultGrants, describeEffectiveGrants, groupOf, isKnownCapability, resolveGrants, validateGrantsInput,
+  allGrants, capabilityForAdminPath, denyAllGrants, describeEffectiveGrants, groupOf, isKnownCapability, resolveGrants, validateGrantsInput,
 } from "./admin-capabilities.js";
 
 describe("the capability catalog", () => {
@@ -34,25 +34,26 @@ describe("the capability catalog", () => {
 });
 
 describe("resolveGrants", () => {
-  it("defaults to everything on (what an Admin could do before this system)", () => {
+  it("defaults to everything off (default deny until the Super Admin saves)", () => {
     const grants = resolveGrants(undefined);
     expect(Object.keys(grants).sort()).toEqual([...ADMIN_CAPABILITIES].sort());
-    expect(Object.values(grants).every((value) => value === true)).toBe(true);
-    expect(resolveGrants(null)).toEqual(defaultGrants());
+    expect(Object.values(grants).every((value) => value === false)).toBe(true);
+    expect(resolveGrants(null)).toEqual(denyAllGrants());
+    expect(resolveGrants({})).toEqual(denyAllGrants());
   });
   it("applies stored booleans, and ignores unknown keys, junk values and wrong shapes", () => {
     const grants = resolveGrants({ "messages.delete": false, "gallery.upload": "no", "fake.power": true, "__proto__": { x: 1 } });
     expect(grants["messages.delete"]).toBe(false);
-    expect(grants["gallery.upload"]).toBe(true);
+    expect(grants["gallery.upload"]).toBe(false);
     expect(Object.hasOwn(grants, "fake.power")).toBe(false);
-    for (const bad of ["x", 5, [], true]) expect(resolveGrants(bad)).toEqual(defaultGrants());
+    for (const bad of ["x", 5, [], true]) expect(resolveGrants(bad)).toEqual(denyAllGrants());
   });
 });
 
 describe("capabilityAllowed", () => {
-  const off = (...ids) => resolveGrants(Object.fromEntries(ids.map((id) => [id, false])));
+  const off = (...ids) => resolveGrants({ ...allGrants(), ...Object.fromEntries(ids.map((id) => [id, false])) });
   it("allows what is on and denies what is off", () => {
-    expect(capabilityAllowed(defaultGrants(), "messages.delete")).toBe(true);
+    expect(capabilityAllowed(allGrants(), "messages.delete")).toBe(true);
     expect(capabilityAllowed(off("messages.delete"), "messages.delete")).toBe(false);
     expect(capabilityAllowed(off("messages.delete"), "messages.markStatus")).toBe(true);
   });
@@ -65,13 +66,13 @@ describe("capabilityAllowed", () => {
     const grants = off("services.create");
     expect(capabilityAllowed(grants, ["services.create", "services.edit"])).toBe(true);
     expect(capabilityAllowed(off("services.create", "services.edit"), ["services.create", "services.edit"])).toBe(false);
-    for (const bad of ["nope.view", "", undefined, null, [], ["x.y"], 5]) expect(capabilityAllowed(defaultGrants(), bad)).toBe(false);
+    for (const bad of ["nope.view", "", undefined, null, [], ["x.y"], 5]) expect(capabilityAllowed(allGrants(), bad)).toBe(false);
   });
 });
 
 describe("validateGrantsInput", () => {
   it("accepts a partial set of known booleans and returns the full map", () => {
-    const result = validateGrantsInput({ "messages.delete": false });
+    const result = validateGrantsInput({ "bookings.view": true });
     expect(result.ok).toBe(true);
     expect(result.grants["messages.delete"]).toBe(false);
     expect(result.grants["bookings.view"]).toBe(true);
@@ -92,10 +93,46 @@ describe("helpers", () => {
     expect(catalogImageCapability("services")).toEqual(["services.create", "services.edit"]);
   });
   it("describes what an Admin can do for the review screen", () => {
-    const review = describeEffectiveGrants(resolveGrants({ "gallery.view": false, "messages.delete": false }));
+    const review = describeEffectiveGrants(resolveGrants({ ...allGrants(), "gallery.view": false, "messages.delete": false }));
     const gallery = review.find((group) => group.key === "gallery");
     expect(gallery.allowed).toEqual([]);
     expect(gallery.denied.length).toBe(5);
     expect(review.find((group) => group.key === "messages").denied).toEqual(["Delete messages"]);
+  });
+});
+
+describe("site images (a group with no page and no view switch)", () => {
+  it("depends only on its own switch, and stays default deny", () => {
+    expect(capabilityAllowed(allGrants(), "siteImages.manage")).toBe(true);
+    expect(capabilityAllowed(resolveGrants({ ...allGrants(), "siteImages.manage": false }), "siteImages.manage")).toBe(false);
+    expect(capabilityAllowed(denyAllGrants(), "siteImages.manage")).toBe(false);
+    expect(capabilityAllowed(resolveGrants(undefined), "siteImages.manage")).toBe(false);
+    for (const target of ["banners", "slots", "products"]) expect(capabilityAllowed(allGrants(), capabilityForMediaTarget(target))).toBe(true);
+  });
+  it("does not weaken groups that have a view switch", () => {
+    const grants = resolveGrants({ ...allGrants(), "gallery.view": false });
+    expect(capabilityAllowed(grants, "gallery.upload")).toBe(false);
+    expect(capabilityAllowed(grants, "siteImages.manage")).toBe(true);
+  });
+  it("shows what an Admin can do with site images in the review", () => {
+    const review = describeEffectiveGrants(allGrants()).find((group) => group.key === "siteImages");
+    expect(review.allowed).toEqual(["Upload banner, slot and product images"]);
+    expect(review.denied).toEqual([]);
+  });
+});
+
+describe("capabilityForAdminPath", () => {
+  it("maps every page route to its switch, including dynamic routes", () => {
+    for (const [route, capability] of Object.entries(ADMIN_ROUTE_CAPABILITIES)) {
+      expect(capabilityForAdminPath(route.replace(/[[a-z]+]/g, "some-value")), route).toBe(capability);
+    }
+  });
+  it("prefers the exact route over a dynamic one, and ignores a trailing slash", () => {
+    expect(capabilityForAdminPath("/admin/barbers/new")).toBe("barbers.create");
+    expect(capabilityForAdminPath("/admin/barbers/daniel-carter")).toBe("barbers.edit");
+    expect(capabilityForAdminPath("/admin/barbers/")).toBe("barbers.view");
+  });
+  it("needs no switch for the overview, and returns null for anything else", () => {
+    for (const path of ["/admin", "/admin/", "/admin/nothing-here", "/admin/barbers/a/b", "/user", "", undefined, null, 5]) expect(capabilityForAdminPath(path), String(path)).toBeNull();
   });
 });

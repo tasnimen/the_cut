@@ -24,8 +24,8 @@ export default async function AdminPermissionsPage() {
       />
       <Panel title="Pages and actions">
         <p className="dash-form-note">
-          {meta.updatedAt ? `Last saved ${WHEN.format(new Date(meta.updatedAt))} (Eastern), change number ${meta.version}.` : "Nothing was ever saved, so every switch is on: Admins can do everything they could before."}
-          {" "}A change reaches an Admin on their next click. Hiding a page also turns off its actions. Admins can never reach the Super admin area, this page, the audit log or admin accounts, whatever you choose here.
+          {meta.updatedAt ? `Last saved ${WHEN.format(new Date(meta.updatedAt))} (Eastern), change number ${meta.version}.` : "Nothing was ever saved, so every switch is off: the Admin can only open the dashboard overview."}
+          {" "}A change reaches an Admin on their next click. The dashboard overview is always open to the Admin. Hiding a page also turns off its actions. Admins can never reach the Super admin area, this page, the audit log or admin accounts, whatever you choose here.
         </p>
         <PermissionMatrix initial={grants} />
       </Panel>

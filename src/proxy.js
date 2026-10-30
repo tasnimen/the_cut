@@ -27,6 +27,7 @@ export function proxy(request) {
   const contentSecurityPolicy = directives.join("; ");
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-nonce", nonce);
+  requestHeaders.set("x-pathname", request.nextUrl.pathname); // always set here, so a client-sent value is overwritten
   requestHeaders.set("Content-Security-Policy", contentSecurityPolicy);
 
   const response = NextResponse.next({ request: { headers: requestHeaders } });
