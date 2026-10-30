@@ -909,3 +909,9 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 4; pointer-event
 .dash-review { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; font-size: 13px; line-height: 1.6; }
 .dash-readonly-group { margin: 0; padding: 0; border: 0; min-inline-size: 0; }
 .dash-readonly-group:disabled { opacity: .75; }
+
+/* Catalog list pictures and the unsaved-picture notice (barber picture fix) */
+.dash-thumb { display: inline-block; width: 48px; height: 48px; flex: none; overflow: hidden; border: 1px solid var(--border-warm); border-radius: 50%; background: var(--surface-muted); }
+.dash-thumb-image { width: 100%; height: 100%; object-fit: cover; }
+.dash-thumb-empty { display: inline-grid; place-items: center; color: var(--gold-light); font-family: var(--font-display); font-size: 20px; }
+.dash-image-pending { margin: 0; padding: 10px 12px; border: 1px solid var(--gold); border-radius: 6px; background: var(--surface-muted); color: var(--text); font-size: 13px; line-height: 1.5; }

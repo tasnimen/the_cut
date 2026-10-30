@@ -99,7 +99,7 @@ export function BarberForm({ mode, action, initial, services }) {
 
       <fieldset className="dash-fieldset">
         <legend>Public profile</legend>
-        <p className="dash-form-note">The home page shows this barber by name only when &ldquo;Show on the website&rdquo; is ticked. Photos come from the image slots.</p>
+        <p className="dash-form-note">The home page shows this barber, with the picture added below, only when &ldquo;Show on the website&rdquo; is ticked.</p>
         <label className="dash-check"><input type="checkbox" name="publicProfile" defaultChecked={values.publicProfile} /> Show on the website</label>
         <div className="dash-form-row">
           <Field id="barber-role" label="Role" hint="For example Master Barber." error={errors.role}>
@@ -115,7 +115,7 @@ export function BarberForm({ mode, action, initial, services }) {
       </fieldset>
 
       <label className="dash-check"><input type="checkbox" name="active" defaultChecked={values.active} /> Can be booked (turn off to hide this barber from booking)</label>
-      <CatalogImageField kind="barbers" initial={initial.image ?? null} errors={errors} />
+      <CatalogImageField kind="barbers" initial={initial.image ?? null} errors={errors} nameInputId="barber-name" mode={mode} />
       {state.status === "error" && state.message ? <p className="auth-error" role="alert">{state.message}</p> : null}
       {state.status === "success" ? <p className="auth-message" role="status">{state.message}</p> : null}
       <div className="dash-form-actions">

@@ -72,7 +72,7 @@ export function ServiceForm({ mode, action, initial }) {
       <label className="dash-check">
         <input type="checkbox" name="active" defaultChecked={values.active} /> Show this service on the public site and allow booking
       </label>
-      <CatalogImageField kind="services" initial={initial.image ?? null} errors={errors} />
+      <CatalogImageField kind="services" initial={initial.image ?? null} errors={errors} nameInputId="service-name" mode={mode} />
       {state.status === "error" && state.message ? <p className="auth-error" role="alert">{state.message}</p> : null}
       {state.status === "success" ? <p className="auth-message" role="status">{state.message}</p> : null}
       <div className="dash-form-actions">

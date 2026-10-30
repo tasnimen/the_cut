@@ -1,20 +1,23 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { IMAGE_PRESETS } from "@/config/images";
-import { ALT_MAX, ALT_MIN } from "@/lib/catalog/image-input";
+import { ALT_MAX, ALT_MIN, suggestAlt } from "@/lib/catalog/image-input";
 import { UPLOAD_ACCEPT_ATTRIBUTE, UPLOAD_TOAST_KEYS, checkChosenFile, prepareImageForUpload, uploadFailureKind } from "@/lib/images/client-upload";
 import { notify } from "@/lib/toast/notify";
 
 const PRESET_BY_KIND = { services: "service-card", barbers: "barber-portrait", packages: "package-card" };
+const EXAMPLE_NAME = { services: "Classic haircut", barbers: "Daniel Carter", packages: "Gold" };
 const MESSAGES = { too_large: "That picture is too large. Choose one under 4 MB.", wrong_type: "Choose a JPG, PNG, WebP or AVIF picture.", rate_limited: "Too many uploads. Try again later.", denied: "Please sign in again to continue.", provider_error: "The picture could not be saved. Try again." };
 
 // The picture field of the service, barber and package editors (create and edit).
 // 1. Choose or drop a file, 2. line up the crop with the sliders (the box has the card's fixed shape),
 // 3. "Use this picture" shrinks, crops and uploads it. The upload only becomes the record's picture when the
 // form is saved (the server attaches it after the record itself saved). Remove and Replace discard what you added.
-export function CatalogImageField({ kind, initial, errors = {} }) {
+// `nameInputId` is the id of the form's name input; it is read to suggest a description. `mode` is "create" or "edit".
+export function CatalogImageField({ kind, initial, errors = {}, nameInputId = null, mode = "create" }) {
   const preset = IMAGE_PRESETS[PRESET_BY_KIND[kind]];
   const input = useRef(null);
   const previewRef = useRef("");
@@ -28,7 +31,19 @@ export function CatalogImageField({ kind, initial, errors = {} }) {
   const [message, setMessage] = useState("");
   const [dragging, setDragging] = useState(false);
 
+  const fieldsetRef = useRef(null);
   useEffect(() => () => { if (previewRef.current) URL.revokeObjectURL(previewRef.current); }, []);
+
+  // A picture that was uploaded but not saved with the form is lost when the page is left: warn first.
+  useEffect(() => {
+    if (!pending) return undefined;
+    const warn = (event) => { event.preventDefault(); event.returnValue = ""; };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [pending]);
+
+  const nameNow = () => (nameInputId && typeof document !== "undefined" ? document.getElementById(nameInputId)?.value ?? "" : "");
+  const fillSuggestedAlt = () => { setAlt((current) => (current.trim() ? current : suggestAlt(kind, nameNow()))); };
 
   function setPreview(file) {
     if (previewRef.current) URL.revokeObjectURL(previewRef.current);
@@ -51,7 +66,7 @@ export function CatalogImageField({ kind, initial, errors = {} }) {
     setFocus({ x: 50, y: 50 });
   }
 
-  async function upload() {
+  async function upload({ saveNow = false } = {}) {
     if (!chosen || busy) return;
     setBusy(true);
     setMessage("");
@@ -69,9 +84,19 @@ export function CatalogImageField({ kind, initial, errors = {} }) {
       }
       const data = await response.json();
       await discardPending(); // an earlier pending upload is replaced
-      setPending({ mediaId: data.mediaId, preview: chosen.preview });
-      setChosen(null);
-      setRemoved(false);
+      flushSync(() => {
+        setPending({ mediaId: data.mediaId, preview: chosen.preview });
+        setChosen(null);
+        setRemoved(false);
+        fillSuggestedAlt();
+      });
+      if (saveNow) {
+        const form = fieldsetRef.current?.form;
+        const altInput = form?.elements?.namedItem("imageAlt");
+        if (altInput && altInput.value.trim().length < ALT_MIN) { setMessage("Add a description of at least 5 characters, then press Save changes."); notify("catalogImageReady"); return; }
+        form?.requestSubmit();
+        return;
+      }
       notify("catalogImageReady");
     } catch (failure) {
       const kindOfFailure = failure?.code === "too_large" ? "too_large" : failure?.code === "wrong_type" ? "wrong_type" : null;
@@ -96,7 +121,7 @@ export function CatalogImageField({ kind, initial, errors = {} }) {
   const boxStyle = { aspectRatio: String(preset.aspect) };
 
   return (
-    <fieldset className="dash-fieldset dash-image-field">
+    <fieldset ref={fieldsetRef} className="dash-fieldset dash-image-field">
       <legend>Picture (optional)</legend>
       <p className="dash-form-note">Shown on the public site. Without one, the site uses its built-in image. JPG, PNG, WebP or AVIF, up to 4 MB. It is cropped to the shape below.</p>
       <input type="hidden" name="imageMediaId" value={pending?.mediaId ?? ""} />
@@ -128,18 +153,19 @@ export function CatalogImageField({ kind, initial, errors = {} }) {
           <span>{hasPicture ? "Replace picture" : "Choose picture"}</span>
           <input ref={input} className="sr-only" type="file" accept={UPLOAD_ACCEPT_ATTRIBUTE} disabled={busy} aria-label="Choose a picture" onChange={(event) => { const file = event.target.files?.[0]; if (file) pick(file); }} />
         </label>
-        {chosen ? <button className="button button-small" type="button" disabled={busy} onClick={upload}><span>{busy ? "Uploading…" : "Use this picture"}</span></button> : null}
+        {chosen ? <button className="button button-small" type="button" disabled={busy} onClick={() => upload()}><span>{busy ? "Uploading…" : "Use this picture"}</span></button> : null}
+        {chosen && mode === "edit" ? <button className="button button-small" type="button" disabled={busy} onClick={() => upload({ saveNow: true })}><span>Use this picture and save</span></button> : null}
         {hasPicture ? <button className="dash-link-button" type="button" disabled={busy} onClick={remove}>Remove picture</button> : null}
         {removed && saved ? <button className="dash-link-button" type="button" onClick={undoRemove}>Keep the current picture</button> : null}
       </div>
-      {chosen ? <p className="dash-form-note">Choose &ldquo;Use this picture&rdquo; to add it, then save the form.</p> : null}
-      {pending ? <p className="dash-form-note" role="status">Picture added. It becomes live when you save.</p> : null}
+      {chosen ? <p className="dash-form-note">Step 1 of 2: choose &ldquo;Use this picture&rdquo; to upload it. Step 2: press the Save button at the bottom of the form.</p> : null}
+      {pending ? <p className="dash-image-pending" role="status"><strong>Not saved yet.</strong> The picture is uploaded but only becomes part of this record when you press {mode === "edit" ? "Save changes" : "the Create button"} at the bottom of the form. If you leave this page first, it is lost.</p> : null}
 
       {hasPicture && !removed ? (
         <div className="dash-field">
-          <label htmlFor={`${kind}-image-alt`}>Description for screen readers (required with a picture)</label>
+          <label htmlFor={`${kind}-image-alt`}>Picture description (required with a picture)</label>
           <input id={`${kind}-image-alt`} name="imageAlt" value={alt} maxLength={ALT_MAX} onChange={(event) => setAlt(event.target.value)} aria-invalid={errors.imageAlt ? "true" : undefined} />
-          <small>A few words, at least {ALT_MIN} characters, about what the picture shows.</small>
+          <small>Read aloud by screen readers and shown if the picture cannot load. Say what is in the picture, for example: {suggestAlt(kind, EXAMPLE_NAME[kind])}</small>
           {errors.imageAlt ? <small className="dash-field-error" role="alert">{errors.imageAlt}</small> : null}
         </div>
       ) : null}

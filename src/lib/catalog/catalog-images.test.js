@@ -211,3 +211,19 @@ describe("pending uploads", () => {
     expect(removeMedia).toHaveBeenCalledWith(String(stale._id));
   });
 });
+
+import { suggestAlt } from "@/lib/catalog/image-input";
+
+describe("suggestAlt", () => {
+  it("suggests a meaningful description from the name for each kind", () => {
+    expect(suggestAlt("barbers", "Daniel Carter")).toBe("Professional portrait of Daniel Carter, barber at The Cut Barbershop.");
+    expect(suggestAlt("services", "Hot towel shave")).toBe("Hot towel shave service at The Cut Barbershop.");
+    expect(suggestAlt("packages", "Gold")).toBe("Gold grooming package at The Cut Barbershop.");
+  });
+  it("returns nothing for an empty name and strips markup characters and long text", () => {
+    expect(suggestAlt("barbers", "")).toBe("");
+    expect(suggestAlt("barbers", undefined)).toBe("");
+    expect(suggestAlt("barbers", "<b>Dan</b>")).not.toMatch(/[<>]/);
+    expect(suggestAlt("barbers", "x".repeat(300)).length).toBeLessThan(200);
+  });
+});

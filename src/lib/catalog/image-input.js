@@ -53,6 +53,19 @@ export function publicImage(value, cloudName) {
   return image ? Object.freeze({ url: image.url, alt: image.alt, width: image.width, height: image.height }) : null;
 }
 
+// What the description is for: screen readers read it aloud for people who cannot see the picture, browsers show
+// it when the picture fails to load, and search engines use it. It is saved with the picture (image.alt) and used
+// as the alt text wherever the picture is shown. A good one says what is in the picture, not "image" or "photo".
+// Suggested text for the field, from the record's name (editable by the admin).
+export function suggestAlt(kind, name) {
+  const label = String(name ?? "").replace(/[\u0000-\u001f\u007f<>]/g, " ").trim().slice(0, 80);
+  if (!label) return "";
+  if (kind === "barbers") return `Professional portrait of ${label}, barber at The Cut Barbershop.`;
+  if (kind === "services") return `${label} service at The Cut Barbershop.`;
+  if (kind === "packages") return `${label} grooming package at The Cut Barbershop.`;
+  return label;
+}
+
 // A picture for components that need { src, alt, ... }: the record's own picture, else the slot helper's.
 export function pictureFor(record, fallback) {
   const image = record?.image;
