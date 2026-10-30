@@ -3,7 +3,7 @@
 **Status (2026-10-30):** Phase I units I-1 to I-17, I-19, I-20, I-22, the Cloudinary switch (C1, C2) and D1 (pictures) are built and tested (642 tests). The admin screens have not been tried live as an admin. See `docs/PROGRESS.md`.
 
 Pending, in this order:
-0. **Owner, barber pictures:** none of the five barbers in `the_cut` has a picture attached (checked 2026-10-30). One portrait (1003x1254, uploaded 13:49 UTC) was uploaded but never saved with a barber. Open Admin > Barbers > Edit for each barber, choose the picture, press "Use this picture and save". See `docs/TESTING.md`, "Barber picture fix".
+0. **Owner, barber pictures:** the pending portrait was attached to Daniel Carter on 2026-10-30 (owner's decision; seen on the public site). The other four barbers (James Miller, Robert Wilson, Michael Brown, wfoijwfnwfe) still have no picture: open Admin > Barbers > Edit for each, choose the picture, press "Use this picture and save". Check the Admin > Barbers Picture column as ADMIN (not yet verified in a browser). See `docs/TESTING.md`, "Barber picture fix".
 1. **Owner:** set the correct `CLOUDINARY_CLOUD_NAME` in `.env` (the check with the name `swthle87` printed SUCCESS), restart, rebuild, run `npm run check:cloudinary`.
 2. **Owner:** live-test the admin side (checklist given in chat; steps also in `docs/TESTING.md`) and report results. Nothing new is built on untested admin screens until then, unless the owner says so.
 3. **Owner:** live-test the permission screen (checklist in `docs/TESTING.md`, "Admin permission screen (P2)") together with the admin checklist; report what you see.

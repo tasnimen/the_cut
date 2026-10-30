@@ -116,7 +116,7 @@ Status labels: **BUILT** = implemented, covered by automated tests, lint and bui
 | Super Admin controlled Admin capabilities: engine (catalog, grants storage, enforcement in actions, API routes and pages, coverage guard) | P1 | BUILT, not live-verified; all switches default on |
 | Super Admin permission screen `/super-admin/permissions` (route and action switches, review, save with authenticator code, audit); sidebar, buttons and settings follow the switches | P2 | BUILT, not live-verified |
 
-| Barber picture fix: root cause found, picture columns in admin lists, clearer save flow with leave-page warning and "use and save" on edit, suggested descriptions, "Shared sample image" label only on shared images | Fix 2026-10-30 | BUILT; public site verified in a browser against a test database; admin dashboard not verified |
+| Barber picture fix: root cause found, picture columns in admin lists, clearer save flow with leave-page warning and "use and save" on edit, suggested descriptions, "Shared sample image" label only on shared images | Fix 2026-10-30 | BUILT; public site verified in a browser; the pending portrait is attached to Daniel Carter (owner's choice, 2026-10-30) and shows on the public home page; admin dashboard not verified |
 
 Checks last run (2026-10-30, after D1): `npm test` 642 passed in 79 files; `npm run lint` clean; `npm run build` passed. Production-build spot checks: public pages 200, admin pages 404 for guests and customers, uploads refused for guests.
 
