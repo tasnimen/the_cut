@@ -27,6 +27,7 @@ export default async function EditServicePage({ params }) {
     category: service.category,
     icon: service.icon,
     active: service.active,
+    image: service.image,
   };
 
   return (

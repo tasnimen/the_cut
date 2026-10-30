@@ -28,6 +28,7 @@ export default async function EditPackagePage({ params }) {
     featured: pkg.featured,
     active: pkg.active,
     bookingServiceSlugs: pkg.bookingServiceSlugs,
+    image: pkg.image,
   };
 
   return (

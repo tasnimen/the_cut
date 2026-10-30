@@ -11,6 +11,8 @@ const mocks = vi.hoisted(() => ({
   create: vi.fn(),
   update: vi.fn(),
   setActive: vi.fn(),
+  readPicture: vi.fn(),
+  savePicture: vi.fn(),
   importDefaults: vi.fn(),
 }));
 
@@ -26,6 +28,8 @@ vi.mock("next/navigation", () => ({ redirect: mocks.redirect }));
 vi.mock("@/lib/catalog/admin-services", () => ({ listAdminServices: mocks.listServices }));
 vi.mock("@/lib/catalog/admin-packages", () => ({ createAdminPackage: mocks.create, updateAdminPackage: mocks.update, setAdminPackageActive: mocks.setActive, importDefaultPackages: mocks.importDefaults }));
 
+vi.mock("@/lib/catalog/image-action", () => ({ readPicture: mocks.readPicture, savePicture: mocks.savePicture, PICTURE_FAILED_MESSAGE: "picture failed" }));
+
 const { createPackageAction, importDefaultPackagesAction, setPackageActiveAction, updatePackageAction } = await import("./actions.js");
 
 function form(values, lists = {}) {
@@ -36,6 +40,8 @@ const valid = { name: "Gold", note: "n", price: "90", inclusions: "Haircut\nShav
 
 beforeEach(() => {
   vi.clearAllMocks();
+  mocks.readPicture.mockResolvedValue({ ok: true, fields: { mediaId: null, alt: "", remove: false } });
+  mocks.savePicture.mockResolvedValue({ ok: true });
   mocks.requirePrincipal.mockResolvedValue({ id: "admin-1", role: "ADMIN" });
   mocks.consume.mockResolvedValue({ allowed: true });
   mocks.getMongo.mockResolvedValue({ db: {} });

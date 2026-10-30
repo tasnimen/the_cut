@@ -5,6 +5,7 @@ import { AuthorizationError, requirePrincipal } from "@/lib/auth/authorization";
 import { createAdminBarber, setAdminBarberActive, updateAdminBarber } from "@/lib/catalog/admin-barbers";
 import { listAdminServices } from "@/lib/catalog/admin-services";
 import { readBarberForm } from "@/lib/catalog/barber-input";
+import { PICTURE_FAILED_MESSAGE, readPicture, savePicture } from "@/lib/catalog/image-action";
 import { revalidateCatalog } from "@/lib/catalog/revalidate";
 import { SERVICE_SLUG_PATTERN } from "@/lib/catalog/service-input";
 import { ensureApplicationIndexes, getMongo } from "@/lib/db/mongo";
@@ -40,10 +41,15 @@ export async function createBarberAction(_previous, formData) {
   if (!parsed.ok) return { status: "error", code: "invalid", message: "Check the highlighted fields.", fieldErrors: parsed.fieldErrors, values: parsed.values };
 
   await ensureApplicationIndexes(db);
+  const picture = await readPicture(db, { kind: "barbers", slug: parsed.data.slug, formData, principal: auth.principal });
+  if (picture.denied) return DENIED;
+  if (!picture.ok) return { status: "error", code: "invalid", message: picture.message, fieldErrors: picture.fieldErrors, values: parsed.values };
   const result = await createAdminBarber(db, parsed.data, auth.principal.id);
   if (!result.ok) return { status: "error", code: "duplicate", message: "That identifier is already in use.", fieldErrors: { slug: "That identifier is already in use." }, values: parsed.values };
 
+  const saved = await savePicture(db, { kind: "barbers", slug: parsed.data.slug, fields: picture.fields, principal: auth.principal });
   revalidateCatalog(["barbers"]);
+  if (!saved.ok) return { status: "error", code: "picture_failed", message: PICTURE_FAILED_MESSAGE, values: parsed.values };
   redirect("/admin/barbers");
 }
 
@@ -56,10 +62,15 @@ export async function updateBarberAction(slug, _previous, formData) {
   const parsed = readBarberForm(formData, { withSlug: false, allowedServiceSlugs: await allowedServiceSlugs(db) });
   if (!parsed.ok) return { status: "error", code: "invalid", message: "Check the highlighted fields.", fieldErrors: parsed.fieldErrors, values: parsed.values };
 
+  const picture = await readPicture(db, { kind: "barbers", slug, formData, principal: auth.principal });
+  if (picture.denied) return DENIED;
+  if (!picture.ok) return { status: "error", code: "invalid", message: picture.message, fieldErrors: picture.fieldErrors, values: parsed.values };
   const result = await updateAdminBarber(db, slug, parsed.data, auth.principal.id);
   if (!result.ok) return { status: "error", code: "not_found", message: "That barber was not found." };
 
+  const saved = await savePicture(db, { kind: "barbers", slug, fields: picture.fields, principal: auth.principal });
   revalidateCatalog(["barbers"]);
+  if (!saved.ok) return { status: "error", code: "picture_failed", message: PICTURE_FAILED_MESSAGE, values: parsed.values };
   return { status: "success", code: "saved", message: "Saved. New bookings use these hours straight away; existing appointments are not moved." };
 }
 

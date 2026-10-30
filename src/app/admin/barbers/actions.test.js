@@ -11,6 +11,8 @@ const mocks = vi.hoisted(() => ({
   create: vi.fn(),
   update: vi.fn(),
   setActive: vi.fn(),
+  readPicture: vi.fn(),
+  savePicture: vi.fn(),
 }));
 
 class AuthorizationError extends Error {
@@ -25,6 +27,8 @@ vi.mock("next/navigation", () => ({ redirect: mocks.redirect }));
 vi.mock("@/lib/catalog/admin-services", () => ({ listAdminServices: mocks.listServices }));
 vi.mock("@/lib/catalog/admin-barbers", () => ({ createAdminBarber: mocks.create, updateAdminBarber: mocks.update, setAdminBarberActive: mocks.setActive }));
 
+vi.mock("@/lib/catalog/image-action", () => ({ readPicture: mocks.readPicture, savePicture: mocks.savePicture, PICTURE_FAILED_MESSAGE: "picture failed" }));
+
 const { createBarberAction, setBarberActiveAction, updateBarberAction } = await import("./actions.js");
 
 function form(values, lists = { serviceSlugs: ["haircut"] }) {
@@ -35,6 +39,8 @@ const valid = { name: "Mike", active: "on", displayOrder: "5", day_monday_works:
 
 beforeEach(() => {
   vi.clearAllMocks();
+  mocks.readPicture.mockResolvedValue({ ok: true, fields: { mediaId: null, alt: "", remove: false } });
+  mocks.savePicture.mockResolvedValue({ ok: true });
   mocks.requirePrincipal.mockResolvedValue({ id: "admin-1", role: "ADMIN" });
   mocks.consume.mockResolvedValue({ allowed: true });
   mocks.getMongo.mockResolvedValue({ db: {} });

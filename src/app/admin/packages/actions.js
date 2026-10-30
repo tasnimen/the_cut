@@ -6,6 +6,7 @@ import { AuthorizationError, requirePrincipal } from "@/lib/auth/authorization";
 import { listAdminServices } from "@/lib/catalog/admin-services";
 import { createAdminPackage, importDefaultPackages, setAdminPackageActive, updateAdminPackage } from "@/lib/catalog/admin-packages";
 import { readPackageForm } from "@/lib/catalog/package-input";
+import { PICTURE_FAILED_MESSAGE, readPicture, savePicture } from "@/lib/catalog/image-action";
 import { revalidateCatalog } from "@/lib/catalog/revalidate";
 import { SERVICE_SLUG_PATTERN } from "@/lib/catalog/service-input";
 import { ensureApplicationIndexes, getMongo } from "@/lib/db/mongo";
@@ -50,10 +51,15 @@ export async function createPackageAction(_previous, formData) {
   if (!parsed.ok) return { status: "error", code: "invalid", message: "Check the highlighted fields.", fieldErrors: parsed.fieldErrors, values: valuesOf(formData) };
 
   await ensureApplicationIndexes(db);
+  const picture = await readPicture(db, { kind: "packages", slug: parsed.data.slug, formData, principal: auth.principal });
+  if (picture.denied) return DENIED;
+  if (!picture.ok) return { status: "error", code: "invalid", message: picture.message, fieldErrors: picture.fieldErrors, values: valuesOf(formData) };
   const result = await createAdminPackage(db, parsed.data, auth.principal.id);
   if (!result.ok) return { status: "error", code: "duplicate", message: "That identifier is already in use.", fieldErrors: { slug: "That identifier is already in use." }, values: valuesOf(formData) };
 
+  const saved = await savePicture(db, { kind: "packages", slug: parsed.data.slug, fields: picture.fields, principal: auth.principal });
   revalidateCatalog(["packages"]);
+  if (!saved.ok) return { status: "error", code: "picture_failed", message: PICTURE_FAILED_MESSAGE, values: valuesOf(formData) };
   redirect("/admin/packages");
 }
 
@@ -66,10 +72,15 @@ export async function updatePackageAction(slug, _previous, formData) {
   const parsed = readPackageForm(formData, { withSlug: false, allowedServiceSlugs: await allowedServiceSlugs(db) });
   if (!parsed.ok) return { status: "error", code: "invalid", message: "Check the highlighted fields.", fieldErrors: parsed.fieldErrors, values: valuesOf(formData) };
 
+  const picture = await readPicture(db, { kind: "packages", slug, formData, principal: auth.principal });
+  if (picture.denied) return DENIED;
+  if (!picture.ok) return { status: "error", code: "invalid", message: picture.message, fieldErrors: picture.fieldErrors, values: valuesOf(formData) };
   const result = await updateAdminPackage(db, slug, parsed.data, auth.principal.id);
   if (!result.ok) return { status: "error", code: "not_found", message: "That package was not found." };
 
+  const saved = await savePicture(db, { kind: "packages", slug, fields: picture.fields, principal: auth.principal });
   revalidateCatalog(["packages"]);
+  if (!saved.ok) return { status: "error", code: "picture_failed", message: PICTURE_FAILED_MESSAGE, values: valuesOf(formData) };
   return { status: "success", code: "saved", message: "Saved. The public site will show the change shortly.", values: valuesOf(formData) };
 }
 

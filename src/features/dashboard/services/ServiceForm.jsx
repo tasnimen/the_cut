@@ -3,6 +3,7 @@
 import { useActionState, useEffect } from "react";
 import Link from "next/link";
 import { SERVICE_CATEGORIES, SERVICE_ICONS } from "@/lib/catalog/normalize";
+import { CatalogImageField } from "@/features/dashboard/components/CatalogImageField";
 import { notify } from "@/lib/toast/notify";
 
 const CATEGORY_LABELS = { haircut: "Haircut", beard: "Beard", shave: "Shave", color: "Color", treatment: "Treatment" };
@@ -71,6 +72,7 @@ export function ServiceForm({ mode, action, initial }) {
       <label className="dash-check">
         <input type="checkbox" name="active" defaultChecked={values.active} /> Show this service on the public site and allow booking
       </label>
+      <CatalogImageField kind="services" initial={initial.image ?? null} errors={errors} />
       {state.status === "error" && state.message ? <p className="auth-error" role="alert">{state.message}</p> : null}
       {state.status === "success" ? <p className="auth-message" role="status">{state.message}</p> : null}
       <div className="dash-form-actions">

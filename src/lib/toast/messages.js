@@ -38,6 +38,7 @@ export const TOAST_MESSAGES = Object.freeze({
   uploadTooLarge: { type: "error", text: "That photo is too large. Choose one under 4 MB." },
   uploadWrongType: { type: "error", text: "Choose a JPG, PNG, WebP or AVIF photo." },
   uploadProviderError: { type: "error", text: "The image service is not available right now. Please try again later." },
+  catalogImageReady: { type: "success", text: "Picture added. Save the form to publish it." },
   uploadFailure: { type: "error", text: "The image could not be uploaded. Check the file and try again." },
   rateLimited: { type: "error", text: "Too many attempts. Please wait a moment and try again." },
   unexpected: { type: "error", text: "Something went wrong. Please try again." },

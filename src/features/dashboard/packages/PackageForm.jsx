@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect } from "react";
 import Link from "next/link";
+import { CatalogImageField } from "@/features/dashboard/components/CatalogImageField";
 import { notify } from "@/lib/toast/notify";
 
 function Field({ id, label, hint, error, children }) {
@@ -66,6 +67,7 @@ export function PackageForm({ mode, action, initial, services }) {
       </fieldset>
       <label className="dash-check"><input type="checkbox" name="featured" defaultChecked={values.featured} /> Show the &ldquo;Popular&rdquo; badge (only one package can have it)</label>
       <label className="dash-check"><input type="checkbox" name="active" defaultChecked={values.active} /> Show this package on the pricing page</label>
+      <CatalogImageField kind="packages" initial={initial.image ?? null} errors={errors} />
       {state.status === "error" && state.message ? <p className="auth-error" role="alert">{state.message}</p> : null}
       {state.status === "success" ? <p className="auth-message" role="status">{state.message}</p> : null}
       <div className="dash-form-actions">

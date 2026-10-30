@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { AuthorizationError, requirePrincipal } from "@/lib/auth/authorization";
 import { createAdminService, setAdminServiceActive, updateAdminService } from "@/lib/catalog/admin-services";
+import { PICTURE_FAILED_MESSAGE, readPicture, savePicture } from "@/lib/catalog/image-action";
 import { revalidateCatalog } from "@/lib/catalog/revalidate";
 import { readServiceForm, SERVICE_SLUG_PATTERN } from "@/lib/catalog/service-input";
 import { ensureApplicationIndexes, getMongo } from "@/lib/db/mongo";
@@ -40,10 +41,15 @@ export async function createServiceAction(_previous, formData) {
 
   const { db } = await getMongo();
   await ensureApplicationIndexes(db);
+  const picture = await readPicture(db, { kind: "services", slug: parsed.data.slug, formData, principal: auth.principal });
+  if (picture.denied) return DENIED;
+  if (!picture.ok) return { status: "error", code: "invalid", message: picture.message, fieldErrors: picture.fieldErrors, values: valuesOf(formData) };
   const result = await createAdminService(db, parsed.data, auth.principal.id);
   if (!result.ok) return { status: "error", code: "duplicate", message: "That identifier is already in use.", fieldErrors: { slug: "That identifier is already in use." }, values: valuesOf(formData) };
 
+  const saved = await savePicture(db, { kind: "services", slug: parsed.data.slug, fields: picture.fields, principal: auth.principal });
   revalidateCatalog(["services"]);
+  if (!saved.ok) return { status: "error", code: "picture_failed", message: PICTURE_FAILED_MESSAGE, values: valuesOf(formData) };
   redirect("/admin/services");
 }
 
@@ -56,10 +62,15 @@ export async function updateServiceAction(slug, _previous, formData) {
   if (!parsed.ok) return { status: "error", code: "invalid", message: "Check the highlighted fields.", fieldErrors: parsed.fieldErrors, values: valuesOf(formData) };
 
   const { db } = await getMongo();
+  const picture = await readPicture(db, { kind: "services", slug, formData, principal: auth.principal });
+  if (picture.denied) return DENIED;
+  if (!picture.ok) return { status: "error", code: "invalid", message: picture.message, fieldErrors: picture.fieldErrors, values: valuesOf(formData) };
   const result = await updateAdminService(db, slug, parsed.data, auth.principal.id);
   if (!result.ok) return { status: "error", code: "not_found", message: "That service was not found." };
 
+  const saved = await savePicture(db, { kind: "services", slug, fields: picture.fields, principal: auth.principal });
   revalidateCatalog(["services"]);
+  if (!saved.ok) return { status: "error", code: "picture_failed", message: PICTURE_FAILED_MESSAGE, values: valuesOf(formData) };
   return { status: "success", code: "saved", message: "Saved. The public site will show the change shortly.", values: valuesOf(formData) };
 }
 

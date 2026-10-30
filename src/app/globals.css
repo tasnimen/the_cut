@@ -887,3 +887,16 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 4; pointer-event
 .dash-bar-fill { display: block; height: 100%; border-radius: 999px; background: var(--gold); }
 .dash-bar-count { color: var(--text); font-weight: 600; text-align: right; }
 @media (max-width: 520px) { .dash-bar-row { grid-template-columns: minmax(80px, 110px) 1fr 32px; gap: 8px; } }
+
+/* Catalog picture field (D1) */
+.dash-image-field { display: grid; gap: 12px; max-width: 520px; }
+.dash-image-box { position: relative; width: 100%; max-width: 360px; overflow: hidden; border: 1px dashed var(--border-warm); border-radius: 8px; background: var(--surface-muted); }
+.dash-image-box.is-dragging { border-color: var(--gold); background: var(--surface); }
+.dash-image-preview, .dash-image-saved { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background-size: cover; background-repeat: no-repeat; }
+.dash-image-empty { position: absolute; inset: 0; display: grid; place-items: center; margin: 0; padding: 12px; color: var(--muted); font-size: 12px; text-align: center; }
+.dash-image-progress { position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: linear-gradient(90deg, transparent, var(--gold), transparent); background-size: 200% 100%; animation: dash-image-slide 1s linear infinite; }
+@keyframes dash-image-slide { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) { .dash-image-progress { animation: none; background: var(--gold); } }
+.pricing-card-image, .barber-card-image-fixed { position: relative; width: 100%; overflow: hidden; border-radius: 6px; }
+.pricing-card-image { aspect-ratio: 4 / 3; margin-bottom: 14px; }
+.pricing-card-image img { object-fit: cover; }

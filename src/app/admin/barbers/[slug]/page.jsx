@@ -22,7 +22,7 @@ export default async function EditBarberPage({ params }) {
   return (
     <>
       <PageHeader eyebrow="Team" title={barber.name} description="Edit hours, services and what the website shows." />
-      <Panel><BarberForm mode="edit" action={updateBarberAction.bind(null, slug)} initial={barberToFormValues(barber)} services={services.map((service) => ({ slug: service.slug, name: service.name }))} /></Panel>
+      <Panel><BarberForm mode="edit" action={updateBarberAction.bind(null, slug)} initial={{ ...barberToFormValues(barber), image: barber.image }} services={services.map((service) => ({ slug: service.slug, name: service.name }))} /></Panel>
     </>
   );
 }
