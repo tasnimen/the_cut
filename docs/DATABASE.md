@@ -110,3 +110,7 @@ One document per image slot that an admin pointed at a stored image: `slot` (a k
 ## Pictures on service, barber and pricingPackage (D1)
 
 Optional field `image: { mediaId, secureUrl, width, height, alt }`. Records without it keep working (the site uses the slot image or placeholder). `media` documents of category services, barbers or packages gain `attachedTo: { kind, slug }` once attached (a media document can belong to one record only) and `orphaned: true` when its provider delete failed. Unattached uploads older than 24 hours are swept at the next upload. Public pages receive the picture without `mediaId`.
+
+## adminPermission (P1)
+
+One document, `_id: "admin-grants"`: `grants` (`{ "<group>.<action>": boolean }`, the complete set after the last save), `version` (incremented on each save), `updatedAt`, `updatedBy` (user id of the Super Admin). Absent document or key = default (everything on). Read on every guarded Admin call; written only by `saveAdminGrants` (Super Admin). See ADMIN_PERMISSIONS.md.

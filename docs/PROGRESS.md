@@ -113,6 +113,7 @@ Status labels: **BUILT** = implemented, covered by automated tests, lint and bui
 | Image storage moved from ImgBB to Cloudinary (adapter, folders, 4 MB, CSP, fixed sizes, check script), browser resize, slot overrides, delivery guards | C1, C2 | BUILT; `npm run check:cloudinary` printed SUCCESS once the correct cloud name was used; the owner still has to set the correct `CLOUDINARY_CLOUD_NAME` in `.env`; uploads not live-verified |
 | Pictures for services, barbers and packages (upload, crop, replace, remove, cleanup) | D1 | BUILT; not exercised live |
 | Dashboard CRUD audit | docs/DASHBOARD_CRUD_GAPS.md | DONE (read-only) |
+| Super Admin controlled Admin capabilities: engine (catalog, grants storage, enforcement in actions, API routes and pages, coverage guard) | P1 | BUILT, not live-verified; no screen yet (P2); all switches default on |
 
 Checks last run (2026-10-30, after D1): `npm test` 642 passed in 79 files; `npm run lint` clean; `npm run build` passed. Production-build spot checks: public pages 200, admin pages 404 for guests and customers, uploads refused for guests.
 

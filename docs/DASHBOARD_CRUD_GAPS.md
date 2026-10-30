@@ -30,3 +30,7 @@ Read-only audit of every dashboard screen that exists today. "Yes" means it work
 ## Update after unit D1 (2026-10-30)
 
 Services, packages and barbers now have an optional picture: upload (drag and drop or file picker), crop to the card's fixed shape, preview, description (required), Replace and Remove, on both Create and Edit. Old pictures are deleted from Cloudinary after the new state is saved. Archive, restore and hard delete are still open (unit D2).
+
+## Update after unit P1 (2026-10-30)
+
+The question in gap 5 (who may delete contact messages) is now answered by the capability `messages.delete`, which the Super Admin will switch from the permission screen (P2). Until P2 it is on, as before. The same switches already cover gallery delete (`gallery.delete`) and hide (`gallery.hide`).

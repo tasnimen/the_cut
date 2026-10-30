@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** D1 complete (pictures for services, barbers and packages; not verified live). **Next step:** D2 on the owner's ok.
+**Where I stopped:** P1 complete (Admin capability engine; no screen yet). **Next step:** P2 on the owner's ok.
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -465,3 +465,10 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - No hard delete or archive yet (D2). The picture sweep runs at upload time only.
 - **Not verified live**; see TESTING.md. Needs a rebuild after setting the cloud name.
 - **Where I stopped:** D1 complete. **Next step:** D2 (archive, restore, delete) on the owner's ok, once the owner answers who may delete contact messages.
+
+## Unit P1 done (2026-10-30): Super Admin controlled Admin capabilities (engine)
+- New: `config/admin-capabilities.js` (catalog, route map, resolution, validation, helpers), `lib/auth/capabilities.js` (read per call, `roleHasCapability`, `saveAdminGrants`), `docs/ADMIN_PERMISSIONS.md`. Changed: `lib/auth/authorization.js` and `dashboard-guard.js` (optional `{ capability }`), every admin action file, `api/admin/gallery`, `api/admin/catalog-image`, `api/media`, the no-show route in `lib/booking/route-core.js` and all 18 admin pages (route key). Sign-in, TOTP and role code were not modified.
+- Tests: four new files plus the updated action and route tests; `capability-coverage.test.js` is the guard that no admin entry point forgets a capability.
+- Defaults: everything on, so nothing changes for Admins until P2 lets the Super Admin switch things off. No screen yet; sidebar and buttons are not hidden yet.
+- **Not live-verified.**
+- **Where I stopped:** P1 complete. **Next step:** P2 (permission screen at `/super-admin/permissions`, hide menu items and buttons from the switches, audit, step-up) on the owner's "ok P2".

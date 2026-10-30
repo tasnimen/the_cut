@@ -32,3 +32,7 @@
 Before production, verify deployment origins/trusted proxies and a live `Set-Cookie` response, configure email delivery and backup/restore, test Mongo-backed limits and user-update version invalidation, add external failed-auth alerts and privilege-change audit producers, integrate step-up into sensitive mutations, and ensure all privileged mutations use the version-bumping path. Do not expose auth/database modules to Client Components.
 
 **Email verification:** off by default (`AUTH_REQUIRE_EMAIL_VERIFICATION=false`); sign-up signs the user in. See `docs/DECISIONS.md`.
+
+## Admin capabilities (P1, 2026-10-30)
+
+Authentication itself (Better Auth sessions, TOTP, session version, role detection) is unchanged. After a request passes those checks, Admin users must also hold the Super Admin granted capability for the page or action (`requirePrincipal(permission, { capability })`, `requireDashboardAccess("admin", { capability })`). See ADMIN_PERMISSIONS.md.
