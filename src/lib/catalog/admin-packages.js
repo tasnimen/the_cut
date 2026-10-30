@@ -5,7 +5,9 @@ import { appendAuditEvent } from "@/lib/security/audit-log";
 // (requirePrincipal("packagesManageAll")). No hard delete: packages are hidden instead.
 // At most one package is "featured" (the Popular badge): featuring one clears the others.
 
-const PROJECTION = { _id: 0, slug: 1, name: 1, note: 1, priceMinorUnits: 1, inclusions: 1, featured: 1, active: 1, displayOrder: 1, bookingServiceSlugs: 1, updatedAt: 1 };
+import { normalizeImage } from "@/lib/catalog/image-input";
+
+const PROJECTION = { _id: 0, slug: 1, name: 1, note: 1, priceMinorUnits: 1, inclusions: 1, featured: 1, active: 1, displayOrder: 1, bookingServiceSlugs: 1, image: 1, updatedAt: 1 };
 
 function toAdminDto(doc) {
   return {
@@ -18,6 +20,7 @@ function toAdminDto(doc) {
     active: doc.active !== false,
     displayOrder: Number.isFinite(doc.displayOrder) ? doc.displayOrder : 999,
     bookingServiceSlugs: Array.isArray(doc.bookingServiceSlugs) ? doc.bookingServiceSlugs.filter((item) => typeof item === "string") : [],
+    image: normalizeImage(doc.image),
     updatedAt: doc.updatedAt instanceof Date ? doc.updatedAt.toISOString() : null,
   };
 }

@@ -35,7 +35,7 @@ describe("normalizeServices", () => {
   it("never invents a price and never leaks internal fields", () => {
     const [service] = normalizeServices([doc({ priceMinorUnits: null }), doc({ slug: "x", priceMinorUnits: 12.5 })].slice(0, 1), BOOKING_SERVICES);
     expect(service.priceMinorUnits).toBeNull();
-    expect(Object.keys(service).sort()).toEqual(["category", "currency", "detail", "durationMinutes", "icon", "name", "number", "priceMinorUnits", "slug"]);
+    expect(Object.keys(service).sort()).toEqual(["category", "currency", "detail", "durationMinutes", "icon", "image", "name", "number", "priceMinorUnits", "slug"]);
     expect(service._id).toBeUndefined();
   });
 
@@ -80,5 +80,34 @@ describe("resolveCatalog", () => {
   it("returns database data when loading works", async () => {
     const services = await resolveCatalog({ fetchDocuments: async () => [doc({ name: "From DB" })], normalize: normalizeServices, fileData: BOOKING_SERVICES });
     expect(services[0].name).toBe("From DB");
+  });
+});
+
+import { normalizePackages as normalizePackagesWithImages, normalizeServices as normalizeServicesWithImages } from "./normalize.js";
+import { normalizePublicBarbers as normalizeBarbersWithImages } from "./barbers.js";
+
+describe("pictures on the public catalog", () => {
+  const url = "https://i.ibb.co/x/a.webp";
+  const image = { mediaId: "secret-media-id", secureUrl: url, width: 640, height: 480, alt: "A fresh fade" };
+  const fileService = [{ slug: "haircut", name: "Haircut", detail: "d", durationMinutes: 30, priceMinorUnits: 2500, icon: "scissors", category: "haircut" }];
+
+  it("shows a record's picture without its media id, and null when it has none or an untrusted one", () => {
+    const [withImage, without, untrusted] = normalizeServicesWithImages([
+      { slug: "haircut", name: "Haircut", durationMinutes: 30, priceMinorUnits: 2500, displayOrder: 1, image },
+      { slug: "beard", name: "Beard", durationMinutes: 20, priceMinorUnits: 1500, displayOrder: 2 },
+      { slug: "shave", name: "Shave", durationMinutes: 20, priceMinorUnits: 1500, displayOrder: 3, image: { ...image, secureUrl: "https://evil.example/a.webp" } },
+    ], fileService);
+    expect(withImage.image).toEqual({ url, alt: "A fresh fade", width: 640, height: 480 });
+    expect(JSON.stringify(withImage)).not.toContain("secret-media-id");
+    expect(without.image).toBeNull();
+    expect(untrusted.image).toBeNull();
+  });
+
+  it("does the same for packages and barbers", () => {
+    const [pkg] = normalizePackagesWithImages([{ slug: "gold", name: "Gold", priceMinorUnits: 5000, displayOrder: 1, image }], []);
+    expect(pkg.image.url).toBe(url);
+    const [barber] = normalizeBarbersWithImages([{ slug: "alex", name: "Alex", active: true, publicProfile: true, image }], []);
+    expect(barber.image).toEqual({ url, alt: "A fresh fade", width: 640, height: 480 });
+    expect(JSON.stringify(barber)).not.toContain("secret-media-id");
   });
 });

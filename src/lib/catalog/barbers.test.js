@@ -21,7 +21,7 @@ describe("normalizePublicBarbers", () => {
       doc({ slug: "nameless", name: " " }),
     ], TEAM_PROFILES);
     expect(result.map((profile) => profile.name)).toEqual(["Daniel Carter", "James Miller"]);
-    expect(Object.keys(result[0]).sort()).toEqual(["focus", "key", "name", "photoSlot", "role", "slug"]);
+    expect(Object.keys(result[0]).sort()).toEqual(["focus", "image", "key", "name", "photoSlot", "role", "slug"]);
     expect(result[0].weeklySchedule).toBeUndefined();
     expect(result[0].serviceSlugs).toBeUndefined();
   });

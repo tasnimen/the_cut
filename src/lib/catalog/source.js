@@ -25,8 +25,8 @@ const galleryCooldown = createCooldown({ ms: DB_COOLDOWN_MS });
 // A failed query throws inside the cached function, so failures are never cached; resolveCatalog then
 // serves the file data. Admin saves call revalidateCatalog() (lib/catalog/revalidate.js).
 
-const SERVICE_PROJECTION = { _id: 0, slug: 1, name: 1, description: 1, durationMinutes: 1, priceMinorUnits: 1, active: 1, displayOrder: 1, category: 1, icon: 1 };
-const PACKAGE_PROJECTION = { _id: 0, slug: 1, name: 1, priceMinorUnits: 1, note: 1, inclusions: 1, featured: 1, active: 1, displayOrder: 1, bookingServiceSlugs: 1 };
+const SERVICE_PROJECTION = { _id: 0, slug: 1, name: 1, description: 1, durationMinutes: 1, priceMinorUnits: 1, active: 1, displayOrder: 1, category: 1, icon: 1, image: 1 };
+const PACKAGE_PROJECTION = { _id: 0, slug: 1, name: 1, priceMinorUnits: 1, note: 1, inclusions: 1, featured: 1, active: 1, displayOrder: 1, bookingServiceSlugs: 1, image: 1 };
 
 const loadServiceDocuments = unstable_cache(
   async () => {
@@ -38,7 +38,7 @@ const loadServiceDocuments = unstable_cache(
 );
 
 // Only fields safe for the public site are read: never schedules, service assignments or timestamps.
-const BARBER_PROJECTION = { _id: 0, slug: 1, name: 1, role: 1, focus: 1, active: 1, publicProfile: 1, displayOrder: 1 };
+const BARBER_PROJECTION = { _id: 0, slug: 1, name: 1, role: 1, focus: 1, active: 1, publicProfile: 1, displayOrder: 1, image: 1 };
 
 const loadBarberDocuments = unstable_cache(
   async () => {

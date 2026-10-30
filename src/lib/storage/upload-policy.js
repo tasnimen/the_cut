@@ -8,6 +8,7 @@ const TARGET_RULES = Object.freeze({
   products: { permission: "mediaProductsManageAll", ownerOnly: false, folder: "the-cut/products" },
   barbers: { permission: "mediaBarbersManageAll", ownerOnly: false, folder: "the-cut/barbers" },
   services: { permission: "mediaServicesManageAll", ownerOnly: false, folder: "the-cut/services" },
+  packages: { permission: "mediaPackagesManageAll", ownerOnly: false, folder: "the-cut/packages" },
   banners: { permission: "mediaBannersManageAll", ownerOnly: false, folder: "the-cut/banners" },
   slots: { permission: "mediaSlotsManageAll", ownerOnly: false, folder: "the-cut/slots" },
   avatar: { permission: "mediaAvatarOwn", ownerOnly: true, folder: "the-cut/avatars" },

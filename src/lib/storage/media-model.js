@@ -2,7 +2,7 @@ import { z } from "zod";
 import { MAX_IMAGE_BYTES } from "@/lib/storage/upload-policy";
 
 export const MEDIA_COLLECTION = "media";
-export const MEDIA_CATEGORIES = Object.freeze(["gallery", "products", "barbers", "services", "avatar", "banners", "slots"]);
+export const MEDIA_CATEGORIES = Object.freeze(["gallery", "products", "barbers", "services", "avatar", "banners", "slots", "packages"]);
 
 // A stored image. Features keep the Media id and read the address from here, never a raw URL of their own.
 // Records written before the Cloudinary switch (ImgBB) have no `provider`: they carry `url`, `displayUrl`,

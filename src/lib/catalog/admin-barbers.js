@@ -1,3 +1,4 @@
+import { normalizeImage } from "@/lib/catalog/image-input";
 import { describeBarberChanges, WEEKDAYS } from "@/lib/catalog/barber-input";
 import { appendAuditEvent } from "@/lib/security/audit-log";
 
@@ -6,7 +7,7 @@ import { appendAuditEvent } from "@/lib/security/audit-log";
 // switched off instead, which removes them from availability but keeps booking history intact.
 // Changing hours does NOT move existing appointments; the screens say so.
 
-const PROJECTION = { _id: 0, slug: 1, name: 1, active: 1, serviceSlugs: 1, weeklySchedule: 1, breaks: 1, daysOff: 1, publicProfile: 1, role: 1, focus: 1, displayOrder: 1, updatedAt: 1 };
+const PROJECTION = { _id: 0, slug: 1, name: 1, active: 1, serviceSlugs: 1, weeklySchedule: 1, breaks: 1, daysOff: 1, publicProfile: 1, role: 1, focus: 1, displayOrder: 1, image: 1, updatedAt: 1 };
 const TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
 
 function cleanDay(value) {
@@ -35,6 +36,7 @@ export function toBarberDto(doc, index = 0) {
     role: typeof doc.role === "string" ? doc.role : "",
     focus: typeof doc.focus === "string" ? doc.focus : "",
     displayOrder: Number.isFinite(doc.displayOrder) ? doc.displayOrder : index + 1,
+    image: normalizeImage(doc.image),
     updatedAt: doc.updatedAt instanceof Date ? doc.updatedAt.toISOString() : null,
   };
 }

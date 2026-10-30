@@ -16,4 +16,8 @@ export const IMAGE_PRESETS = Object.freeze({
   hero: Object.freeze({ width: 1920, height: 800, sizes: "100vw" }),
   banner: Object.freeze({ width: 1440, height: 480, sizes: "100vw" }),
   avatar: Object.freeze({ width: 96, height: 96, sizes: "96px" }),
+  // Fixed aspect ratios for pictures an admin attaches to a record. `aspect` (width / height) is also the crop in the browser.
+  "service-card": Object.freeze({ width: 640, height: 480, aspect: 4 / 3, sizes: "(max-width: 760px) 100vw, 320px" }),
+  "barber-portrait": Object.freeze({ width: 640, height: 800, aspect: 4 / 5, sizes: "(max-width: 760px) 100vw, 320px" }),
+  "package-card": Object.freeze({ width: 640, height: 480, aspect: 4 / 3, sizes: "(max-width: 760px) 100vw, 320px" }),
 });

@@ -14,6 +14,20 @@ export function fitWithin(width, height, max = UPLOAD_MAX_LONG_SIDE) {
   return { width: Math.max(1, Math.round(width * scale)), height: Math.max(1, Math.round(height * scale)) };
 }
 
+// The part of a source picture kept when cropping to a fixed aspect ratio (width / height). `focusX` and
+// `focusY` (0 to 1) choose which part stays when something has to be cut off; 0.5 is the centre.
+export function cropRect(width, height, aspect, focusX = 0.5, focusY = 0.5) {
+  if (!(width > 0) || !(height > 0) || !(aspect > 0)) return { x: 0, y: 0, width: Math.max(1, width || 1), height: Math.max(1, height || 1) };
+  const clamp = (value) => Math.min(1, Math.max(0, Number.isFinite(value) ? value : 0.5));
+  let cropWidth = width;
+  let cropHeight = height;
+  if (width / height > aspect) cropWidth = Math.round(height * aspect);
+  else cropHeight = Math.round(width / aspect);
+  cropWidth = Math.max(1, Math.min(width, cropWidth));
+  cropHeight = Math.max(1, Math.min(height, cropHeight));
+  return { x: Math.round((width - cropWidth) * clamp(focusX)), y: Math.round((height - cropHeight) * clamp(focusY)), width: cropWidth, height: cropHeight };
+}
+
 // Which message to show for a failed upload: "too_large", "wrong_type", "rate_limited", "denied" or "provider_error".
 export function uploadFailureKind(status, { hasFieldErrors = false } = {}) {
   if (status === 413) return "too_large";
@@ -48,7 +62,8 @@ function toBlob(canvas, quality) {
 // Shrinks to 2000 px on the long side and re-encodes to WebP, lowering the quality until it fits the limit.
 // Falls back to the original file when the browser cannot decode it and it is already small enough.
 // Throws an Error with code "too_large" or "wrong_type" when the photo cannot be sent.
-export async function prepareImageForUpload(file) {
+// Options: { aspect, focusX, focusY } crops to a fixed aspect ratio first (so card layouts never shift).
+export async function prepareImageForUpload(file, { aspect = null, focusX = 0.5, focusY = 0.5 } = {}) {
   const problem = checkChosenFile(file);
   if (problem) throw Object.assign(new Error(problem), { code: problem });
   let bitmap;
@@ -59,11 +74,12 @@ export async function prepareImageForUpload(file) {
     throw Object.assign(new Error("too_large"), { code: "too_large" });
   }
   try {
-    const { width, height } = fitWithin(bitmap.width, bitmap.height);
+    const crop = aspect ? cropRect(bitmap.width, bitmap.height, aspect, focusX, focusY) : { x: 0, y: 0, width: bitmap.width, height: bitmap.height };
+    const { width, height } = fitWithin(crop.width, crop.height);
     const canvas = document.createElement("canvas");
     canvas.width = width;
     canvas.height = height;
-    canvas.getContext("2d").drawImage(bitmap, 0, 0, width, height);
+    canvas.getContext("2d").drawImage(bitmap, crop.x, crop.y, crop.width, crop.height, 0, 0, width, height);
     for (const quality of [0.85, 0.75, 0.65, 0.5]) {
       const blob = await toBlob(canvas, quality);
       if (blob && blob.size <= UPLOAD_MAX_BYTES) return new File([blob], "photo.webp", { type: "image/webp" });

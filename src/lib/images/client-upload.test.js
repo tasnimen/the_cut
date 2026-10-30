@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { UPLOAD_MAX_BYTES, UPLOAD_TOAST_KEYS, checkChosenFile, fitWithin, uploadFailureKind } from "./client-upload.js";
+import { UPLOAD_MAX_BYTES, UPLOAD_TOAST_KEYS, checkChosenFile, cropRect, fitWithin, uploadFailureKind } from "./client-upload.js";
 import { TOAST_MESSAGES } from "../toast/messages.js";
 
 describe("fitWithin", () => {
@@ -37,5 +37,30 @@ describe("uploadFailureKind and toasts", () => {
   });
   it("has a toast message for every kind", () => {
     for (const key of Object.values(UPLOAD_TOAST_KEYS)) expect(TOAST_MESSAGES[key], key).toBeTruthy();
+  });
+});
+
+describe("cropRect", () => {
+  it("cuts a wide picture to 4:3, keeping the chosen part", () => {
+    expect(cropRect(2000, 1000, 4 / 3)).toEqual({ x: 334, y: 0, width: 1333, height: 1000 });
+    expect(cropRect(2000, 1000, 4 / 3, 0, 0.5).x).toBe(0);
+    expect(cropRect(2000, 1000, 4 / 3, 1, 0.5).x).toBe(667);
+  });
+  it("cuts a tall picture to 4:5 and never goes outside the picture", () => {
+    const crop = cropRect(1000, 2000, 4 / 5, 0.5, 1);
+    expect(crop).toEqual({ x: 0, y: 750, width: 1000, height: 1250 });
+    for (const focus of [-5, 0, 0.3, 1, 9, NaN]) {
+      const rect = cropRect(1234, 987, 4 / 3, focus, focus);
+      expect(rect.x).toBeGreaterThanOrEqual(0);
+      expect(rect.y).toBeGreaterThanOrEqual(0);
+      expect(rect.x + rect.width).toBeLessThanOrEqual(1234);
+      expect(rect.y + rect.height).toBeLessThanOrEqual(987);
+    }
+  });
+  it("keeps the ratio (within a pixel) and leaves matching pictures alone", () => {
+    const rect = cropRect(3000, 2000, 4 / 5);
+    expect(Math.abs(rect.width / rect.height - 4 / 5)).toBeLessThan(0.001);
+    expect(cropRect(800, 600, 4 / 3)).toEqual({ x: 0, y: 0, width: 800, height: 600 });
+    expect(cropRect(0, 0, 4 / 3)).toEqual({ x: 0, y: 0, width: 1, height: 1 });
   });
 });

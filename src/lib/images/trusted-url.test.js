@@ -25,7 +25,7 @@ describe("image size presets", () => {
       expect(allowed.has(preset.width), `${name} width ${preset.width}`).toBe(true);
       expect(preset.height).toBeGreaterThan(0);
     }
-    expect(Object.keys(IMAGE_PRESETS).sort()).toEqual(["avatar", "banner", "card", "hero", "thumb"]);
+    expect(Object.keys(IMAGE_PRESETS).sort()).toEqual(["avatar", "banner", "barber-portrait", "card", "hero", "package-card", "service-card", "thumb"]);
     expect(allowed.size).toBeLessThanOrEqual(10);
   });
 });

@@ -30,6 +30,7 @@ export const PERMISSIONS = Object.freeze({
   mediaProductsManageAll: Object.freeze({ ADMIN: "ALL", SUPER_ADMIN: "ALL" }),
   mediaBarbersManageAll: Object.freeze({ ADMIN: "ALL", SUPER_ADMIN: "ALL" }),
   mediaServicesManageAll: Object.freeze({ ADMIN: "ALL", SUPER_ADMIN: "ALL" }),
+  mediaPackagesManageAll: Object.freeze({ ADMIN: "ALL", SUPER_ADMIN: "ALL" }),
   mediaBannersManageAll: Object.freeze({ ADMIN: "ALL", SUPER_ADMIN: "ALL" }),
   mediaSlotsManageAll: Object.freeze({ ADMIN: "ALL", SUPER_ADMIN: "ALL" }),
   pricingManageAll: Object.freeze({ ADMIN: "ALL", SUPER_ADMIN: "ALL" }),

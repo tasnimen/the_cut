@@ -4,6 +4,8 @@ import { IMAGE_SLOTS } from "@/config/images";
 // (and active); with none, the generic file profiles stay. Only an allow-list of fields is copied:
 // schedules, service assignments, ids and timestamps never reach the public pages.
 
+import { publicImage } from "@/lib/catalog/image-input";
+
 const cleanText = (value, max) => (typeof value === "string" ? value.trim().slice(0, max) : "");
 
 export function barberPhotoSlot(slug) {
@@ -26,6 +28,7 @@ export function normalizePublicBarbers(documents, fileProfiles) {
         role: cleanText(doc.role, 60) || "Barber",
         focus: cleanText(doc.focus, 120),
         photoSlot: barberPhotoSlot(doc.slug),
+        image: publicImage(doc.image),
       },
     }))
     .sort((a, b) => a.order - b.order || a.profile.name.localeCompare(b.profile.name));

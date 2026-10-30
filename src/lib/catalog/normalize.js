@@ -7,6 +7,8 @@
 // - Display fields a document lacks (icon, category, description) are filled from the file entry with
 //   the same slug, which keeps documents seeded before these fields existed working.
 
+import { publicImage } from "@/lib/catalog/image-input";
+
 export const SERVICE_CATEGORIES = Object.freeze(["haircut", "beard", "shave", "color", "treatment"]);
 export const SERVICE_ICONS = Object.freeze(["scissors", "beard", "razor", "sparkle"]);
 
@@ -50,6 +52,7 @@ export function normalizeServices(documents, fileServices) {
           currency: "USD",
           icon: SERVICE_ICONS.includes(doc.icon) ? doc.icon : base?.icon ?? "scissors",
           category: SERVICE_CATEGORIES.includes(doc.category) ? doc.category : base?.category ?? "haircut",
+          image: publicImage(doc.image),
         },
       };
     })
@@ -85,6 +88,7 @@ export function normalizePackages(documents, filePackages) {
         inclusions: (Array.isArray(doc.inclusions) ? doc.inclusions : []).map((item) => cleanText(item, 80)).filter(Boolean).slice(0, 12),
         featured: doc.featured === true,
         bookingServiceSlugs: (Array.isArray(doc.bookingServiceSlugs) ? doc.bookingServiceSlugs : []).filter((slug) => typeof slug === "string").slice(0, 3),
+        image: publicImage(doc.image),
       },
     }))
     .sort((a, b) => a.order - b.order || a.pkg.name.localeCompare(b.pkg.name));
