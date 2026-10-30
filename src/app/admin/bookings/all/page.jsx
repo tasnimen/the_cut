@@ -1,8 +1,9 @@
 import Link from "next/link";
+import { effectiveCapabilities } from "@/lib/auth/capabilities";
 import { BookingActions } from "@/features/dashboard/bookings/BookingActions";
 import { DataTable, PageHeader, Panel } from "@/features/dashboard/components/primitives";
 import { requireDashboardAccess } from "@/lib/auth/dashboard-guard";
-import { ADMIN_STATUS_LABELS, adminAllowedActions, filtersToQueryString, parseBookingFilters } from "@/lib/booking/admin-bookings";
+import { ADMIN_STATUS_LABELS, adminAllowedActions, permittedActions, filtersToQueryString, parseBookingFilters } from "@/lib/booking/admin-bookings";
 import { openBookingRepository } from "@/lib/booking/service";
 import { isValidLocalDate } from "@/lib/booking/time";
 import { formatMoney } from "@/lib/format/money";
@@ -12,7 +13,8 @@ export const metadata = { title: "All bookings | Admin | The Cut Barbershop", ro
 const WHEN = new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeStyle: "short", timeZone: "America/New_York" });
 
 export default async function AdminAllBookingsPage({ searchParams }) {
-  await requireDashboardAccess("admin", { capability: "bookings.view" });
+  const user = await requireDashboardAccess("admin", { capability: "bookings.view" });
+  const can = await effectiveCapabilities(user.role);
   const filters = parseBookingFilters(await searchParams, { isValidDate: isValidLocalDate });
   const { repository, config } = await openBookingRepository();
   const [result, barbers] = await Promise.all([repository.adminSearch({ filters }), repository.adminBarberOptions()]);
@@ -28,7 +30,7 @@ export default async function AdminAllBookingsPage({ searchParams }) {
       barber: booking.barber.name,
       total: formatMoney(booking.totalPriceMinorUnits, booking.currency),
       status: <span className={`dash-badge${booking.status === "confirmed" || booking.status === "completed" ? "" : " is-off"}`}>{ADMIN_STATUS_LABELS[booking.status] ?? booking.status}</span>,
-      actions: <BookingActions bookingId={booking.id} customer={booking.customerName} actions={adminAllowedActions(booking, { now, graceMinutes: config.lateArrivalGraceMinutes })} />,
+      actions: <BookingActions bookingId={booking.id} customer={booking.customerName} actions={permittedActions(adminAllowedActions(booking, { now, graceMinutes: config.lateArrivalGraceMinutes }), can)} />,
     },
   }));
 

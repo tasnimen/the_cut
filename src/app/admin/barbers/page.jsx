@@ -3,13 +3,15 @@ import { BarberActiveToggle } from "@/features/dashboard/barbers/BarberActiveTog
 import { DataTable, PageHeader, Panel, StatCard } from "@/features/dashboard/components/primitives";
 import { listAdminBarbers } from "@/lib/catalog/admin-barbers";
 import { WEEKDAYS } from "@/lib/catalog/barber-input";
+import { effectiveCapabilities } from "@/lib/auth/capabilities";
 import { requireDashboardAccess } from "@/lib/auth/dashboard-guard";
 import { getMongo } from "@/lib/db/mongo";
 
 export const metadata = { title: "Barbers | Admin | The Cut Barbershop", robots: { index: false, follow: false } };
 
 export default async function AdminBarbersPage() {
-  await requireDashboardAccess("admin", { capability: "barbers.view" });
+  const user = await requireDashboardAccess("admin", { capability: "barbers.view" });
+  const can = await effectiveCapabilities(user.role);
   const { db } = await getMongo();
   const barbers = await listAdminBarbers(db);
   const bookable = barbers.filter((barber) => barber.active && Object.keys(barber.weeklySchedule).length > 0 && barber.serviceSlugs.length > 0).length;
@@ -25,10 +27,12 @@ export default async function AdminBarbersPage() {
       website: <span className={`dash-badge${barber.publicProfile ? "" : " is-off"}`}>{barber.publicProfile ? "Shown" : "Not shown"}</span>,
       status: <span className={`dash-badge${barber.active ? "" : " is-off"}`}>{barber.active ? "Bookable" : "Off"}</span>,
       actions: (
-        <span className="dash-row-actions">
+        can["barbers.edit"] ? (
+          <span className="dash-row-actions">
           <Link className="dash-link-button" href={`/admin/barbers/${barber.slug}`} aria-label={`Edit ${barber.name}`}>Edit</Link>
           <BarberActiveToggle slug={barber.slug} name={barber.name} active={barber.active} />
         </span>
+        ) : <span className="dash-muted">View only</span>
       ),
     },
   }));
@@ -39,7 +43,7 @@ export default async function AdminBarbersPage() {
         eyebrow="Team"
         title="Barbers"
         description="Who can be booked, when they work, and which services they offer. Clients only see time slots for barbers with working hours."
-        actions={<Link className="button button-small" href="/admin/barbers/new"><span>New barber</span></Link>}
+        actions={can["barbers.create"] ? <Link className="button button-small" href="/admin/barbers/new"><span>New barber</span></Link> : undefined}
       />
       <div className="dash-stat-grid">
         <StatCard label="Bookable now" value={bookable} icon="razor" hint="Active, with hours and services" />

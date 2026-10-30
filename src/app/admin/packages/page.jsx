@@ -2,6 +2,7 @@ import Link from "next/link";
 import { DataTable, EmptyState, PageHeader, Panel, StatCard } from "@/features/dashboard/components/primitives";
 import { ImportDefaultsButton, PackageActiveToggle } from "@/features/dashboard/packages/PackageActions";
 import { listAdminPackages } from "@/lib/catalog/admin-packages";
+import { effectiveCapabilities } from "@/lib/auth/capabilities";
 import { requireDashboardAccess } from "@/lib/auth/dashboard-guard";
 import { getMongo } from "@/lib/db/mongo";
 import { formatMoney } from "@/lib/format/money";
@@ -9,7 +10,8 @@ import { formatMoney } from "@/lib/format/money";
 export const metadata = { title: "Packages | Admin | The Cut Barbershop", robots: { index: false, follow: false } };
 
 export default async function AdminPackagesPage() {
-  await requireDashboardAccess("admin", { capability: "packages.view" });
+  const user = await requireDashboardAccess("admin", { capability: "packages.view" });
+  const can = await effectiveCapabilities(user.role);
   const { db } = await getMongo();
   const packages = await listAdminPackages(db);
   const activeCount = packages.filter((pkg) => pkg.active).length;
@@ -23,10 +25,12 @@ export default async function AdminPackagesPage() {
       items: `${pkg.inclusions.length} items`,
       status: <span className={`dash-badge${pkg.active ? "" : " is-off"}`}>{pkg.active ? "Shown" : "Hidden"}</span>,
       actions: (
-        <span className="dash-row-actions">
+        can["packages.edit"] ? (
+          <span className="dash-row-actions">
           <Link className="dash-link-button" href={`/admin/packages/${pkg.slug}`} aria-label={`Edit ${pkg.name}`}>Edit</Link>
           <PackageActiveToggle slug={pkg.slug} name={pkg.name} active={pkg.active} />
         </span>
+        ) : <span className="dash-muted">View only</span>
       ),
     },
   }));
@@ -37,7 +41,7 @@ export default async function AdminPackagesPage() {
         eyebrow="Catalog"
         title="Pricing packages"
         description="The packages on the public pricing page. Package prices are separate from the service prices used for booking."
-        actions={<Link className="button button-small" href="/admin/packages/new"><span>New package</span></Link>}
+        actions={can["packages.create"] ? <Link className="button button-small" href="/admin/packages/new"><span>New package</span></Link> : undefined}
       />
       {packages.length === 0 ? (
         <Panel>
@@ -46,7 +50,7 @@ export default async function AdminPackagesPage() {
             title="Using the built-in packages"
             text="No packages are saved here yet, so the site shows its three built-in packages (Basic, Standard, Premium). Import them to edit them. Saving a new package without importing would replace the built-in ones."
           />
-          <div className="dash-form-actions"><ImportDefaultsButton /></div>
+          {can["packages.create"] ? <div className="dash-form-actions"><ImportDefaultsButton /></div> : null}
         </Panel>
       ) : (
         <>

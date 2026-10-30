@@ -2,6 +2,7 @@ import Link from "next/link";
 import { DataTable, PageHeader, Panel, StatCard } from "@/features/dashboard/components/primitives";
 import { ServiceActiveToggle } from "@/features/dashboard/services/ServiceActiveToggle";
 import { listAdminServices } from "@/lib/catalog/admin-services";
+import { effectiveCapabilities } from "@/lib/auth/capabilities";
 import { requireDashboardAccess } from "@/lib/auth/dashboard-guard";
 import { getMongo } from "@/lib/db/mongo";
 import { formatMoney } from "@/lib/format/money";
@@ -9,7 +10,8 @@ import { formatMoney } from "@/lib/format/money";
 export const metadata = { title: "Services | Admin | The Cut Barbershop", robots: { index: false, follow: false } };
 
 export default async function AdminServicesPage() {
-  await requireDashboardAccess("admin", { capability: "services.view" });
+  const user = await requireDashboardAccess("admin", { capability: "services.view" });
+  const can = await effectiveCapabilities(user.role);
   const { db } = await getMongo();
   const services = await listAdminServices(db);
   const activeCount = services.filter((service) => service.active).length;
@@ -24,10 +26,12 @@ export default async function AdminServicesPage() {
       duration: `${service.durationMinutes} min`,
       status: <span className={`dash-badge${service.active ? "" : " is-off"}`}>{service.active ? "Shown" : "Hidden"}</span>,
       actions: (
-        <span className="dash-row-actions">
+        can["services.edit"] ? (
+          <span className="dash-row-actions">
           <Link className="dash-link-button" href={`/admin/services/${service.slug}`} aria-label={`Edit ${service.name}`}>Edit</Link>
           <ServiceActiveToggle slug={service.slug} name={service.name} active={service.active} />
         </span>
+        ) : <span className="dash-muted">View only</span>
       ),
     },
   }));
@@ -38,7 +42,7 @@ export default async function AdminServicesPage() {
         eyebrow="Catalog"
         title="Services"
         description="What visitors see and can book. Changes appear on the public site within seconds."
-        actions={<Link className="button button-small" href="/admin/services/new"><span>New service</span></Link>}
+        actions={can["services.create"] ? <Link className="button button-small" href="/admin/services/new"><span>New service</span></Link> : undefined}
       />
       <div className="dash-stat-grid">
         <StatCard label="Shown on the site" value={activeCount} icon="scissors" />

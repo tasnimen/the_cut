@@ -14,7 +14,8 @@ function toastFor(result) {
 }
 
 // One photo with edit, show/hide and delete. The server re-checks every permission and field.
-export function GalleryItemCard({ item }) {
+// `can` (edit, hide, delete) only decides which buttons are shown; the server checks each action itself.
+export function GalleryItemCard({ item, can = { edit: true, hide: true, delete: true } }) {
   const router = useRouter();
   const [pending, start] = useTransition();
   const [mode, setMode] = useState("idle");
@@ -91,9 +92,9 @@ export function GalleryItemCard({ item }) {
               </div>
             ) : (
               <span className="dash-row-actions">
-                <button className="dash-link-button" type="button" disabled={pending} onClick={() => { setMessage(""); setMode("edit"); }} aria-label={`Edit ${item.title}`}>Edit</button>
-                <button className="dash-link-button" type="button" disabled={pending} onClick={toggle} aria-label={`${item.active ? "Hide" : "Show"} ${item.title}`}>{item.active ? "Hide" : "Show"}</button>
-                <button className="dash-link-button" type="button" disabled={pending} onClick={() => { setMessage(""); setMode("delete"); }} aria-label={`Delete ${item.title}`}>Delete</button>
+                {can.edit ? <button className="dash-link-button" type="button" disabled={pending} onClick={() => { setMessage(""); setMode("edit"); }} aria-label={`Edit ${item.title}`}>Edit</button> : null}
+                {can.hide ? <button className="dash-link-button" type="button" disabled={pending} onClick={toggle} aria-label={`${item.active ? "Hide" : "Show"} ${item.title}`}>{item.active ? "Hide" : "Show"}</button> : null}
+                {can.delete ? <button className="dash-link-button" type="button" disabled={pending} onClick={() => { setMessage(""); setMode("delete"); }} aria-label={`Delete ${item.title}`}>Delete</button> : null}
               </span>
             )}
           </>

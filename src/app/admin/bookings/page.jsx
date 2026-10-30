@@ -1,8 +1,9 @@
 import Link from "next/link";
+import { effectiveCapabilities } from "@/lib/auth/capabilities";
 import { BookingActions } from "@/features/dashboard/bookings/BookingActions";
 import { DataTable, PageHeader, Panel, StatCard } from "@/features/dashboard/components/primitives";
 import { requireDashboardAccess } from "@/lib/auth/dashboard-guard";
-import { ADMIN_STATUS_LABELS, adminAllowedActions, summarizeDay } from "@/lib/booking/admin-bookings";
+import { ADMIN_STATUS_LABELS, adminAllowedActions, permittedActions, summarizeDay } from "@/lib/booking/admin-bookings";
 import { openBookingRepository } from "@/lib/booking/service";
 import { addLocalCalendarDays, businessDate, isValidLocalDate } from "@/lib/booking/time";
 import { formatMoney } from "@/lib/format/money";
@@ -13,7 +14,8 @@ const DAY_LABEL = new Intl.DateTimeFormat("en-US", { weekday: "long", month: "lo
 const TIME_LABEL = new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit", timeZone: "America/New_York" });
 
 export default async function AdminBookingsPage({ searchParams }) {
-  await requireDashboardAccess("admin", { capability: "bookings.view" });
+  const user = await requireDashboardAccess("admin", { capability: "bookings.view" });
+  const can = await effectiveCapabilities(user.role);
   const { repository, config } = await openBookingRepository();
   const now = new Date();
   const today = businessDate(now, config.timeZone);
@@ -32,7 +34,7 @@ export default async function AdminBookingsPage({ searchParams }) {
       barber: booking.barber.name,
       total: formatMoney(booking.totalPriceMinorUnits, booking.currency),
       status: <span className={`dash-badge${booking.status === "confirmed" || booking.status === "completed" ? "" : " is-off"}`}>{ADMIN_STATUS_LABELS[booking.status] ?? booking.status}</span>,
-      actions: <BookingActions bookingId={booking.id} customer={booking.customerName} actions={adminAllowedActions(booking, { now, graceMinutes: config.lateArrivalGraceMinutes })} />,
+      actions: <BookingActions bookingId={booking.id} customer={booking.customerName} actions={permittedActions(adminAllowedActions(booking, { now, graceMinutes: config.lateArrivalGraceMinutes }), can)} />,
     },
   }));
 
@@ -48,7 +50,7 @@ export default async function AdminBookingsPage({ searchParams }) {
             <Link className="button button-small button-outline" href={`/admin/bookings?date=${addLocalCalendarDays(date, -1)}`}><span>Previous day</span></Link>
             {isToday ? null : <Link className="button button-small button-outline" href="/admin/bookings"><span>Today</span></Link>}
             <Link className="button button-small button-outline" href="/admin/bookings/all"><span>All bookings</span></Link>
-            <Link className="button button-small" href="/admin/bookings/walk-in"><span>New walk-in</span></Link>
+            {can["bookings.walkIn"] ? <Link className="button button-small" href="/admin/bookings/walk-in"><span>New walk-in</span></Link> : null}
             <Link className="button button-small button-outline" href={`/admin/bookings?date=${addLocalCalendarDays(date, 1)}`}><span>Next day</span></Link>
           </span>
         )}

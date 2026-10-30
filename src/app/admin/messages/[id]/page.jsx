@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MessageActions } from "@/features/dashboard/messages/MessageActions";
 import { PageHeader, Panel } from "@/features/dashboard/components/primitives";
+import { effectiveCapabilities } from "@/lib/auth/capabilities";
 import { requirePrincipal } from "@/lib/auth/authorization";
 import { hasPermission } from "@/lib/auth/policy";
 import { requireDashboardAccess } from "@/lib/auth/dashboard-guard";
@@ -15,6 +16,7 @@ const DELIVERY = { sent: "Sent", queued: "Waiting to send", failed: "Failed" };
 
 export default async function AdminMessagePage({ params }) {
   const user = await requireDashboardAccess("admin", { capability: "messages.view" });
+  const can = await effectiveCapabilities(user.role);
   await requirePrincipal("contactManageAll");
   const { id } = await params;
   const { db } = await getMongo();
@@ -38,7 +40,7 @@ export default async function AdminMessagePage({ params }) {
         </div>
       </Panel>
       <Panel title="Mark this message">
-        <MessageActions id={message.id} status={message.status} canDelete={hasPermission(user.role, "contactDeleteAll")} />
+        <MessageActions id={message.id} status={message.status} canDelete={hasPermission(user.role, "contactDeleteAll") && can["messages.delete"]} canMark={can["messages.markStatus"]} />
       </Panel>
     </>
   );
