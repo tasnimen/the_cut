@@ -10,7 +10,7 @@ export const metadata = { title: "Messages | Admin | The Cut Barbershop", robots
 const WHEN = new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeStyle: "short", timeZone: "America/New_York" });
 
 export default async function AdminMessagesPage({ searchParams }) {
-  await requireDashboardAccess("admin");
+  await requireDashboardAccess("admin", { capability: "messages.view" });
   await requirePrincipal("contactManageAll");
   const filters = parseMessageFilters(await searchParams);
   const { db } = await getMongo();

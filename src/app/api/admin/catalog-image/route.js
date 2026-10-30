@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { catalogImageCapability } from "@/config/admin-capabilities";
 import { AuthorizationError, requirePrincipal } from "@/lib/auth/authorization";
 import { CATALOG_KINDS, discardPendingMedia, sweepStaleMedia } from "@/lib/catalog/catalog-images";
 import { CATALOG_IMAGE_KINDS, MEDIA_ID_PATTERN } from "@/lib/catalog/image-input";
@@ -38,7 +39,7 @@ export async function POST(request) {
     const file = formData.get("file");
     if (!kind.success || !file || typeof file === "string" || typeof file.arrayBuffer !== "function") return json({ message: "Choose a picture." }, 400);
 
-    const principal = await requirePrincipal(CATALOG_KINDS[kind.data].permission);
+    const principal = await requirePrincipal(CATALOG_KINDS[kind.data].permission, { capability: catalogImageCapability(kind.data) });
     const rate = await consumeUserRateLimit(principal.id, { bucket: "admin-catalog-image", limit: 40, windowMs: 60 * 60 * 1000 });
     if (!rate.allowed) return json({ message: "Too many uploads. Try again later." }, 429);
     if (file.size > MAX_IMAGE_BYTES) return json({ message: "Image must be 4 MB or smaller." }, 413);
@@ -59,7 +60,7 @@ export async function DELETE(request) {
   try {
     const parsed = DeleteSchema.safeParse(await request.json().catch(() => null));
     if (!parsed.success) return json({ message: "That request was not valid." }, 400);
-    const principal = await requirePrincipal(CATALOG_KINDS[parsed.data.kind].permission);
+    const principal = await requirePrincipal(CATALOG_KINDS[parsed.data.kind].permission, { capability: catalogImageCapability(parsed.data.kind) });
     const rate = await consumeUserRateLimit(principal.id, { bucket: "admin-catalog-image", limit: 40, windowMs: 60 * 60 * 1000 });
     if (!rate.allowed) return json({ message: "Too many requests. Try again later." }, 429);
     const { db } = await getMongo();

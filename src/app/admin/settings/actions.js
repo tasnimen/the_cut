@@ -14,7 +14,7 @@ const DENIED = { status: "error", code: "denied", message: "You are not allowed 
 
 async function authorize() {
   try {
-    const principal = await requirePrincipal("businessSettingsManage");
+    const principal = await requirePrincipal("businessSettingsManage", { capability: "settings.edit" });
     const rate = await consumeUserRateLimit(principal.id, RATE);
     if (!rate.allowed) return { error: { status: "error", code: "rate", message: "Too many changes in a short time. Wait a moment and try again." } };
     return { principal };

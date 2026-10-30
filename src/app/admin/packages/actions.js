@@ -17,9 +17,9 @@ import { consumeUserRateLimit } from "@/lib/security/public-rate-limit";
 const RATE = { bucket: "admin-packages", limit: 30, windowMs: 60_000 };
 const DENIED = { status: "error", code: "denied", message: "You are not allowed to do that." };
 
-async function authorize() {
+async function authorize(capability) {
   try {
-    const principal = await requirePrincipal("packagesManageAll");
+    const principal = await requirePrincipal("packagesManageAll", { capability });
     const rate = await consumeUserRateLimit(principal.id, RATE);
     if (!rate.allowed) return { error: { status: "error", code: "rate", message: "Too many changes in a short time. Wait a moment and try again." } };
     return { principal };
@@ -43,7 +43,7 @@ async function allowedServiceSlugs(db) {
 }
 
 export async function createPackageAction(_previous, formData) {
-  const auth = await authorize();
+  const auth = await authorize("packages.create");
   if (auth.error) return auth.error;
 
   const { db } = await getMongo();
@@ -64,7 +64,7 @@ export async function createPackageAction(_previous, formData) {
 }
 
 export async function updatePackageAction(slug, _previous, formData) {
-  const auth = await authorize();
+  const auth = await authorize("packages.edit");
   if (auth.error) return auth.error;
   if (typeof slug !== "string" || !SERVICE_SLUG_PATTERN.test(slug)) return { status: "error", code: "not_found", message: "That package was not found." };
 
@@ -85,7 +85,7 @@ export async function updatePackageAction(slug, _previous, formData) {
 }
 
 export async function setPackageActiveAction(slug, active) {
-  const auth = await authorize();
+  const auth = await authorize("packages.edit");
   if (auth.error) return auth.error;
   if (typeof slug !== "string" || !SERVICE_SLUG_PATTERN.test(slug) || typeof active !== "boolean") return { status: "error", code: "invalid", message: "That request was not valid." };
 
@@ -98,7 +98,7 @@ export async function setPackageActiveAction(slug, active) {
 }
 
 export async function importDefaultPackagesAction() {
-  const auth = await authorize();
+  const auth = await authorize("packages.create");
   if (auth.error) return auth.error;
 
   const { db } = await getMongo();

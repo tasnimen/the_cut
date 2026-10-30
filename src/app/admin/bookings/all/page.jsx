@@ -12,7 +12,7 @@ export const metadata = { title: "All bookings | Admin | The Cut Barbershop", ro
 const WHEN = new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeStyle: "short", timeZone: "America/New_York" });
 
 export default async function AdminAllBookingsPage({ searchParams }) {
-  await requireDashboardAccess("admin");
+  await requireDashboardAccess("admin", { capability: "bookings.view" });
   const filters = parseBookingFilters(await searchParams, { isValidDate: isValidLocalDate });
   const { repository, config } = await openBookingRepository();
   const [result, barbers] = await Promise.all([repository.adminSearch({ filters }), repository.adminBarberOptions()]);

@@ -59,7 +59,7 @@ describe("barber actions: authorization first", () => {
       await setBarberActiveAction("daniel-carter", false),
     ];
     for (const result of results) expect(result).toMatchObject({ status: "error", code: "denied" });
-    for (const call of mocks.requirePrincipal.mock.calls) expect(call).toEqual(["barbersManageAll"]);
+    expect(mocks.requirePrincipal.mock.calls).toEqual([["barbersManageAll",{"capability":"barbers.create"}],["barbersManageAll",{"capability":"barbers.edit"}],["barbersManageAll",{"capability":"barbers.edit"}]]);
     expect(mocks.requirePrincipal).toHaveBeenCalledTimes(3);
     for (const fn of [mocks.create, mocks.update, mocks.setActive, mocks.revalidate, mocks.getMongo]) expect(fn).not.toHaveBeenCalled();
   });

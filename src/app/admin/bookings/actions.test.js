@@ -25,7 +25,7 @@ describe("changeBookingStatusAction", () => {
   it("does nothing for a caller without bookingsManageAll", async () => {
     mocks.requirePrincipal.mockRejectedValue(new AuthorizationError());
     expect((await changeBookingStatusAction(ID, "cancelled")).code).toBe("denied");
-    expect(mocks.requirePrincipal).toHaveBeenCalledWith("bookingsManageAll");
+    expect(mocks.requirePrincipal).toHaveBeenCalledWith("bookingsManageAll", { capability: "bookings.cancel" });
     expect(mocks.change).not.toHaveBeenCalled();
   });
 

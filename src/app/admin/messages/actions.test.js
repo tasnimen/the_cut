@@ -22,7 +22,7 @@ beforeEach(() => {
 describe("message actions", () => {
   it("change status with contactManageAll and the signed-in actor", async () => {
     expect((await setMessageStatusAction(ID, "read")).status).toBe("success");
-    expect(mocks.requirePrincipal).toHaveBeenCalledWith("contactManageAll");
+    expect(mocks.requirePrincipal).toHaveBeenCalledWith("contactManageAll", { capability: "messages.markStatus" });
     expect(mocks.setStatus).toHaveBeenCalledWith({}, ID, "read", "admin-1");
   });
 
@@ -32,7 +32,7 @@ describe("message actions", () => {
     expect(mocks.remove).not.toHaveBeenCalled();
     mocks.requirePrincipal.mockResolvedValue({ id: "admin-1" });
     expect((await deleteMessageAction(ID)).status).toBe("success");
-    expect(mocks.requirePrincipal).toHaveBeenLastCalledWith("contactDeleteAll");
+    expect(mocks.requirePrincipal).toHaveBeenLastCalledWith("contactDeleteAll", { capability: "messages.delete" });
     expect(mocks.remove).toHaveBeenCalledWith({}, ID, "admin-1");
   });
 

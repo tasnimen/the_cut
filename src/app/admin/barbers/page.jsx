@@ -9,7 +9,7 @@ import { getMongo } from "@/lib/db/mongo";
 export const metadata = { title: "Barbers | Admin | The Cut Barbershop", robots: { index: false, follow: false } };
 
 export default async function AdminBarbersPage() {
-  await requireDashboardAccess("admin");
+  await requireDashboardAccess("admin", { capability: "barbers.view" });
   const { db } = await getMongo();
   const barbers = await listAdminBarbers(db);
   const bookable = barbers.filter((barber) => barber.active && Object.keys(barber.weeklySchedule).length > 0 && barber.serviceSlugs.length > 0).length;

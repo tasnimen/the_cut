@@ -10,7 +10,7 @@ import { updateServiceAction } from "@/app/admin/services/actions";
 export const metadata = { title: "Edit service | Admin | The Cut Barbershop", robots: { index: false, follow: false } };
 
 export default async function EditServicePage({ params }) {
-  await requireDashboardAccess("admin");
+  await requireDashboardAccess("admin", { capability: "services.edit" });
   const { slug } = await params;
   if (!SERVICE_SLUG_PATTERN.test(slug)) notFound();
   const { db } = await getMongo();

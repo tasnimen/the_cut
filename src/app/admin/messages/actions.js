@@ -12,9 +12,9 @@ import { consumeUserRateLimit } from "@/lib/security/public-rate-limit";
 const RATE = { bucket: "admin-messages", limit: 60, windowMs: 60_000 };
 const DENIED = { status: "error", code: "denied", message: "You are not allowed to do that." };
 
-async function authorize(permission) {
+async function authorize(permission, capability) {
   try {
-    const principal = await requirePrincipal(permission);
+    const principal = await requirePrincipal(permission, { capability });
     const rate = await consumeUserRateLimit(principal.id, RATE);
     if (!rate.allowed) return { error: { status: "error", code: "rate", message: "Too many changes in a short time. Wait a moment and try again." } };
     return { principal };
@@ -25,7 +25,7 @@ async function authorize(permission) {
 }
 
 export async function setMessageStatusAction(id, status) {
-  const auth = await authorize("contactManageAll");
+  const auth = await authorize("contactManageAll", "messages.markStatus");
   if (auth.error) return auth.error;
   if (!MESSAGE_STATUSES.includes(status)) return { status: "error", code: "invalid", message: "That status is not valid." };
   const { db } = await getMongo();
@@ -35,7 +35,7 @@ export async function setMessageStatusAction(id, status) {
 }
 
 export async function deleteMessageAction(id) {
-  const auth = await authorize("contactDeleteAll");
+  const auth = await authorize("contactDeleteAll", "messages.delete");
   if (auth.error) return auth.error;
   const { db } = await getMongo();
   const result = await deleteMessage(db, id, auth.principal.id);

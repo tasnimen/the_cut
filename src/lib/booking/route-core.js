@@ -80,7 +80,7 @@ export async function listBookings() {
 
 export async function mutateBooking(request, { params }, operation) {
   try {
-    const principal = await requirePrincipal(operation === "no-show" ? "bookingsManageAll" : "bookingOwn");
+    const principal = await requirePrincipal(operation === "no-show" ? "bookingsManageAll" : "bookingOwn", operation === "no-show" ? { capability: "bookings.changeStatus" } : {});
     const rate = await consumePublicRateLimit(request, { bucket: `booking-${operation}`, ...RATE });
     if (!rate.allowed) return json({ error: "rate_limited" }, 429);
     const { id } = await params;

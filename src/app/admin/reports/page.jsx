@@ -13,7 +13,7 @@ const DAY = new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeZone: "U
 const rate = (value) => (value === null ? "No data" : `${value}%`);
 
 export default async function AdminReportsPage({ searchParams }) {
-  await requireDashboardAccess("admin");
+  await requireDashboardAccess("admin", { capability: "reports.view" });
   await requirePrincipal("operationalReportsAll");
   const rangeKey = parseReportRange(await searchParams);
   const { db } = await getMongo();

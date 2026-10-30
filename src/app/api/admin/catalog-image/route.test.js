@@ -36,14 +36,14 @@ describe("POST /api/admin/catalog-image", () => {
     const response = await POST(upload());
     expect(response.status).toBe(201);
     expect(await response.json()).toEqual({ mediaId: "m1", url: "https://res.cloudinary.com/demo/x.webp", width: 640, height: 480 });
-    expect(mocks.requirePrincipal).toHaveBeenCalledWith("mediaServicesManageAll");
+    expect(mocks.requirePrincipal).toHaveBeenCalledWith("mediaServicesManageAll", { capability: ["services.create", "services.edit"] });
     expect(mocks.upload).toHaveBeenCalledWith(expect.objectContaining({ target: "services" }));
   });
 
   it("uses the permission of each kind", async () => {
     await POST(upload({ kind: "barbers" }));
     await POST(upload({ kind: "packages" }));
-    expect(mocks.requirePrincipal.mock.calls.map((call) => call[0])).toEqual(["mediaBarbersManageAll", "mediaPackagesManageAll"]);
+    expect(mocks.requirePrincipal.mock.calls).toEqual([["mediaBarbersManageAll", { capability: ["barbers.create", "barbers.edit"] }], ["mediaPackagesManageAll", { capability: ["packages.create", "packages.edit"] }]]);
   });
 
   it("refuses customers and guests without uploading", async () => {
@@ -81,7 +81,7 @@ describe("DELETE /api/admin/catalog-image", () => {
   it("discards a pending picture only for a valid kind and id, after checking the permission", async () => {
     mocks.discard.mockResolvedValue({ ok: true });
     expect((await DELETE(request({ kind: "services", mediaId: ID }))).status).toBe(200);
-    expect(mocks.requirePrincipal).toHaveBeenCalledWith("mediaServicesManageAll");
+    expect(mocks.requirePrincipal).toHaveBeenCalledWith("mediaServicesManageAll", { capability: ["services.create", "services.edit"] });
     expect((await DELETE(request({ kind: "services", mediaId: "../x" }))).status).toBe(400);
     expect((await DELETE(request({ kind: "gallery", mediaId: ID }))).status).toBe(400);
     expect((await DELETE(request({ kind: "services", mediaId: ID, extra: 1 }))).status).toBe(400);

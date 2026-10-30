@@ -9,7 +9,7 @@ import { createPackageAction } from "@/app/admin/packages/actions";
 export const metadata = { title: "New package | Admin | The Cut Barbershop", robots: { index: false, follow: false } };
 
 export default async function NewPackagePage() {
-  await requireDashboardAccess("admin");
+  await requireDashboardAccess("admin", { capability: "packages.create" });
   const { db } = await getMongo();
   const [packages, services] = await Promise.all([listAdminPackages(db), listAdminServices(db)]);
   const nextOrder = packages.reduce((max, pkg) => Math.max(max, pkg.displayOrder), 0) + 1;

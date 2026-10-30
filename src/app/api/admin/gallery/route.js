@@ -22,7 +22,7 @@ export async function POST(request) {
     if (!rawLength || !/^\d+$/.test(rawLength)) return json({ message: "Content length is required." }, 411);
     if (Number(rawLength) > MAX_IMAGE_BYTES + 128 * 1024) return json({ message: "Image must be 4 MB or smaller." }, 413);
 
-    const principal = await requirePrincipal("mediaGalleryManageAll");
+    const principal = await requirePrincipal("mediaGalleryManageAll", { capability: "gallery.upload" });
     const rate = await consumeUserRateLimit(principal.id, { bucket: "admin-gallery-upload", limit: 30, windowMs: 60 * 60 * 1000 });
     if (!rate.allowed) return json({ message: "Too many uploads. Try again later." }, 429);
 

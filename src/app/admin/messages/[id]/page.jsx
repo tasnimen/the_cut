@@ -14,7 +14,7 @@ const WHEN = new Intl.DateTimeFormat("en-US", { dateStyle: "full", timeStyle: "s
 const DELIVERY = { sent: "Sent", queued: "Waiting to send", failed: "Failed" };
 
 export default async function AdminMessagePage({ params }) {
-  const user = await requireDashboardAccess("admin");
+  const user = await requireDashboardAccess("admin", { capability: "messages.view" });
   await requirePrincipal("contactManageAll");
   const { id } = await params;
   const { db } = await getMongo();

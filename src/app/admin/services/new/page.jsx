@@ -8,7 +8,7 @@ import { createServiceAction } from "@/app/admin/services/actions";
 export const metadata = { title: "New service | Admin | The Cut Barbershop", robots: { index: false, follow: false } };
 
 export default async function NewServicePage() {
-  await requireDashboardAccess("admin");
+  await requireDashboardAccess("admin", { capability: "services.create" });
   const { db } = await getMongo();
   const existing = await listAdminServices(db);
   const nextOrder = existing.reduce((max, service) => Math.max(max, service.displayOrder), 0) + 1;

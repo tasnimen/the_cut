@@ -41,7 +41,7 @@ describe("settings actions: authorization first", () => {
       await saveSocialAction(null, form({})),
     ];
     for (const result of results) expect(result).toMatchObject({ status: "error", code: "denied" });
-    for (const call of mocks.requirePrincipal.mock.calls) expect(call).toEqual(["businessSettingsManage"]);
+    expect(mocks.requirePrincipal.mock.calls).toEqual([["businessSettingsManage",{"capability":"settings.edit"}],["businessSettingsManage",{"capability":"settings.edit"}],["businessSettingsManage",{"capability":"settings.edit"}],["businessSettingsManage",{"capability":"settings.edit"}]]);
     expect(mocks.requirePrincipal).toHaveBeenCalledTimes(4);
     for (const fn of [mocks.save, mocks.revalidate, mocks.getMongo]) expect(fn).not.toHaveBeenCalled();
   });

@@ -13,7 +13,7 @@ const DAY_LABEL = new Intl.DateTimeFormat("en-US", { weekday: "long", month: "lo
 const TIME_LABEL = new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit", timeZone: "America/New_York" });
 
 export default async function AdminBookingsPage({ searchParams }) {
-  await requireDashboardAccess("admin");
+  await requireDashboardAccess("admin", { capability: "bookings.view" });
   const { repository, config } = await openBookingRepository();
   const now = new Date();
   const today = businessDate(now, config.timeZone);

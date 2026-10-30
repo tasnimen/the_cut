@@ -1,6 +1,7 @@
 import { ObjectId } from "mongodb";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { capabilityForMediaTarget } from "@/config/admin-capabilities";
 import { AuthorizationError, requirePrincipal } from "@/lib/auth/authorization";
 import { getAuth } from "@/lib/auth/server";
 import { ensureApplicationIndexes, getMongo } from "@/lib/db/mongo";
@@ -59,7 +60,7 @@ export async function POST(request) {
     if (file.size > MAX_IMAGE_BYTES) return responseError(`Image must be ${MB} MB or smaller.`, 413);
 
     const rule = getMediaTargetRule(fields.data.target);
-    const principal = await requirePrincipal(rule.permission);
+    const principal = await requirePrincipal(rule.permission, { capability: capabilityForMediaTarget(fields.data.target) ?? undefined });
     if (principal.role === "USER" && fields.data.target !== "avatar") return responseError("Not authorized.", 403);
     const rate = await consumeUserRateLimit(principal.id, { bucket: "media-upload", limit: 10, windowMs: 60 * 60 * 1000 });
     if (!rate.allowed) return responseError("Upload limit reached. Try again later.", 429);
@@ -84,7 +85,7 @@ export async function DELETE(request) {
     const record = await db.collection(MEDIA_COLLECTION).findOne({ _id: new ObjectId(payload.data.id) });
     const rule = record ? getMediaTargetRule(record.category) : null;
     if (!record || !rule) return responseError("Image not found.", 404);
-    const principal = await requirePrincipal(rule.permission);
+    const principal = await requirePrincipal(rule.permission, { capability: capabilityForMediaTarget(record.category) ?? undefined });
     const rate = await consumeUserRateLimit(principal.id, { bucket: "media-delete", limit: 20, windowMs: 60 * 60 * 1000 });
     if (!rate.allowed) return responseError("Upload limit reached. Try again later.", 429);
     await buildMediaService(db, principal.id).delete({ principal, record });

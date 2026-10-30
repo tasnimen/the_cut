@@ -15,9 +15,9 @@ const RATE = { bucket: "admin-gallery", limit: 60, windowMs: 60_000 };
 const DENIED = { status: "error", code: "denied", message: "You are not allowed to do that." };
 const NOT_FOUND = { status: "error", code: "not_found", message: "That photo was not found." };
 
-async function authorize() {
+async function authorize(capability) {
   try {
-    const principal = await requirePrincipal("mediaGalleryManageAll");
+    const principal = await requirePrincipal("mediaGalleryManageAll", { capability });
     const rate = await consumeUserRateLimit(principal.id, RATE);
     if (!rate.allowed) return { error: { status: "error", code: "rate", message: "Too many changes in a short time. Wait a moment and try again." } };
     return { principal };
@@ -28,7 +28,7 @@ async function authorize() {
 }
 
 export async function updateGalleryItemAction(id, input) {
-  const auth = await authorize();
+  const auth = await authorize("gallery.edit");
   if (auth.error) return auth.error;
   const parsed = GalleryMetaSchema.safeParse(input);
   if (!parsed.success) return { status: "error", code: "invalid", message: "Check the highlighted fields.", fieldErrors: galleryFieldErrors(parsed.error) };
@@ -40,7 +40,7 @@ export async function updateGalleryItemAction(id, input) {
 }
 
 export async function setGalleryActiveAction(id, active) {
-  const auth = await authorize();
+  const auth = await authorize("gallery.hide");
   if (auth.error) return auth.error;
   if (typeof active !== "boolean") return { status: "error", code: "invalid", message: "That change is not valid." };
   const { db } = await getMongo();
@@ -51,7 +51,7 @@ export async function setGalleryActiveAction(id, active) {
 }
 
 export async function deleteGalleryItemAction(id) {
-  const auth = await authorize();
+  const auth = await authorize("gallery.delete");
   if (auth.error) return auth.error;
   const { db } = await getMongo();
   const result = await deleteGalleryItem(db, id, auth.principal.id, { removeMedia: ({ mediaId }) => removeGalleryMedia(db, auth.principal, mediaId) });

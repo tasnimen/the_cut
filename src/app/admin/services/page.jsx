@@ -9,7 +9,7 @@ import { formatMoney } from "@/lib/format/money";
 export const metadata = { title: "Services | Admin | The Cut Barbershop", robots: { index: false, follow: false } };
 
 export default async function AdminServicesPage() {
-  await requireDashboardAccess("admin");
+  await requireDashboardAccess("admin", { capability: "services.view" });
   const { db } = await getMongo();
   const services = await listAdminServices(db);
   const activeCount = services.filter((service) => service.active).length;

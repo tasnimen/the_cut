@@ -12,7 +12,7 @@ import { updateBarberAction } from "@/app/admin/barbers/actions";
 export const metadata = { title: "Edit barber | Admin | The Cut Barbershop", robots: { index: false, follow: false } };
 
 export default async function EditBarberPage({ params }) {
-  await requireDashboardAccess("admin");
+  await requireDashboardAccess("admin", { capability: "barbers.edit" });
   const { slug } = await params;
   if (!SERVICE_SLUG_PATTERN.test(slug)) notFound();
   const { db } = await getMongo();

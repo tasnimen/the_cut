@@ -9,7 +9,7 @@ import { listAdminGallery, MAX_GALLERY_ITEMS } from "@/lib/gallery/admin-gallery
 export const metadata = { title: "Gallery | Admin | The Cut Barbershop", robots: { index: false, follow: false } };
 
 export default async function AdminGalleryPage() {
-  await requireDashboardAccess("admin");
+  await requireDashboardAccess("admin", { capability: "gallery.view" });
   await requirePrincipal("mediaGalleryManageAll");
   const { db } = await getMongo();
   const items = await listAdminGallery(db);

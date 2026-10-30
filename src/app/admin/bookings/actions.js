@@ -20,7 +20,7 @@ const DENIED = { status: "error", code: "denied", message: "You are not allowed 
 export async function changeBookingStatusAction(bookingId, to) {
   let principal;
   try {
-    principal = await requirePrincipal("bookingsManageAll");
+    principal = await requirePrincipal("bookingsManageAll", { capability: to === "cancelled" ? "bookings.cancel" : "bookings.changeStatus" });
     const rate = await consumeUserRateLimit(principal.id, RATE);
     if (!rate.allowed) return { status: "error", code: "rate", message: "Too many changes in a short time. Wait a moment and try again." };
   } catch (error) {

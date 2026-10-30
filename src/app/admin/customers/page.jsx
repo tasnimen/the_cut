@@ -11,7 +11,7 @@ export const metadata = { title: "Customers | Admin | The Cut Barbershop", robot
 const DATE = new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeZone: "America/New_York" });
 
 export default async function AdminCustomersPage({ searchParams }) {
-  await requireDashboardAccess("admin");
+  await requireDashboardAccess("admin", { capability: "customers.view" });
   await requirePrincipal("customersRead");
   const filters = parseCustomerFilters(await searchParams);
   const { db } = await getMongo();

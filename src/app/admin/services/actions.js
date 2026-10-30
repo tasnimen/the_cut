@@ -15,9 +15,9 @@ import { consumeUserRateLimit } from "@/lib/security/public-rate-limit";
 const RATE = { bucket: "admin-services", limit: 30, windowMs: 60_000 };
 const DENIED = { status: "error", code: "denied", message: "You are not allowed to do that." };
 
-async function authorize() {
+async function authorize(capability) {
   try {
-    const principal = await requirePrincipal("servicesManageAll");
+    const principal = await requirePrincipal("servicesManageAll", { capability });
     const rate = await consumeUserRateLimit(principal.id, RATE);
     if (!rate.allowed) return { error: { status: "error", code: "rate", message: "Too many changes in a short time. Wait a moment and try again." } };
     return { principal };
@@ -33,7 +33,7 @@ function valuesOf(formData) {
 }
 
 export async function createServiceAction(_previous, formData) {
-  const auth = await authorize();
+  const auth = await authorize("services.create");
   if (auth.error) return auth.error;
 
   const parsed = readServiceForm(formData, { withSlug: true });
@@ -54,7 +54,7 @@ export async function createServiceAction(_previous, formData) {
 }
 
 export async function updateServiceAction(slug, _previous, formData) {
-  const auth = await authorize();
+  const auth = await authorize("services.edit");
   if (auth.error) return auth.error;
   if (typeof slug !== "string" || !SERVICE_SLUG_PATTERN.test(slug)) return { status: "error", code: "not_found", message: "That service was not found." };
 
@@ -75,7 +75,7 @@ export async function updateServiceAction(slug, _previous, formData) {
 }
 
 export async function setServiceActiveAction(slug, active) {
-  const auth = await authorize();
+  const auth = await authorize("services.edit");
   if (auth.error) return auth.error;
   if (typeof slug !== "string" || !SERVICE_SLUG_PATTERN.test(slug) || typeof active !== "boolean") return { status: "error", code: "invalid", message: "That request was not valid." };
 

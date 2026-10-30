@@ -7,7 +7,7 @@ import { getMongo } from "@/lib/db/mongo";
 export const metadata = { title: "Settings | Admin | The Cut Barbershop", robots: { index: false, follow: false } };
 
 export default async function AdminSettingsPage() {
-  await requireDashboardAccess("admin");
+  await requireDashboardAccess("admin", { capability: "settings.view" });
   const { db } = await getMongo();
   const settings = await getAdminSettings(db);
 

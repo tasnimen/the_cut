@@ -56,7 +56,7 @@ describe("service actions: authorization first", () => {
     ];
     for (const result of results) expect(result).toMatchObject({ status: "error", code: "denied" });
     expect(mocks.requirePrincipal).toHaveBeenCalledTimes(3);
-    for (const call of mocks.requirePrincipal.mock.calls) expect(call).toEqual(["servicesManageAll"]);
+    expect(mocks.requirePrincipal.mock.calls).toEqual([["servicesManageAll",{"capability":"services.create"}],["servicesManageAll",{"capability":"services.edit"}],["servicesManageAll",{"capability":"services.edit"}]]);
     expect(mocks.create).not.toHaveBeenCalled();
     expect(mocks.update).not.toHaveBeenCalled();
     expect(mocks.setActive).not.toHaveBeenCalled();

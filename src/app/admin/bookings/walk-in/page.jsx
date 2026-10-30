@@ -9,7 +9,7 @@ import { businessDate } from "@/lib/booking/time";
 export const metadata = { title: "Walk-in | Admin | The Cut Barbershop", robots: { index: false, follow: false } };
 
 export default async function AdminWalkInPage() {
-  await requireDashboardAccess("admin");
+  await requireDashboardAccess("admin", { capability: "bookings.walkIn" });
   const { db, config } = await openBookingRepository();
   const services = (await listAdminServices(db))
     .filter((service) => service.active && Number.isSafeInteger(service.priceMinorUnits) && service.priceMinorUnits > 0)

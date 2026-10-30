@@ -11,7 +11,7 @@ import { updatePackageAction } from "@/app/admin/packages/actions";
 export const metadata = { title: "Edit package | Admin | The Cut Barbershop", robots: { index: false, follow: false } };
 
 export default async function EditPackagePage({ params }) {
-  await requireDashboardAccess("admin");
+  await requireDashboardAccess("admin", { capability: "packages.edit" });
   const { slug } = await params;
   if (!SERVICE_SLUG_PATTERN.test(slug)) notFound();
   const { db } = await getMongo();

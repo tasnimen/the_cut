@@ -15,7 +15,7 @@ const DENIED = { status: "error", code: "denied", message: "You are not allowed 
 
 async function authorize(bucket, limit) {
   try {
-    const principal = await requirePrincipal("bookingsManageAll");
+    const principal = await requirePrincipal("bookingsManageAll", { capability: "bookings.walkIn" });
     const rate = await consumeUserRateLimit(principal.id, { bucket, limit, windowMs: 60_000 });
     if (!rate.allowed) return { error: { status: "error", code: "rate", message: "Too many requests. Wait a moment and try again." } };
     return { principal };
