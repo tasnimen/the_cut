@@ -27,7 +27,7 @@ export default async function AdminBarbersPage() {
       days: `${WEEKDAYS.filter((day) => barber.weeklySchedule[day]).length} days a week`,
       services: `${barber.serviceSlugs.length} services`,
       website: <span className={`dash-badge${barber.publicProfile ? "" : " is-off"}`}>{barber.publicProfile ? "Shown" : "Not shown"}</span>,
-      status: <span className={`dash-badge${barber.active ? "" : " is-off"}`}>{barber.active ? "Bookable" : "Off"}</span>,
+      status: <span className={`dash-badge${barber.active && Object.keys(barber.weeklySchedule).length > 0 ? "" : " is-off"}`}>{!barber.active ? "Off" : Object.keys(barber.weeklySchedule).length > 0 ? "Bookable" : "No hours"}</span>,
       actions: (
         can["barbers.edit"] ? (
           <span className="dash-row-actions">

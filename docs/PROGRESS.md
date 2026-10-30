@@ -121,3 +121,5 @@ Status labels: **BUILT** = implemented, covered by automated tests, lint and bui
 Checks last run (2026-10-30, after D1): `npm test` 642 passed in 79 files; `npm run lint` clean; `npm run build` passed. Production-build spot checks: public pages 200, admin pages 404 for guests and customers, uploads refused for guests.
 
 Not built yet: archive, restore and hard delete (D2); the Super Admin permission-management system (designed, waiting for the owner's go-ahead, units P1 and P2); Super Admin units I-23 to I-27; hardening I-28 to I-30; products; review moderation (I-21, skipped: no reviews exist). Known limitations: admin screens untested live; no QR code for TOTP enrolment (a key is shown); the step-up (recent TOTP) rule for no-show is not enforced; the hero image shows locally but the live site problem is still undiagnosed.
+
+- 2026-10-30 Phase 1 live check as Super Admin: 19 pages OK, barber pictures show in admin list and edit form; fixed the misleading "Bookable" badge for barbers without hours. Admin-role behaviour still not live-verified.
