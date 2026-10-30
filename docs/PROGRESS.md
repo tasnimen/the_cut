@@ -95,3 +95,25 @@ Phase G is implemented locally. Next: review the read-only seed plan for `the_cu
 - Fixed mojibake in the hero and services text. Header CTA relabelled "Book Appointment". Findings are in `docs/REFERENCE_DESIGN_AUDIT.md`; pages were not visually verified at desktop width.
 - Read-only seed preflight completed against `the_cut` (no `--apply`). Atlas connection works; plan is 6 service inserts and 4 barber inserts with no ambiguity or warnings. No database writes.
 - Checks: `npm test` 232 passed across 18 files; lint 0 errors and the existing HeroSection warning; `npm run build` passed. Live in browser: signed-out state shows Sign in (desktop and mobile list). Signed-in, sign-out success/failure and protected-route behavior were tested only with mocked fetch (new `session-store.test.js`), not with a real login (no test credentials/verified account used).
+
+## Phase I dashboards, image storage and pictures (2026-10-29 to 2026-10-30)
+
+Status labels: **BUILT** = implemented, covered by automated tests, lint and build passed. **LIVE-VERIFIED** = also exercised by a real person or in a browser. Nothing below is marked LIVE-VERIFIED unless stated.
+
+| Area | Units | Status |
+|---|---|---|
+| Foundation: guards, shell, TOTP pages, admin seed | I-1 to I-4 | BUILT; admin and Super Admin sign-in and TOTP confirmed working by the owner |
+| Public data from MongoDB with file fallback and tag revalidation: services, packages, barbers, holidays, business settings | I-5 to I-7, I-15 to I-17 | BUILT; editors for services, packages, barbers and settings exist at `/admin/*` |
+| Customer dashboard: appointments (reschedule and cancel, 24 h rule), profile, password, sessions, avatar, deletion request | I-8 to I-10 | BUILT; I-8 and I-9 checked live with dummy accounts; avatar upload not live-verified |
+| Admin bookings: today, all bookings (search, filter, paging), walk-in | I-11 to I-13 | BUILT; **not** exercised live as an admin |
+| Customers list (limited, read-only) | I-14 | BUILT; not exercised live as an admin |
+| Gallery manager | I-19 | BUILT; not exercised live |
+| Contact messages (read, status, delete: Admins may delete since 2026-10-30) | I-20 | BUILT; not exercised live |
+| Operational reports (counts and rates, no money) | I-22 | BUILT; not exercised live |
+| Image storage moved from ImgBB to Cloudinary (adapter, folders, 4 MB, CSP, fixed sizes, check script), browser resize, slot overrides, delivery guards | C1, C2 | BUILT; `npm run check:cloudinary` printed SUCCESS once the correct cloud name was used; the owner still has to set the correct `CLOUDINARY_CLOUD_NAME` in `.env`; uploads not live-verified |
+| Pictures for services, barbers and packages (upload, crop, replace, remove, cleanup) | D1 | BUILT; not exercised live |
+| Dashboard CRUD audit | docs/DASHBOARD_CRUD_GAPS.md | DONE (read-only) |
+
+Checks last run (2026-10-30, after D1): `npm test` 642 passed in 79 files; `npm run lint` clean; `npm run build` passed. Production-build spot checks: public pages 200, admin pages 404 for guests and customers, uploads refused for guests.
+
+Not built yet: archive, restore and hard delete (D2); the Super Admin permission-management system (designed, waiting for the owner's go-ahead, units P1 and P2); Super Admin units I-23 to I-27; hardening I-28 to I-30; products; review moderation (I-21, skipped: no reviews exist). Known limitations: admin screens untested live; no QR code for TOTP enrolment (a key is shown); the step-up (recent TOTP) rule for no-show is not enforced; the hero image shows locally but the live site problem is still undiagnosed.

@@ -1,11 +1,13 @@
-# Next task: confirm barber schedules and run post-seed checks
+# Next task
 
-**Status:** The read-only preflight completed on 2026-10-29 against `the_cut`: 6 service inserts and 4 barber inserts, no ambiguity, no warnings. Connectivity is working. Nothing has been written. Phase H and Phase I are not started.
+**Status (2026-10-30):** Phase I units I-1 to I-17, I-19, I-20, I-22, the Cloudinary switch (C1, C2) and D1 (pictures) are built and tested (642 tests). The admin screens have not been tried live as an admin. See `docs/PROGRESS.md`.
 
-Next, in order:
-1. Seed applied 2026-10-29 (6 services, 4 barbers). Verify records in Atlas and the /booking UI.
-2. **User input:** real barber names, weekly schedules, holidays and hours. Barbers are seeded with empty schedules, so no availability appears until these are set.
-3. Run the manual post-seed checks in `docs/TESTING.md`, including a real sign-in and sign-out check of the navbar with a verified test account and the Atlas race tests.
-4. Finish the design pass: compare Home, About, Services, Pricing, Booking and Contact against the references at true desktop width, and resolve the open rows in `docs/REFERENCE_DESIGN_AUDIT.md` (hero headline style, Dhaka vs New York location, pricing tiers vs six-service catalog).
+Pending, in this order:
+1. **Owner:** set the correct `CLOUDINARY_CLOUD_NAME` in `.env` (the check with the name `swthle87` printed SUCCESS), restart, rebuild, run `npm run check:cloudinary`.
+2. **Owner:** live-test the admin side (checklist given in chat; steps also in `docs/TESTING.md`) and report results. Nothing new is built on untested admin screens until then, unless the owner says so.
+3. **Owner decision pending:** go-ahead for the Super Admin permission-management system. Design: capability list in code, grants stored in MongoDB, enforced inside `requirePrincipal` and per-page route keys, Super Admin unrestricted, defaults equal to today. Unit P1 (engine) then P2 (Super Admin screen and UI hiding). Do not start without the owner's "ok P1".
+4. Unit D2 (archive, restore, delete everywhere) after P1 and P2, built on the new capabilities. It replaces the open question "who may delete contact messages".
+5. Super Admin units I-23 (admin accounts), I-24 (audit viewer), I-25 (security settings), I-26 (revenue, CSV), I-27 (image slot screen); then hardening I-28 to I-30.
+6. Diagnose the home hero image on the live site (needs the live address, the host and the network status of the `banner1` request).
 
-Checks last run: `npm test` 232 passed (18 files); lint 0 errors, one existing HeroSection warning; `npm run build` passed. No commit was made.
+Rules for every task: one unit per owner "ok"; commit blocks with explicit `git add <paths>`; update the documentation (see CLAUDE.md "Documentation").
