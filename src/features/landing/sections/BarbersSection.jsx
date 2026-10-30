@@ -5,6 +5,7 @@ import { BarberCard } from "@/features/landing/components/BarberCard";
 import { ANCHORS, ROUTES } from "@/config/routes";
 import { PLACEHOLDER_SRC } from "@/config/images";
 import { getPublicBarbers } from "@/lib/catalog/source";
+import { pictureFor } from "@/lib/catalog/image-input";
 import { getImage } from "@/lib/images/server";
 
 export async function BarbersSection() {
@@ -32,7 +33,7 @@ export async function BarbersSection() {
         </div>
         <ScrollReveal className="barber-grid" id={ANCHORS.teamProfiles} stagger>
           {profiles.map((barber) => {
-            const image = barber.photoSlot ? getImage(barber.photoSlot) : { src: PLACEHOLDER_SRC, alt: "" };
+            const image = pictureFor(barber, barber.photoSlot ? getImage(barber.photoSlot) : { src: PLACEHOLDER_SRC, alt: "" });
             return <BarberCard key={barber.key} barber={barber} imageSrc={image.src} imageAlt={image.alt} />;
           })}
         </ScrollReveal>

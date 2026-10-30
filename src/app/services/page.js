@@ -1,5 +1,6 @@
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { primeSlotOverrides } from "@/lib/images/slot-overrides";
+import { pictureFor } from "@/lib/catalog/image-input";
 import { getImage } from "@/lib/images/server";
 import { SiteFrame } from "@/components/layout/SiteFrame";
 import { ButtonLink } from "@/components/ui/ButtonLink";
@@ -51,7 +52,7 @@ export default async function ServicesPage() {
           <p className="service-menu-disclosure">
             Prices are in USD, before tax. Payment is at the shop.
           </p>
-          <ServiceCatalog services={services} images={Object.fromEntries(services.map((service) => [service.slug, getImage(`service-${service.slug}`)]))} />
+          <ServiceCatalog services={services} images={Object.fromEntries(services.map((service) => [service.slug, pictureFor(service, getImage(`service-${service.slug}`))]))} />
         </section>
 
         <section className="services-page-note page-shell" aria-label="Service information">

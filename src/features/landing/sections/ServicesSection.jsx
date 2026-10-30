@@ -5,6 +5,7 @@ import { getPublicServices } from "@/lib/catalog/source";
 import Link from "next/link";
 import { ANCHORS, ROUTES } from "@/config/routes";
 import { bookingHrefForService } from "@/lib/booking/preselect";
+import { pictureFor } from "@/lib/catalog/image-input";
 import { getImage } from "@/lib/images/server";
 
 export async function ServicesSection() {
@@ -21,7 +22,7 @@ export async function ServicesSection() {
       {services.length === 0 ? <p className="section-footnote">Services will be listed here soon.</p> : null}
       <ScrollReveal className="service-grid" stagger>
         {services.map((service) => {
-          const image = getImage(`service-${service.slug}`);
+          const image = pictureFor(service, getImage(`service-${service.slug}`));
           return (
           <ServiceCard
             key={service.number}
