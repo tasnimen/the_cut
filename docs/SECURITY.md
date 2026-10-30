@@ -196,3 +196,7 @@ Unauthorized visitors never learn that the admin areas exist (404, not a redirec
 - Result: **no new authorization surface; foundation checklist partial**. This is not a penetration test or launch certification.
 
 Threats and mitigations are tracked in [requirements](REQUIREMENTS.md), [architecture](ARCHITECTURE.md), and [decisions](DECISIONS.md). No penetration test or security review has been run.
+
+## Barber picture fix (2026-10-30)
+
+No security rule changed. The fix is interface only: a clearer two-step flow, a leave-page warning while an upload is unsaved, picture columns in the admin lists, and the description suggestion. Permissions, the capability switches, the upload route and the trusted-host checks are unchanged.

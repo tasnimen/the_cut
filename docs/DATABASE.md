@@ -114,3 +114,7 @@ Optional field `image: { mediaId, secureUrl, width, height, alt }`. Records with
 ## adminPermission (P1)
 
 One document, `_id: "admin-grants"`: `grants` (`{ "<group>.<action>": boolean }`, the complete set after the last save), `version` (incremented on each save), `updatedAt`, `updatedBy` (user id of the Super Admin). Absent document or key = default (everything on). Read on every guarded Admin call; written only by `saveAdminGrants` (Super Admin). See ADMIN_PERMISSIONS.md.
+
+### Barber picture: what is stored where (checked on the dev database, 2026-10-30)
+
+The only picture field is `image` on the `barber` document (also `service`, `pricingPackage`): `{ mediaId, secureUrl, width, height, alt }`. There is no `imageUrl`, `photo` or `avatar` field. The upload itself creates a `media` document (`category: "barbers"`, `provider: "cloudinary"`) with `attachedTo: null`; it only gets `attachedTo: { kind, slug }` and the barber only gets `image` when the barber form is saved. A `media` document with `attachedTo: null` is an upload nobody saved (swept after 24 hours).

@@ -55,3 +55,12 @@ A slot can now be overridden by a stored image (collection `imageSlot`, see DATA
 ## A record's own picture comes first (D1)
 
 For a service, barber or package, a picture added in the admin editor is shown before the slot image (`service-<slug>`, `barber-<name>`). Remove the picture in the editor and the site goes back to the slot image or placeholder.
+
+## What the picture description is (barbers, services, packages)
+
+The description (alt text) is saved with the picture (`image.alt` on the record and `alt` on the Media record) and is used as the `alt` of the picture everywhere it is shown: the public site, the admin lists, and the edit form. Screen readers read it aloud for people who cannot see the picture, browsers show it if the picture fails to load, and search engines use it. It is required (5 to 200 characters, no markup). Write what is in the picture, not "image" or "photo". When a picture is added the form suggests a description from the name (editable):
+- Barber: `Professional portrait of Daniel Carter, barber at The Cut Barbershop.`
+- Service: `Hot towel shave service at The Cut Barbershop.`
+- Package: `Gold grooming package at The Cut Barbershop.`
+
+A barber with no picture shows the placeholder image with an empty alt (it is decorative) and the small label "Shared sample image". A barber with their own picture shows it with their description and no label.
