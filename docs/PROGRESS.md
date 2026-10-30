@@ -123,3 +123,7 @@ Checks last run (2026-10-30, after D1): `npm test` 642 passed in 79 files; `npm 
 Not built yet: archive, restore and hard delete (D2); the Super Admin permission-management system (designed, waiting for the owner's go-ahead, units P1 and P2); Super Admin units I-23 to I-27; hardening I-28 to I-30; products; review moderation (I-21, skipped: no reviews exist). Known limitations: admin screens untested live; no QR code for TOTP enrolment (a key is shown); the step-up (recent TOTP) rule for no-show is not enforced; the hero image shows locally but the live site problem is still undiagnosed.
 
 - 2026-10-30 Phase 1 live check as Super Admin: 19 pages OK, barber pictures show in admin list and edit form; fixed the misleading "Bookable" badge for barbers without hours. Admin-role behaviour still not live-verified.
+
+- 2026-10-30 Admin switches are default deny (overview only until saved); current set saved first (26 on). Live-verified as the real Admin through the Super Admin screen: View off, Edit off, all off, restored (docs/TESTING.md). Open: Site images switch never takes effect (bug), denied pages return HTTP 200 with the 404 view.
+
+- 2026-10-30 Fixed both live-test findings: Site images switch now effective (group without a view switch depends only on its own switch); revoked Admin pages return a real HTTP 404 (admin layout checks the page switch via the proxy's x-pathname header). 712 tests, lint, build pass; verified live as the Admin; all 26 switches restored on.

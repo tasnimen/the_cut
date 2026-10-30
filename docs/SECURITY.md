@@ -200,3 +200,9 @@ Threats and mitigations are tracked in [requirements](REQUIREMENTS.md), [archite
 ## Barber picture fix (2026-10-30)
 
 No security rule changed. The fix is interface only: a clearer two-step flow, a leave-page warning while an upload is unsaved, picture columns in the admin lists, and the description suggestion. Permissions, the capability switches, the upload route and the trusted-host checks are unchanged.
+
+## Default deny for Admin switches (2026-10-30)
+`resolveGrants` now starts from everything off: no saved document, a missing key, a junk value or a document that cannot be read gives the Admin only the dashboard overview. The owner's current set was saved explicitly first (26 of 26 on, change number 1), so no access was lost. Live-verified with the real Admin account: Barbers View off, Barbers Edit off, all off, restored (docs/TESTING.md).
+
+## Real HTTP 404 and site images switch (2026-10-30)
+The admin layout refuses a revoked page before streaming (proxy header `x-pathname` plus `capabilityForAdminPath`), so direct URLs return a genuine 404 and no protected data or page name streams. The header is always overwritten by the proxy; a spoofed value could only cause a 404 for the sender, and pages, APIs and Server Actions keep their own checks. Site image uploads (`/api/media`, targets banners, slots, products) need `siteImages.manage`: default deny, 403 when off. Details in ADMIN_PERMISSIONS.md.

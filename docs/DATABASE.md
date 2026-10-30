@@ -113,7 +113,7 @@ Optional field `image: { mediaId, secureUrl, width, height, alt }`. Records with
 
 ## adminPermission (P1)
 
-One document, `_id: "admin-grants"`: `grants` (`{ "<group>.<action>": boolean }`, the complete set after the last save), `version` (incremented on each save), `updatedAt`, `updatedBy` (user id of the Super Admin). Absent document or key = default (everything on). Read on every guarded Admin call; written only by `saveAdminGrants` (Super Admin). See ADMIN_PERMISSIONS.md.
+One document, `_id: "admin-grants"`: `grants` (`{ "<group>.<action>": boolean }`, the complete set after the last save), `version` (incremented on each save), `updatedAt`, `updatedBy` (user id of the Super Admin). Absent document or key = default (everything OFF, default deny since 2026-10-30). Read on every guarded Admin call; written only by `saveAdminGrants` (Super Admin). See ADMIN_PERMISSIONS.md.
 
 ### Barber picture: what is stored where (checked on the dev database, 2026-10-30)
 

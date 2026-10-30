@@ -133,3 +133,21 @@ Automated: `app/admin/barbers/picture-flow.test.js` (the real save path: the for
 ## Phase 1 live check as Super Admin (2026-10-30, dev server :3000, signed in by the owner)
 
 PASS in the browser: all 19 pages (/admin, bookings x3, customers, services x2, packages x2, barbers/new, gallery, messages, reports, settings, /super-admin, /super-admin/permissions, /user x3) answered 200 with no error text; /admin/barbers shows the Picture column (Daniel Carter thumbnail loads from Cloudinary through /_next/image with the stored description as alt, letters for the other four); the Daniel Carter edit form shows the saved picture (lazy loaded), the description and "Remove picture"/"Replace picture"; no console errors. **Bug found and fixed:** the Booking badge said "Bookable" for every active barber, including three with no working hours (the stat cards were right). It now says "No hours" for those. **Not verified:** anything as a real ADMIN (the Super Admin is never limited by the switches), saving a picture from the form, adding a barber with a picture, the permission screen's toggles, the packages list picture column (none exists).
+
+## Live Admin permission test (2026-10-30, dev server :3000, owner signed in and switched accounts in one tab; switches changed only through the real Super Admin screen)
+| Step | Account | Result |
+|---|---|---|
+| 1 Super Admin screen shows 26 of 26 on | Super Admin | PASS |
+| 2 All on: 16 admin pages open, sidebar has 10 entries, upload APIs pass the switch (400 for a dummy file), /super-admin pages 404, Barbers shows Edit and Turn off | Admin | PASS |
+| 3 Barbers View off (screen turns its Create and Edit off too) saved | Super Admin | PASS (saved, change 2) |
+| 4 Barbers entry gone, /admin/barbers, /new and /daniel-carter show 404, barber picture upload 403, other sections and uploads work | Admin | PASS (note: denied pages answer HTTP 200 with the 404 view) |
+| 5 View and Create on, Edit off saved | Super Admin | PASS (change 3) |
+| 6 List opens with pictures, rows say "View only", no Edit or Turn off, edit page 404, New barber still works | Admin | PASS |
+| 7 All 26 off saved | Super Admin | PASS (change 4) |
+| 8 Only Overview in the sidebar, overview opens, Bookings and Settings show 404, all four upload APIs 403, /super-admin 404 | Admin | PASS |
+| 9 "Switch everything on" saved, reloaded: 26 of 26, stored record 26 on | Super Admin | PASS (change 5) |
+| 10 Sidebar full again, all 16 pages open, uploads pass the switch, /super-admin 404, no sign-out needed | Admin | PASS |
+**FAIL / finding:** the "Site images (API only)" row of the review text says "nothing" even with all 26 on (see ADMIN_PERMISSIONS.md, Known issues). **Not live-tested:** calling Server Actions directly (covered by capability-coverage.test.js), a customer (USER) account, production build behaviour of the denied-page status code, the authenticator prompt (the screen did not ask for a code because the sign-in was recent). Automated: 701 tests pass.
+
+## Fix check: site images switch and real HTTP 404 (2026-10-30, dev server :3000, same account-switching method; switches changed only through the real Super Admin screen)
+Automated: 712 tests pass in 86 files (new: site images allowed/denied/default-deny, all three upload targets, Super Admin unlimited, review text, `capabilityForAdminPath` for every route, `layout.test.js`, proxy header scan), lint clean, `npm run build` compiled. Live as the real Admin: all 26 on: 16 admin pages 200, `/super-admin` pages and `/admin/nothing-here` 404, `/api/media` banners, slots, products pass the switch (400 for a dummy file, not 403). Barbers View and Site images off (change 6): `/admin/barbers`, `/new`, `/daniel-carter` **HTTP 404** (was 200), page body has no barber data and the title is generic, `/api/media` banners, slots, products **403**, the other 13 admin pages 200, sidebar without Barbers. Restored through the screen: 26 of 26 on (change 7, stored record confirmed), review text "Site images: Upload banner, slot and product images". **Not tested:** production build served live (build compiles; dev server tested), real image uploads to Cloudinary through /api/media (dummy file only), a customer account, direct Server Action calls (covered by capability-coverage.test.js).
