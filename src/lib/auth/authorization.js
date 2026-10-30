@@ -11,6 +11,7 @@ import { cookies } from "next/headers";
 import { env, requireEnv } from "@/config/env";
 import { isStepUpTokenValid, STEP_UP_COOKIE_NAME } from "@/lib/auth/security-events";
 import { isEmailVerificationSatisfied } from "@/lib/auth/verification-policy";
+import { roleHasCapability } from "@/lib/auth/capabilities";
 
 async function auditDenial(actorId, permission, requestHeaders) {
   const { db } = await getMongo();
@@ -39,7 +40,10 @@ export class AuthorizationError extends Error {
   }
 }
 
-export async function requirePrincipal(permission) {
+// `capability` (optional, one id or a list meaning "any of") is the Super Admin controlled switch for Admin users
+// (config/admin-capabilities.js). It is checked after everything else, only for ADMIN; SUPER_ADMIN is never limited.
+// Every admin action and API route passes one (a test checks that none is forgotten).
+export async function requirePrincipal(permission, { capability } = {}) {
   const auth = await getAuth();
   const requestHeaders = await headers();
   const session = await auth.api.getSession({ headers: requestHeaders });
@@ -56,6 +60,11 @@ export async function requirePrincipal(permission) {
   }
   if ([ROLES.admin, ROLES.superAdmin].includes(role) && !session.user.twoFactorEnabled) {
     await auditDenial(session.user.id, permission, requestHeaders);
+    throw new AuthorizationError(403);
+  }
+
+  if (capability && role === ROLES.admin && !(await roleHasCapability(role, capability))) {
+    await auditDenial(session.user.id, `${permission} (switched off by the Super Admin)`, requestHeaders);
     throw new AuthorizationError(403);
   }
 

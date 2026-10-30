@@ -6,12 +6,15 @@ import { ROUTES } from "@/config/routes";
 import { getAuth } from "@/lib/auth/server";
 import { signInUrlFor } from "@/lib/auth/callback";
 import { isSessionVersionCurrent } from "@/lib/auth/session-version";
+import { roleHasCapability } from "@/lib/auth/capabilities";
 
 // Call from EVERY dashboard page (and from the layout for the shell). A layout alone is not enough:
 // Next.js does not re-render layouts when navigating between sibling pages. Server actions must
 // additionally call requirePrincipal(permission) from lib/auth/authorization.js (it re-checks the
 // session, status, permission and TOTP on every call).
-export async function requireDashboardAccess(areaKey) {
+// `capability` (optional) is the Super Admin controlled switch for this page; a revoked page is a 404 for an Admin,
+// exactly like a page that does not exist. SUPER_ADMIN is never limited. Pass it on every admin page except the overview.
+export async function requireDashboardAccess(areaKey, { capability } = {}) {
   const area = DASHBOARD_AREAS[areaKey];
   if (!area) notFound();
 
@@ -30,6 +33,7 @@ export async function requireDashboardAccess(areaKey) {
   if (decision.action === "twoFactor") redirect(ROUTES.twoFactor);
 
   const { id, name, email, role } = session.user;
+  if (capability && role === "ADMIN" && !(await roleHasCapability(role, capability))) notFound();
   return Object.freeze({ id, name: name || "", email: email || "", role });
 }
 

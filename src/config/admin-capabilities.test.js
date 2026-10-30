@@ -1,0 +1,101 @@
+import { describe, expect, it } from "vitest";
+import {
+  ADMIN_CAPABILITIES, ADMIN_CAPABILITY_GROUPS, ADMIN_ROUTE_CAPABILITIES, capabilityAllowed, capabilityForMediaTarget, catalogImageCapability,
+  defaultGrants, describeEffectiveGrants, groupOf, isKnownCapability, resolveGrants, validateGrantsInput,
+} from "./admin-capabilities.js";
+
+describe("the capability catalog", () => {
+  it("has unique ids of the form group.action, and every group has a view (except API-only groups)", () => {
+    expect(new Set(ADMIN_CAPABILITIES).size).toBe(ADMIN_CAPABILITIES.length);
+    for (const id of ADMIN_CAPABILITIES) expect(id).toMatch(/^[a-zA-Z]+\.[a-zA-Z]+$/);
+    for (const group of ADMIN_CAPABILITY_GROUPS) {
+      for (const capability of group.capabilities) expect(groupOf(capability.id)).toBe(group.key);
+      if (group.routes.length > 0) expect(group.capabilities.some((capability) => capability.id === `${group.key}.view`) || group.key === "bookings").toBe(true);
+    }
+    expect(ADMIN_CAPABILITIES).toContain("bookings.view");
+  });
+  it("covers the actions the owner asked to control", () => {
+    for (const id of ["bookings.view", "bookings.walkIn", "bookings.changeStatus", "bookings.cancel", "customers.view", "gallery.view", "gallery.upload", "gallery.hide", "gallery.delete", "messages.view", "messages.markStatus", "messages.delete", "reports.view"]) {
+      expect(isKnownCapability(id), id).toBe(true);
+    }
+  });
+  it("maps every admin route to a known capability, and never offers Super Admin areas", () => {
+    for (const [route, capability] of Object.entries(ADMIN_ROUTE_CAPABILITIES)) {
+      expect(route.startsWith("/admin/")).toBe(true);
+      expect(isKnownCapability(capability), route).toBe(true);
+    }
+    expect(Object.keys(ADMIN_ROUTE_CAPABILITIES).some((route) => route.includes("super-admin") || route.includes("permissions") || route.includes("audit"))).toBe(false);
+    expect(ADMIN_CAPABILITIES.some((id) => /permission|audit|account|security|revenue/i.test(id))).toBe(false);
+  });
+  it("lists the same routes in the groups and in the route map", () => {
+    const grouped = ADMIN_CAPABILITY_GROUPS.flatMap((group) => group.routes).sort();
+    expect(grouped).toEqual(Object.keys(ADMIN_ROUTE_CAPABILITIES).sort());
+  });
+});
+
+describe("resolveGrants", () => {
+  it("defaults to everything on (what an Admin could do before this system)", () => {
+    const grants = resolveGrants(undefined);
+    expect(Object.keys(grants).sort()).toEqual([...ADMIN_CAPABILITIES].sort());
+    expect(Object.values(grants).every((value) => value === true)).toBe(true);
+    expect(resolveGrants(null)).toEqual(defaultGrants());
+  });
+  it("applies stored booleans, and ignores unknown keys, junk values and wrong shapes", () => {
+    const grants = resolveGrants({ "messages.delete": false, "gallery.upload": "no", "fake.power": true, "__proto__": { x: 1 } });
+    expect(grants["messages.delete"]).toBe(false);
+    expect(grants["gallery.upload"]).toBe(true);
+    expect(Object.hasOwn(grants, "fake.power")).toBe(false);
+    for (const bad of ["x", 5, [], true]) expect(resolveGrants(bad)).toEqual(defaultGrants());
+  });
+});
+
+describe("capabilityAllowed", () => {
+  const off = (...ids) => resolveGrants(Object.fromEntries(ids.map((id) => [id, false])));
+  it("allows what is on and denies what is off", () => {
+    expect(capabilityAllowed(defaultGrants(), "messages.delete")).toBe(true);
+    expect(capabilityAllowed(off("messages.delete"), "messages.delete")).toBe(false);
+    expect(capabilityAllowed(off("messages.delete"), "messages.markStatus")).toBe(true);
+  });
+  it("turns a whole group off when its view is off", () => {
+    const grants = off("gallery.view");
+    for (const id of ["gallery.view", "gallery.upload", "gallery.hide", "gallery.delete"]) expect(capabilityAllowed(grants, id), id).toBe(false);
+    expect(capabilityAllowed(grants, "reports.view")).toBe(true);
+  });
+  it("supports any-of lists and denies unknown ids and empty input", () => {
+    const grants = off("services.create");
+    expect(capabilityAllowed(grants, ["services.create", "services.edit"])).toBe(true);
+    expect(capabilityAllowed(off("services.create", "services.edit"), ["services.create", "services.edit"])).toBe(false);
+    for (const bad of ["nope.view", "", undefined, null, [], ["x.y"], 5]) expect(capabilityAllowed(defaultGrants(), bad)).toBe(false);
+  });
+});
+
+describe("validateGrantsInput", () => {
+  it("accepts a partial set of known booleans and returns the full map", () => {
+    const result = validateGrantsInput({ "messages.delete": false });
+    expect(result.ok).toBe(true);
+    expect(result.grants["messages.delete"]).toBe(false);
+    expect(result.grants["bookings.view"]).toBe(true);
+  });
+  it("rejects unknown capabilities, non-booleans and wrong shapes", () => {
+    expect(validateGrantsInput({ "super.power": true })).toEqual({ ok: false, error: "unknown_capability" });
+    expect(validateGrantsInput({ "messages.delete": "yes" })).toEqual({ ok: false, error: "not_boolean" });
+    for (const bad of [null, "x", [], 7]) expect(validateGrantsInput(bad).ok).toBe(false);
+  });
+});
+
+describe("helpers", () => {
+  it("map media targets and picture kinds to capabilities", () => {
+    expect(capabilityForMediaTarget("gallery")).toBe("gallery.upload");
+    expect(capabilityForMediaTarget("avatar")).toBeNull();
+    expect(capabilityForMediaTarget("banners")).toBe("siteImages.manage");
+    for (const target of ["services", "packages", "barbers"]) for (const id of capabilityForMediaTarget(target)) expect(isKnownCapability(id)).toBe(true);
+    expect(catalogImageCapability("services")).toEqual(["services.create", "services.edit"]);
+  });
+  it("describes what an Admin can do for the review screen", () => {
+    const review = describeEffectiveGrants(resolveGrants({ "gallery.view": false, "messages.delete": false }));
+    const gallery = review.find((group) => group.key === "gallery");
+    expect(gallery.allowed).toEqual([]);
+    expect(gallery.denied.length).toBe(5);
+    expect(review.find((group) => group.key === "messages").denied).toEqual(["Delete messages"]);
+  });
+});
