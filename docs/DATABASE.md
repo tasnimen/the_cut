@@ -106,3 +106,7 @@ New records: `provider: "cloudinary"`, `publicId` (`the-cut/<folder>/<uuid>`, us
 ## imageSlot (C2)
 
 One document per image slot that an admin pointed at a stored image: `slot` (a key from `config/images.js`, unique index `image_slot_unique`), `mediaId`, `secureUrl`, `alt`, `width`, `height`, `updatedBy`, `updatedAt`. Resolution order for every slot: this override, then a photo placed in `public/images`, then the built-in fallback. Unknown slot keys and untrusted addresses are ignored. Cached with tag `catalog:slots` (5 minutes); pages call `await primeSlotOverrides()` once at the top. The admin screen that writes these (Super Admin, "Site images") is unit I-27; the write helpers (`setSlotOverride`, `clearSlotOverride`) and permission (`mediaSlotsManageAll`) exist and are tested.
+
+## Pictures on service, barber and pricingPackage (D1)
+
+Optional field `image: { mediaId, secureUrl, width, height, alt }`. Records without it keep working (the site uses the slot image or placeholder). `media` documents of category services, barbers or packages gain `attachedTo: { kind, slug }` once attached (a media document can belong to one record only) and `orphaned: true` when its provider delete failed. Unattached uploads older than 24 hours are swept at the next upload. Public pages receive the picture without `mediaId`.

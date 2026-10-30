@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** I-22 complete (operational reports; not verified live as admin). **Next step:** Super Admin units, on the owner's ok.
+**Where I stopped:** D1 complete (pictures for services, barbers and packages; not verified live). **Next step:** D2 on the owner's ok.
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -458,3 +458,10 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - Not verified live as an admin; steps in TESTING.md.
 - I-21 (review moderation) is skipped: there are no reviews in the product.
 - **Where I stopped:** I-22 complete. **Next step:** Super Admin units (I-23 admin accounts, I-24 audit viewer, I-25 security settings, I-26 revenue and CSV, I-27 image slot screen), then hardening I-28 to I-30, on the owner's ok. Strongly suggested before more building: live-test the admin screens (I-11 to I-14, I-19, I-20, I-22).
+
+## Unit D1 done (2026-10-30): pictures for services, barbers and packages
+- New: `lib/catalog/{image-input,catalog-images,image-action}.js` (+ tests), `api/admin/catalog-image/route.js` (+ test), `features/dashboard/components/CatalogImageField.jsx`; presets `service-card`, `barber-portrait`, `package-card` in `config/image-sizes.mjs`; permission `mediaPackagesManageAll`; media category and folder `packages` (`the-cut/packages`); `cropRect` and crop option in `lib/images/client-upload.js`.
+- Changed: the three create and edit actions and forms, admin DTOs and projections, public normalizers, `source.js` projections, home services and barbers sections, services page, pricing page (card image), `pictureFor` helper, CSS, toast `catalogImageReady`. The three action tests mock `image-action`.
+- No hard delete or archive yet (D2). The picture sweep runs at upload time only.
+- **Not verified live**; see TESTING.md. Needs a rebuild after setting the cloud name.
+- **Where I stopped:** D1 complete. **Next step:** D2 (archive, restore, delete) on the owner's ok, once the owner answers who may delete contact messages.

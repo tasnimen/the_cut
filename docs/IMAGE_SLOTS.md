@@ -51,3 +51,7 @@ The gallery no longer needs files in `public/images`: photos added at Admin > Ga
 ## Overrides from the image service (C2)
 
 A slot can now be overridden by a stored image (collection `imageSlot`, see DATABASE.md). The order is: override, then the local file in `public/images`, then the built-in fallback, so a failed or removed override never leaves a hole. There is no screen for it yet (I-27).
+
+## A record's own picture comes first (D1)
+
+For a service, barber or package, a picture added in the admin editor is shown before the slot image (`service-<slug>`, `barber-<name>`). Remove the picture in the editor and the site goes back to the slot image or placeholder.

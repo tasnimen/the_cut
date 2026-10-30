@@ -98,3 +98,5 @@ Responses for these paths carry `Cache-Control: no-store` and `X-Robots-Tag: noi
 **Image storage (C1):** two new permissions, `mediaBannersManageAll` and `mediaSlotsManageAll` (ADMIN and SUPER_ADMIN, scope ALL), cover uploads to the `banners` and `slots` folders; they have no screens yet (C2 and the image-slot work). `mediaAvatarOwn` stays OWN for every signed-in role. Uploads are capped at 4 MB.
 
 **Reports (I-22):** `/admin/reports` needs `operationalReportsAll` (ADMIN and SUPER_ADMIN, TOTP). It shows counts and rates only. Revenue and any money figure are **not** on this page or in its data: they belong to `financialReportsAll` (Super Admin only, unit I-26), and a test checks that the report data contains no price, revenue, email, phone or customer name.
+
+**Pictures for services, barbers and packages (D1):** a new permission `mediaPackagesManageAll` (ADMIN and SUPER_ADMIN) joins the existing `mediaServicesManageAll` and `mediaBarbersManageAll`. Each upload, replace and remove checks the permission of its kind on its own: in the upload route and again in the save action. A customer or guest cannot upload, replace or remove any of them.
