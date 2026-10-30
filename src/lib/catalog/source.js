@@ -1,4 +1,5 @@
 import "server-only";
+import { hideArchived } from "@/lib/catalog/archive";
 import { unstable_cache } from "next/cache";
 import { BOOKING_CONFIG } from "@/config/booking";
 import { site } from "@/config/site";
@@ -25,25 +26,25 @@ const galleryCooldown = createCooldown({ ms: DB_COOLDOWN_MS });
 // A failed query throws inside the cached function, so failures are never cached; resolveCatalog then
 // serves the file data. Admin saves call revalidateCatalog() (lib/catalog/revalidate.js).
 
-const SERVICE_PROJECTION = { _id: 0, slug: 1, name: 1, description: 1, durationMinutes: 1, priceMinorUnits: 1, active: 1, displayOrder: 1, category: 1, icon: 1, image: 1 };
-const PACKAGE_PROJECTION = { _id: 0, slug: 1, name: 1, priceMinorUnits: 1, note: 1, inclusions: 1, featured: 1, active: 1, displayOrder: 1, bookingServiceSlugs: 1, image: 1 };
+const SERVICE_PROJECTION = { _id: 0, archivedAt: 1, slug: 1, name: 1, description: 1, durationMinutes: 1, priceMinorUnits: 1, active: 1, displayOrder: 1, category: 1, icon: 1, image: 1 };
+const PACKAGE_PROJECTION = { _id: 0, archivedAt: 1, slug: 1, name: 1, priceMinorUnits: 1, note: 1, inclusions: 1, featured: 1, active: 1, displayOrder: 1, bookingServiceSlugs: 1, image: 1 };
 
 const loadServiceDocuments = unstable_cache(
   async () => {
     const { db } = await getMongo();
-    return db.collection("service").find({}, { projection: SERVICE_PROJECTION }).limit(100).toArray();
+    return hideArchived(await db.collection("service").find({}, { projection: SERVICE_PROJECTION }).limit(100).toArray());
   },
   ["catalog-services-v1"],
   { tags: [CATALOG_TAGS.services], revalidate: CATALOG_REVALIDATE_SECONDS },
 );
 
 // Only fields safe for the public site are read: never schedules, service assignments or timestamps.
-const BARBER_PROJECTION = { _id: 0, slug: 1, name: 1, role: 1, focus: 1, active: 1, publicProfile: 1, displayOrder: 1, image: 1 };
+const BARBER_PROJECTION = { _id: 0, archivedAt: 1, slug: 1, name: 1, role: 1, focus: 1, active: 1, publicProfile: 1, displayOrder: 1, image: 1 };
 
 const loadBarberDocuments = unstable_cache(
   async () => {
     const { db } = await getMongo();
-    return db.collection("barber").find({ publicProfile: true }, { projection: BARBER_PROJECTION }).limit(30).toArray();
+    return hideArchived(await db.collection("barber").find({ publicProfile: true }, { projection: BARBER_PROJECTION }).limit(30).toArray());
   },
   ["catalog-barbers-v1"],
   { tags: [CATALOG_TAGS.barbers], revalidate: CATALOG_REVALIDATE_SECONDS },
@@ -62,7 +63,7 @@ const loadSettingDocuments = unstable_cache(
 const loadPackageDocuments = unstable_cache(
   async () => {
     const { db } = await getMongo();
-    return db.collection("pricingPackage").find({}, { projection: PACKAGE_PROJECTION }).limit(50).toArray();
+    return hideArchived(await db.collection("pricingPackage").find({}, { projection: PACKAGE_PROJECTION }).limit(50).toArray());
   },
   ["catalog-packages-v1"],
   { tags: [CATALOG_TAGS.packages], revalidate: CATALOG_REVALIDATE_SECONDS },

@@ -1,3 +1,4 @@
+import { ARCHIVED, NOT_ARCHIVED, missReason, toArchiveInfo } from "@/lib/catalog/archive";
 import { normalizeImage } from "@/lib/catalog/image-input";
 import { describeBarberChanges, WEEKDAYS } from "@/lib/catalog/barber-input";
 import { appendAuditEvent } from "@/lib/security/audit-log";
@@ -6,8 +7,9 @@ import { appendAuditEvent } from "@/lib/security/audit-log";
 // (requirePrincipal("barbersManageAll")). No hard delete: barbers with past or future bookings are
 // switched off instead, which removes them from availability but keeps booking history intact.
 // Changing hours does NOT move existing appointments; the screens say so.
+// A barber can be archived (lib/catalog/archive.js) when no upcoming booking remains; an archived barber is read-only.
 
-const PROJECTION = { _id: 0, slug: 1, name: 1, active: 1, serviceSlugs: 1, weeklySchedule: 1, breaks: 1, daysOff: 1, publicProfile: 1, role: 1, focus: 1, displayOrder: 1, image: 1, updatedAt: 1 };
+const PROJECTION = { _id: 0, slug: 1, name: 1, active: 1, serviceSlugs: 1, weeklySchedule: 1, breaks: 1, daysOff: 1, publicProfile: 1, role: 1, focus: 1, displayOrder: 1, image: 1, updatedAt: 1, archivedAt: 1 };
 const TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
 
 function cleanDay(value) {
@@ -38,11 +40,13 @@ export function toBarberDto(doc, index = 0) {
     displayOrder: Number.isFinite(doc.displayOrder) ? doc.displayOrder : index + 1,
     image: normalizeImage(doc.image),
     updatedAt: doc.updatedAt instanceof Date ? doc.updatedAt.toISOString() : null,
+    ...toArchiveInfo(doc),
   };
 }
 
-export async function listAdminBarbers(db) {
-  const docs = await db.collection("barber").find({}, { projection: PROJECTION }).limit(100).toArray();
+// Active list by default (never archived records); { archived: true } returns only the archived ones.
+export async function listAdminBarbers(db, { archived = false } = {}) {
+  const docs = await db.collection("barber").find(archived ? ARCHIVED : NOT_ARCHIVED, { projection: PROJECTION }).limit(100).toArray();
   return docs.map(toBarberDto).sort((a, b) => a.displayOrder - b.displayOrder || a.name.localeCompare(b.name));
 }
 
@@ -67,16 +71,17 @@ export async function createAdminBarber(db, data, actorId) {
 export async function updateAdminBarber(db, slug, fields, actorId) {
   const before = await getAdminBarber(db, slug);
   if (!before) return { ok: false, error: "not_found" };
+  if (before.archived) return { ok: false, error: "archived" };
   const changes = describeBarberChanges(before, fields);
-  const result = await db.collection("barber").updateOne({ slug }, { $set: { ...fields, updatedAt: new Date() } });
-  if (result.matchedCount !== 1) return { ok: false, error: "not_found" };
+  const result = await db.collection("barber").updateOne({ slug, ...NOT_ARCHIVED }, { $set: { ...fields, updatedAt: new Date() } });
+  if (result.matchedCount !== 1) return { ok: false, error: await missReason(db, "barbers", slug) };
   await appendAuditEvent(db, { actorId, action: "catalog.barber.updated", targetType: "Barber", targetId: slug, outcome: "success", details: changes });
   return { ok: true, changed: Object.keys(changes).length };
 }
 
 export async function setAdminBarberActive(db, slug, active, actorId) {
-  const result = await db.collection("barber").updateOne({ slug }, { $set: { active: Boolean(active), updatedAt: new Date() } });
-  if (result.matchedCount !== 1) return { ok: false, error: "not_found" };
+  const result = await db.collection("barber").updateOne({ slug, ...NOT_ARCHIVED }, { $set: { active: Boolean(active), updatedAt: new Date() } });
+  if (result.matchedCount !== 1) return { ok: false, error: await missReason(db, "barbers", slug) };
   await appendAuditEvent(db, { actorId, action: active ? "catalog.barber.activated" : "catalog.barber.deactivated", targetType: "Barber", targetId: slug, outcome: "success" });
   return { ok: true };
 }

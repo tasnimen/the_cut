@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { AuthorizationError, requirePrincipal } from "@/lib/auth/authorization";
 import { createAdminBarber, setAdminBarberActive, updateAdminBarber } from "@/lib/catalog/admin-barbers";
+import { archiveMessage, archiveRecord, restoreRecord } from "@/lib/catalog/archive";
 import { listAdminServices } from "@/lib/catalog/admin-services";
 import { readBarberForm } from "@/lib/catalog/barber-input";
 import { PICTURE_FAILED_MESSAGE, readPicture, savePicture } from "@/lib/catalog/image-action";
@@ -14,6 +15,7 @@ import { consumeUserRateLimit } from "@/lib/security/public-rate-limit";
 // Every export is a public HTTP endpoint: each call re-checks session, role, TOTP and permission.
 
 const RATE = { bucket: "admin-barbers", limit: 30, windowMs: 60_000 };
+const ARCHIVED_REPLY = { status: "error", code: "archived", message: "That barber is archived. Restore it first." };
 const DENIED = { status: "error", code: "denied", message: "You are not allowed to do that." };
 
 async function authorize(capability) {
@@ -66,7 +68,7 @@ export async function updateBarberAction(slug, _previous, formData) {
   if (picture.denied) return DENIED;
   if (!picture.ok) return { status: "error", code: "invalid", message: picture.message, fieldErrors: picture.fieldErrors, values: parsed.values };
   const result = await updateAdminBarber(db, slug, parsed.data, auth.principal.id);
-  if (!result.ok) return { status: "error", code: "not_found", message: "That barber was not found." };
+  if (!result.ok) return result.error === "archived" ? ARCHIVED_REPLY : { status: "error", code: "not_found", message: "That barber was not found." };
 
   const saved = await savePicture(db, { kind: "barbers", slug, fields: picture.fields, principal: auth.principal });
   revalidateCatalog(["barbers"]);
@@ -81,8 +83,32 @@ export async function setBarberActiveAction(slug, active) {
 
   const { db } = await getMongo();
   const result = await setAdminBarberActive(db, slug, active, auth.principal.id);
-  if (!result.ok) return { status: "error", code: "not_found", message: "That barber was not found." };
+  if (!result.ok) return result.error === "archived" ? ARCHIVED_REPLY : { status: "error", code: "not_found", message: "That barber was not found." };
 
   revalidateCatalog(["barbers"]);
   return { status: "success", code: active ? "activated" : "deactivated", message: active ? "Barber can be booked again." : "Barber is hidden from booking. Existing appointments are unchanged." };
+}
+
+// Archive and restore (unit D2a). Each call re-checks the session, role, TOTP and its own Super Admin switch
+// (barbers.archive / barbers.restore, default off), then the slug, and the barber rule lives in the repository.
+async function barberArchiveChange(restoring, slug) {
+  const auth = await authorize(restoring ? "barbers.restore" : "barbers.archive");
+  if (auth.error) return auth.error;
+  if (typeof slug !== "string" || !SERVICE_SLUG_PATTERN.test(slug)) return { status: "error", code: "invalid", message: "That request was not valid." };
+
+  const { db } = await getMongo();
+  const result = await (restoring ? restoreRecord : archiveRecord)(db, "barbers", slug, auth.principal.id);
+  const message = archiveMessage("barbers", result, restoring);
+  if (!result.ok) return { status: "error", code: result.error, message };
+
+  revalidateCatalog(["barbers"]);
+  return { status: "success", code: restoring ? "restored" : "archived", message };
+}
+
+export async function archiveBarberAction(slug) {
+  return barberArchiveChange(false, slug);
+}
+
+export async function restoreBarberAction(slug) {
+  return barberArchiveChange(true, slug);
 }

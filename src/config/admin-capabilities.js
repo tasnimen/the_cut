@@ -31,6 +31,8 @@ export const ADMIN_CAPABILITY_GROUPS = Object.freeze([
       cap("services.view", "View services", "The services list."),
       cap("services.create", "Create services", "Add a service, including its picture."),
       cap("services.edit", "Edit and show or hide services", "Change details, price, picture, and turn a service on or off."),
+      cap("services.archive", "Archive services", "Take a service out of use: hidden from the site and from booking, history and pictures kept."),
+      cap("services.restore", "Restore archived services", "Bring an archived service back. It returns hidden; turn it on from the list."),
     ]),
   }),
   Object.freeze({
@@ -39,6 +41,8 @@ export const ADMIN_CAPABILITY_GROUPS = Object.freeze([
       cap("packages.view", "View packages", "The packages list."),
       cap("packages.create", "Create packages", "Add a package, including its picture."),
       cap("packages.edit", "Edit and show or hide packages", "Change details, price, picture, and turn a package on or off."),
+      cap("packages.archive", "Archive packages", "Take a package out of use: hidden from the site, history and pictures kept."),
+      cap("packages.restore", "Restore archived packages", "Bring an archived package back. It returns hidden; turn it on from the list."),
     ]),
   }),
   Object.freeze({
@@ -47,6 +51,8 @@ export const ADMIN_CAPABILITY_GROUPS = Object.freeze([
       cap("barbers.view", "View barbers", "The barbers list."),
       cap("barbers.create", "Create barbers", "Add a barber, including hours and picture."),
       cap("barbers.edit", "Edit and show or hide barbers", "Change hours, services, picture, and turn a barber on or off."),
+      cap("barbers.archive", "Archive barbers", "Take a barber out of use: hidden from the site and from booking, history and pictures kept (not while the barber has upcoming bookings)."),
+      cap("barbers.restore", "Restore archived barbers", "Bring an archived barber back. It returns hidden; turn it on from the list."),
     ]),
   }),
   Object.freeze({

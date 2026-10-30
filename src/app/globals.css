@@ -806,6 +806,10 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 4; pointer-event
 .dash-badge.is-off { border-color: var(--border); color: var(--muted); }
 .dash-muted { color: var(--muted-soft); }
 .dash-row-actions { display: inline-flex; align-items: center; gap: 14px; }
+.dash-view-tabs { display: inline-flex; gap: 4px; margin: 0 0 16px; padding: 3px; border: 1px solid var(--border); border-radius: 999px; }
+.dash-view-tabs a { padding: 6px 16px; border-radius: 999px; color: var(--muted); font-size: 12px; font-weight: 600; letter-spacing: .06em; text-decoration: none; }
+.dash-view-tabs a.is-current { background: var(--surface-raised); color: var(--gold-light); }
+.dash-view-tabs a:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 2px; }
 .dash-link-button { min-height: 44px; display: inline-flex; align-items: center; padding: 0; border: 0; background: none; color: var(--gold-light); font: inherit; font-size: 12px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .dash-link-button:disabled { opacity: .6; cursor: wait; }
 .dash-link-button:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 2px; }

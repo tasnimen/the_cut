@@ -2,12 +2,14 @@ import { describePackageChanges } from "@/lib/catalog/package-input";
 import { appendAuditEvent } from "@/lib/security/audit-log";
 
 // Admin-side reads and writes for the `pricingPackage` collection. Callers authorize first
-// (requirePrincipal("packagesManageAll")). No hard delete: packages are hidden instead.
+// (requirePrincipal("packagesManageAll")). No hard delete: packages are hidden or archived (lib/catalog/archive.js) instead.
+// An archived package is read-only until it is restored, and it is never featured.
 // At most one package is "featured" (the Popular badge): featuring one clears the others.
 
+import { ARCHIVED, NOT_ARCHIVED, missReason, toArchiveInfo } from "@/lib/catalog/archive";
 import { normalizeImage } from "@/lib/catalog/image-input";
 
-const PROJECTION = { _id: 0, slug: 1, name: 1, note: 1, priceMinorUnits: 1, inclusions: 1, featured: 1, active: 1, displayOrder: 1, bookingServiceSlugs: 1, image: 1, updatedAt: 1 };
+const PROJECTION = { _id: 0, slug: 1, name: 1, note: 1, priceMinorUnits: 1, inclusions: 1, featured: 1, active: 1, displayOrder: 1, bookingServiceSlugs: 1, image: 1, updatedAt: 1, archivedAt: 1 };
 
 function toAdminDto(doc) {
   return {
@@ -22,11 +24,13 @@ function toAdminDto(doc) {
     bookingServiceSlugs: Array.isArray(doc.bookingServiceSlugs) ? doc.bookingServiceSlugs.filter((item) => typeof item === "string") : [],
     image: normalizeImage(doc.image),
     updatedAt: doc.updatedAt instanceof Date ? doc.updatedAt.toISOString() : null,
+    ...toArchiveInfo(doc),
   };
 }
 
-export async function listAdminPackages(db) {
-  const docs = await db.collection("pricingPackage").find({}, { projection: PROJECTION }).limit(50).toArray();
+// Active list by default (never archived records); { archived: true } returns only the archived ones.
+export async function listAdminPackages(db, { archived = false } = {}) {
+  const docs = await db.collection("pricingPackage").find(archived ? ARCHIVED : NOT_ARCHIVED, { projection: PROJECTION }).limit(50).toArray();
   return docs.map(toAdminDto).sort((a, b) => a.displayOrder - b.displayOrder || a.name.localeCompare(b.name));
 }
 
@@ -56,17 +60,18 @@ export async function createAdminPackage(db, data, actorId) {
 export async function updateAdminPackage(db, slug, fields, actorId) {
   const before = await getAdminPackage(db, slug);
   if (!before) return { ok: false, error: "not_found" };
+  if (before.archived) return { ok: false, error: "archived" };
   const changes = describePackageChanges(before, fields);
-  const result = await db.collection("pricingPackage").updateOne({ slug }, { $set: { ...fields, updatedAt: new Date() } });
-  if (result.matchedCount !== 1) return { ok: false, error: "not_found" };
+  const result = await db.collection("pricingPackage").updateOne({ slug, ...NOT_ARCHIVED }, { $set: { ...fields, updatedAt: new Date() } });
+  if (result.matchedCount !== 1) return { ok: false, error: await missReason(db, "packages", slug) };
   if (fields.featured) await clearOtherFeatured(db, slug);
   await appendAuditEvent(db, { actorId, action: "catalog.package.updated", targetType: "Package", targetId: slug, outcome: "success", details: changes });
   return { ok: true, changed: Object.keys(changes).length };
 }
 
 export async function setAdminPackageActive(db, slug, active, actorId) {
-  const result = await db.collection("pricingPackage").updateOne({ slug }, { $set: { active: Boolean(active), updatedAt: new Date() } });
-  if (result.matchedCount !== 1) return { ok: false, error: "not_found" };
+  const result = await db.collection("pricingPackage").updateOne({ slug, ...NOT_ARCHIVED }, { $set: { active: Boolean(active), updatedAt: new Date() } });
+  if (result.matchedCount !== 1) return { ok: false, error: await missReason(db, "packages", slug) };
   await appendAuditEvent(db, { actorId, action: active ? "catalog.package.activated" : "catalog.package.deactivated", targetType: "Package", targetId: slug, outcome: "success" });
   return { ok: true };
 }

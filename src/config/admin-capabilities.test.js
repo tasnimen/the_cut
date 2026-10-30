@@ -136,3 +136,31 @@ describe("capabilityForAdminPath", () => {
     for (const path of ["/admin", "/admin/", "/admin/nothing-here", "/admin/barbers/a/b", "/user", "", undefined, null, 5]) expect(capabilityForAdminPath(path), String(path)).toBeNull();
   });
 });
+
+describe("archive and restore switches (D2a)", () => {
+  const KINDS = ["services", "packages", "barbers"];
+  it("exist for services, packages and barbers, are known and default deny", () => {
+    for (const kind of KINDS) for (const action of ["archive", "restore"]) {
+      expect(isKnownCapability(`${kind}.${action}`), `${kind}.${action}`).toBe(true);
+      expect(capabilityAllowed(resolveGrants(undefined), `${kind}.${action}`)).toBe(false);
+      expect(capabilityAllowed(resolveGrants({ ...allGrants(), [`${kind}.${action}`]: false }), `${kind}.${action}`)).toBe(false);
+    }
+    expect(ADMIN_CAPABILITIES).toHaveLength(32);
+  });
+  it("are independent of each other and of edit, but still need the page (view) switch", () => {
+    for (const kind of KINDS) {
+      const onlyArchive = resolveGrants({ [`${kind}.view`]: true, [`${kind}.archive`]: true });
+      expect(capabilityAllowed(onlyArchive, `${kind}.archive`)).toBe(true);
+      expect(capabilityAllowed(onlyArchive, `${kind}.restore`)).toBe(false);
+      expect(capabilityAllowed(onlyArchive, `${kind}.edit`)).toBe(false);
+      const noView = resolveGrants({ ...allGrants(), [`${kind}.view`]: false });
+      expect(capabilityAllowed(noView, `${kind}.archive`)).toBe(false);
+      expect(capabilityAllowed(noView, `${kind}.restore`)).toBe(false);
+    }
+  });
+  it("an old saved record without the new switches leaves them off", () => {
+    const old = resolveGrants(Object.fromEntries(ADMIN_CAPABILITIES.filter((id) => !/.(archive|restore)$/.test(id)).map((id) => [id, true])));
+    expect(capabilityAllowed(old, "services.edit")).toBe(true);
+    expect(capabilityAllowed(old, "services.archive")).toBe(false);
+  });
+});

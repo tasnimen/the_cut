@@ -3,7 +3,7 @@ import { createAdminBarber, getAdminBarber, listAdminBarbers, setAdminBarberActi
 
 function fakeDb(initial = []) {
   const data = { barber: initial.map((doc) => ({ ...doc })), auditLog: [] };
-  const matches = (doc, filter) => Object.entries(filter).every(([key, value]) => doc[key] === value);
+  const matches = (doc, filter) => Object.entries(filter).every(([key, value]) => (value && typeof value === "object" && "$exists" in value ? (key in doc) === value.$exists : doc[key] === value));
   const collection = (name) => ({
     find: (filter = {}) => ({ limit: () => ({ toArray: async () => data[name].filter((doc) => matches(doc, filter)).map((doc) => ({ ...doc })) }) }),
     findOne: async (filter) => { const doc = data[name].find((item) => matches(item, filter)); return doc ? { ...doc } : null; },

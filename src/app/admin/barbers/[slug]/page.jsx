@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { ArchivedNotice } from "@/features/dashboard/components/ArchivedNotice";
 import { PageHeader, Panel } from "@/features/dashboard/components/primitives";
 import { BarberForm } from "@/features/dashboard/barbers/BarberForm";
 import { getAdminBarber } from "@/lib/catalog/admin-barbers";
@@ -18,6 +19,7 @@ export default async function EditBarberPage({ params }) {
   const { db } = await getMongo();
   const [barber, services] = await Promise.all([getAdminBarber(db, slug), listAdminServices(db)]);
   if (!barber) notFound();
+  if (barber.archived) return (<><PageHeader eyebrow="Team" title={barber.name} description="Archived" /><Panel><ArchivedNotice label="barber" listPath="/admin/barbers" /></Panel></>);
 
   return (
     <>

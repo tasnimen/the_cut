@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { ArchivedNotice } from "@/features/dashboard/components/ArchivedNotice";
 import { PageHeader, Panel } from "@/features/dashboard/components/primitives";
 import { ServiceForm } from "@/features/dashboard/services/ServiceForm";
 import { getAdminService } from "@/lib/catalog/admin-services";
@@ -16,6 +17,7 @@ export default async function EditServicePage({ params }) {
   const { db } = await getMongo();
   const service = await getAdminService(db, slug);
   if (!service) notFound();
+  if (service.archived) return (<><PageHeader eyebrow="Catalog" title={service.name} description="Archived" /><Panel><ArchivedNotice label="service" listPath="/admin/services" /></Panel></>);
 
   const initial = {
     slug: service.slug,

@@ -68,7 +68,7 @@ export function planBookingSeed({ existingServices, existingBarbers }) {
     if (legacyMatch && legacyMatch !== record) {
       throw new BookingSeedAmbiguityError(`An existing legacy service may overlap ${service.name}.`);
     }
-    return Object.freeze({ kind: record ? "update" : "insert", service, record });
+    return Object.freeze({ kind: record ? (record.archivedAt ? "skip (archived)" : "update") : "insert", service, record });
   });
 
   const barberActions = BOOKING_BARBERS.map((barber) => {
@@ -86,7 +86,7 @@ export function planBookingSeed({ existingServices, existingBarbers }) {
       });
       if (possibleDuplicate) throw new BookingSeedAmbiguityError(`An existing barber may match ${barber.name}.`);
     }
-    return Object.freeze({ kind: record ? "update" : "insert", barber, record });
+    return Object.freeze({ kind: record ? (record.archivedAt ? "skip (archived)" : "update") : "insert", barber, record });
   });
 
   return Object.freeze({ services: Object.freeze(serviceActions), barbers: Object.freeze(barberActions) });
@@ -99,6 +99,7 @@ export async function applyBookingSeed(db, plan, now = new Date()) {
 
   for (const action of plan.services) {
     const { service, record } = action;
+    if (record?.archivedAt) continue; // an archived record is never touched, so the seed cannot bring it back
     const fields = {
       name: service.name,
       durationMinutes: service.durationMinutes,
@@ -119,6 +120,7 @@ export async function applyBookingSeed(db, plan, now = new Date()) {
 
   for (const action of plan.barbers) {
     const { barber, record } = action;
+    if (record?.archivedAt) continue;
     if (record) {
       await barberCollection.updateOne({ _id: record._id, slug: barber.slug }, {
         $addToSet: { serviceSlugs: { $each: allServiceSlugs } },

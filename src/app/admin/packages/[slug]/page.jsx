@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { ArchivedNotice } from "@/features/dashboard/components/ArchivedNotice";
 import { PageHeader, Panel } from "@/features/dashboard/components/primitives";
 import { PackageForm } from "@/features/dashboard/packages/PackageForm";
 import { getAdminPackage } from "@/lib/catalog/admin-packages";
@@ -17,6 +18,7 @@ export default async function EditPackagePage({ params }) {
   const { db } = await getMongo();
   const [pkg, services] = await Promise.all([getAdminPackage(db, slug), listAdminServices(db)]);
   if (!pkg) notFound();
+  if (pkg.archived) return (<><PageHeader eyebrow="Catalog" title={pkg.name} description="Archived" /><Panel><ArchivedNotice label="package" listPath="/admin/packages" /></Panel></>);
 
   const initial = {
     slug: pkg.slug,

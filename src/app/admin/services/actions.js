@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { AuthorizationError, requirePrincipal } from "@/lib/auth/authorization";
 import { createAdminService, setAdminServiceActive, updateAdminService } from "@/lib/catalog/admin-services";
+import { archiveMessage, archiveRecord, restoreRecord } from "@/lib/catalog/archive";
 import { PICTURE_FAILED_MESSAGE, readPicture, savePicture } from "@/lib/catalog/image-action";
 import { revalidateCatalog } from "@/lib/catalog/revalidate";
 import { readServiceForm, SERVICE_SLUG_PATTERN } from "@/lib/catalog/service-input";
@@ -13,6 +14,7 @@ import { consumeUserRateLimit } from "@/lib/security/public-rate-limit";
 // TOTP enrolment and permission on EVERY call, whatever the UI showed. Never trust the page.
 
 const RATE = { bucket: "admin-services", limit: 30, windowMs: 60_000 };
+const ARCHIVED_REPLY = { status: "error", code: "archived", message: "That service is archived. Restore it first." };
 const DENIED = { status: "error", code: "denied", message: "You are not allowed to do that." };
 
 async function authorize(capability) {
@@ -66,7 +68,7 @@ export async function updateServiceAction(slug, _previous, formData) {
   if (picture.denied) return DENIED;
   if (!picture.ok) return { status: "error", code: "invalid", message: picture.message, fieldErrors: picture.fieldErrors, values: valuesOf(formData) };
   const result = await updateAdminService(db, slug, parsed.data, auth.principal.id);
-  if (!result.ok) return { status: "error", code: "not_found", message: "That service was not found." };
+  if (!result.ok) return result.error === "archived" ? ARCHIVED_REPLY : { status: "error", code: "not_found", message: "That service was not found." };
 
   const saved = await savePicture(db, { kind: "services", slug, fields: picture.fields, principal: auth.principal });
   revalidateCatalog(["services"]);
@@ -81,8 +83,32 @@ export async function setServiceActiveAction(slug, active) {
 
   const { db } = await getMongo();
   const result = await setAdminServiceActive(db, slug, active, auth.principal.id);
-  if (!result.ok) return { status: "error", code: "not_found", message: "That service was not found." };
+  if (!result.ok) return result.error === "archived" ? ARCHIVED_REPLY : { status: "error", code: "not_found", message: "That service was not found." };
 
   revalidateCatalog(["services"]);
   return { status: "success", code: active ? "activated" : "deactivated", message: active ? "Service is now shown on the site." : "Service is now hidden from the site." };
+}
+
+// Archive and restore (unit D2a). Each call re-checks the session, role, TOTP and its own Super Admin switch
+// (services.archive / services.restore, default off), then the slug, and the barber rule lives in the repository.
+async function serviceArchiveChange(restoring, slug) {
+  const auth = await authorize(restoring ? "services.restore" : "services.archive");
+  if (auth.error) return auth.error;
+  if (typeof slug !== "string" || !SERVICE_SLUG_PATTERN.test(slug)) return { status: "error", code: "invalid", message: "That request was not valid." };
+
+  const { db } = await getMongo();
+  const result = await (restoring ? restoreRecord : archiveRecord)(db, "services", slug, auth.principal.id);
+  const message = archiveMessage("services", result, restoring);
+  if (!result.ok) return { status: "error", code: result.error, message };
+
+  revalidateCatalog(["services"]);
+  return { status: "success", code: restoring ? "restored" : "archived", message };
+}
+
+export async function archiveServiceAction(slug) {
+  return serviceArchiveChange(false, slug);
+}
+
+export async function restoreServiceAction(slug) {
+  return serviceArchiveChange(true, slug);
 }

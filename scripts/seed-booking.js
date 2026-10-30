@@ -69,8 +69,8 @@ try {
   if (db.databaseName !== targetDatabaseName) throw new Error("MongoDB target changed during preflight; refusing to continue.");
 
   const [existingServices, existingBarbers] = await Promise.all([
-    db.collection("service").find({}, { projection: { _id: 1, slug: 1, name: 1 } }).toArray(),
-    db.collection("barber").find({}, { projection: { _id: 1, slug: 1, name: 1, weeklySchedule: 1, breaks: 1, daysOff: 1 } }).toArray(),
+    db.collection("service").find({}, { projection: { _id: 1, slug: 1, name: 1, archivedAt: 1 } }).toArray(),
+    db.collection("barber").find({}, { projection: { _id: 1, slug: 1, name: 1, archivedAt: 1, weeklySchedule: 1, breaks: 1, daysOff: 1 } }).toArray(),
   ]);
   const plan = planBookingSeed({ existingServices, existingBarbers });
 
