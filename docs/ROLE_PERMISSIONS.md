@@ -104,3 +104,5 @@ Responses for these paths carry `Cache-Control: no-store` and `X-Robots-Tag: noi
 ## Super Admin controlled Admin capabilities (P1, 2026-10-30)
 
 On top of the static matrix above, a Super Admin can switch individual Admin capabilities (pages and actions) off. The full list, the routes, how it is enforced and the limits are in [ADMIN_PERMISSIONS.md](ADMIN_PERMISSIONS.md). Rules that matter here: the static matrix is still checked first and can only be narrowed, never widened, by the switches; SUPER_ADMIN is never limited; customers and guests never get a capability; the defaults are everything on, so today's behaviour is unchanged until a Super Admin changes a switch. The question "who may delete contact messages" is answered by the switch `messages.delete` (on by default; the static permission `contactDeleteAll` stays ADMIN and SUPER_ADMIN).
+
+**Permission screen (P2):** `/super-admin/permissions` and `saveAdminPermissionsAction` need `securitySettingsManage` (SUPER_ADMIN only) plus a recent authenticator code. Admins, customers and guests get 404 on the page and "not allowed" from the action.

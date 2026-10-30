@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** P1 complete (Admin capability engine; no screen yet). **Next step:** P2 on the owner's ok.
+**Where I stopped:** P2 complete (permission screen; not live-verified). **Next step:** owner live test, then D2 or I-23 on the owner's ok.
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -472,3 +472,9 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - Defaults: everything on, so nothing changes for Admins until P2 lets the Super Admin switch things off. No screen yet; sidebar and buttons are not hidden yet.
 - **Not live-verified.**
 - **Where I stopped:** P1 complete. **Next step:** P2 (permission screen at `/super-admin/permissions`, hide menu items and buttons from the switches, audit, step-up) on the owner's "ok P2".
+
+## Unit P2 done (2026-10-30): Super Admin permission screen
+- New: `app/super-admin/permissions/{page,actions}` (+ test), `features/dashboard/permissions/PermissionMatrix.jsx`; `effectiveCapabilities`, `loadAdminGrantsMeta` in `lib/auth/capabilities.js`; `filterNavByCapabilities` in `config/dashboard-nav.js` (menu entry "Admin permissions" under Super admin); `permittedActions` in `lib/booking/admin-bookings.js`; toasts and CSS. Changed to hide what the switches turn off: admin layout and shell, bookings (both), services, packages, barbers, gallery (page and card), messages detail and actions, settings (read-only fieldset).
+- Saving needs `securitySettingsManage` (Super Admin only), a rate limit and a recent authenticator code (inline prompt using the existing verify-totp step-up); audited with counts.
+- Not live-verified. Live checklist in docs/TESTING.md. Sign-in and TOTP code unchanged.
+- **Where I stopped:** P2 complete. **Next step:** owner live test, then D2 (archive and delete as new capabilities) or I-23 onwards, on the owner's ok.

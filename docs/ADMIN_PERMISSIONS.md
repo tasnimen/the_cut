@@ -1,6 +1,6 @@
 # Admin permissions controlled by the Super Admin
 
-Status (2026-10-30): **engine built (unit P1), tested, not live-verified. The Super Admin screen to change the switches is unit P2 and does not exist yet.** Until P2, every switch is on (the default), so Admins can do exactly what they could before. Changes can only be made directly in the database or through `saveAdminGrants` (no UI).
+Status (2026-10-30): **engine (P1) and the Super Admin screen (P2) are built and tested; not live-verified.** The switches are changed at `/super-admin/permissions`. Until a Super Admin saves a change, every switch is on (the default), so Admins can do exactly what they could before.
 
 ## How it works
 
@@ -51,9 +51,18 @@ Not offered as capabilities because the feature does not exist or is forbidden b
 
 `saveAdminGrants(db, input, actorId)` accepts only known capability ids with boolean values (anything else is refused without writing), stores the complete map, bumps `version`, and writes an audit entry `permissions.admin_grants_updated` with counts only (changed, granted, revoked), never names or values. The Super Admin screen (P2) must call it behind `requirePrincipal("securitySettingsManage")` (Super Admin only) and `requireRecentStepUp`.
 
+## The Super Admin screen (P2)
+
+`/super-admin/permissions` (Super Admin area, `requirePrincipal("securitySettingsManage")`, never reachable by an Admin; a test checks it is not an Admin route). It lists every group with its pages and a checkbox per capability, with the description. Turning a page's "view" off greys out and turns off its actions. A review box shows, per area, what an Admin can do with the current (unsaved) choices. Buttons: Save changes, Discard changes, Switch everything on (then Save). It shows when and how many times it was last saved. One set of switches applies to every Admin (there are no per-person permissions).
+
+Saving (`saveAdminPermissionsAction`): Super Admin only, rate limited (20 per minute), then a **recent authenticator code** is required (the existing step-up, valid 10 minutes); if it is missing the screen asks for the 6-digit code inline, verifies it with Better Auth and retries. Only known capability ids with true or false are accepted; the save is audited with counts only.
+
+**What the switches hide:** the Admin sidebar leaves out pages that are off (computed in the Admin layout; it updates on the next full page load, the server refuses the page at once); list pages hide New, Edit, Hide or Show buttons (services, packages, barbers, gallery), the walk-in button, booking status buttons (Cancel versus the other changes), message status and Delete buttons, the gallery upload panel and the package import button. Business settings open read-only (inputs and Save disabled) when `settings.edit` is off. These are conveniences; every action and page is still refused on the server.
+
 ## Known limitations
 
-- No screen yet (P2). The sidebar and buttons are not yet hidden from the switches: a revoked page is a 404 and a revoked action is refused with "You are not allowed to do that", but a link or button may still be visible. P2 hides them.
+- The sidebar menu is built in the layout, which does not re-render when moving between Admin pages; a revoked page can stay in the menu until the next full page load (the page itself is refused at once). Buttons hide on the next page render.
+- No per-person permissions: one set for all Admins. Per-Admin overrides were not built.
 - Page-level checks in a few pages (customers, gallery, messages, reports) still also call the static `requirePrincipal(permission)`; the switch is applied by the page guard.
 - The grants are read from the database on every guarded call (one small document by id). If the database is slow, so is every admin action; a cache with a short life can be added later at the cost of a delay in applying changes.
 - Not live-verified. Automated tests cover the catalog, the resolution rules, the server checks (revoke applies on the next call, Super Admin never limited, fail closed, TOTP and status rules unchanged) and the coverage guard.
