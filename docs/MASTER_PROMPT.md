@@ -1,3 +1,5 @@
+> Historical brief from the start of the project. Where it differs from today's code, the code and `CLAUDE.md` win: the permission matrix lives in `docs/ROLE_PERMISSIONS.md` (the brief calls it `PERMISSIONS.md`), the handoff is `docs/AI_HANDOFF.md` (`HANDOFF.md`), and sessions are Better Auth database sessions, not JWT with refresh rotation.
+
 # MASTER PROMPT v4 — "THE CUT" BARBERSHOP PLATFORM
 # Audit → Secure → Redesign → Ship (Premium 3D + Glass, Next.js + MongoDB Atlas)
 

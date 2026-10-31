@@ -1,6 +1,6 @@
 # Progress
 
-**Current state: Phases A–F implemented locally; Phase G approved catalog, positive-price validation, and guarded `the_cut` seed code implemented; database is not seeded or verified.** Updated 2026-10-29.
+**Current state (2026-10-31): see `docs/PROJECT_STATUS.md` for the full picture.** This file is a dated log. Entries before the Phase I section are historical (for example, the `the_cut` database has since been seeded and the dashboards and booking APIs now exist).
 
 ## Completed
 
@@ -64,7 +64,7 @@
 - Playwright/Chrome review at 1440px, 768px, and 375px: the intro begins at the header bottom; details/summary show two columns at 1440 and stack at 768/375; no horizontal overflow or console errors. Smallest measured booking text is 11px desktop/tablet and 9px for mobile progress labels. Captures are in ignored `.next/phase-b-booking-{1440,768,375}.png`.
 - Edge/Playwright against the development server at `http://localhost:3000` and production build at port 3001 verified nonce CSP, nonce-bearing inline scripts, no console errors, and no horizontal overflow on `/booking` at 1440, 768 and 375px. A local no-cookie session lookup passed; signup/sign-in and email lifecycle remain unverified.
 - Booking submission is not connected to a backend; no customer details are transmitted or persisted.
-## Remaining limits
+## Remaining limits (historical, written 2026-10-29; see docs/PROJECT_STATUS.md for today's list)
 
 - The user-requested card image is one visibly watermarked scissors image reused across service, barber, and review cards; replace it with approved appropriate photos before representing the cards as real content.
 - Approved service list/prices are supplied and implemented. The existing DB is not seeded; production barber names/schedules/hours/holidays still require confirmation.
@@ -85,7 +85,7 @@
 - Explicit carryovers: **Phase I** real role sessions for media upload and live ImgBB upload test; **Phase K** Turnstile in a configured deployment and production SPF/DKIM/DMARC plus domain verification. Phase D production/Atlas checks remain open.
 - Verification: `npm.cmd test` — 207 passed across 12 files; `npm.cmd run lint` — 0 errors, one existing HeroSection warning; `npm.cmd run build` — passed. Client chunk scan found no SMTP/ImgBB secret names, Nodemailer, or `deleteUrl`.
 
-## Exact next task
+## Exact next task (historical, 2026-10-29; superseded by NEXT_TASK.md)
 
 Phase G is implemented locally. Next: review the read-only seed plan for `the_cut`, resolve any ambiguity, then user-authorize a seed only after review and confirm barber schedules. Run controlled Atlas transaction/session checks before enabling live bookings. Keep Phase H unstarted until those launch prerequisites are satisfied; Phase I/K carryovers remain separately documented.
 
@@ -118,7 +118,7 @@ Status labels: **BUILT** = implemented, covered by automated tests, lint and bui
 
 | Barber picture fix: root cause found, picture columns in admin lists, clearer save flow with leave-page warning and "use and save" on edit, suggested descriptions, "Shared sample image" label only on shared images | Fix 2026-10-30 | BUILT; public site verified in a browser; the pending portrait is attached to Daniel Carter (owner's choice, 2026-10-30) and shows on the public home page; admin dashboard not verified |
 
-Checks last run (2026-10-30, after D1): `npm test` 642 passed in 79 files; `npm run lint` clean; `npm run build` passed. Production-build spot checks: public pages 200, admin pages 404 for guests and customers, uploads refused for guests.
+Checks last run (2026-10-31, after D2a): `npm test` 747 passed in 89 files, lint clean, build compiled. Older line (after D1, 2026-10-30): `npm test` 642 passed in 79 files; `npm run lint` clean; `npm run build` passed. Production-build spot checks: public pages 200, admin pages 404 for guests and customers, uploads refused for guests.
 
 Not built yet: archive, restore and hard delete (D2); the Super Admin permission-management system (designed, waiting for the owner's go-ahead, units P1 and P2); Super Admin units I-23 to I-27; hardening I-28 to I-30; products; review moderation (I-21, skipped: no reviews exist). Known limitations: admin screens untested live; no QR code for TOTP enrolment (a key is shown); the step-up (recent TOTP) rule for no-show is not enforced; the hero image shows locally but the live site problem is still undiagnosed.
 
@@ -128,6 +128,8 @@ Not built yet: archive, restore and hard delete (D2); the Super Admin permission
 
 - 2026-10-30 Fixed both live-test findings: Site images switch now effective (group without a view switch depends only on its own switch); revoked Admin pages return a real HTTP 404 (admin layout checks the page switch via the proxy's x-pathname header). 712 tests, lint, build pass; verified live as the Admin; all 26 switches restored on.
 
-- 2026-10-31 D2a built on branch feature/d2-archive-restore: archive and restore for services, packages and barbers (shared `lib/catalog/archive.js`, 6 new default-off switches, Active/Archived tabs, read-only archived records, barber block with upcoming bookings, seed and public readers cannot revive archived records). 747 tests, lint, build pass. Not live-verified, not committed.
+- 2026-10-31 D2a built on branch feature/d2-archive-restore: archive and restore for services, packages and barbers (shared `lib/catalog/archive.js`, 6 new default-off switches, Active/Archived tabs, read-only archived records, barber block with upcoming bookings, seed and public readers cannot revive archived records). 747 tests, lint, build pass. (Later live-verified, committed and pushed; see the next entry.)
 
-- 2026-10-30 D2a live-verified with the real Super Admin and Admin (docs/TESTING.md): archive, restore, barber block, read-only archived records, public hiding, per-switch isolation. All 32 switches on, data intact. Still uncommitted on feature/d2-archive-restore.
+- 2026-10-30 D2a live-verified with the real Super Admin and Admin (docs/TESTING.md): archive, restore, barber block, read-only archived records, public hiding, per-switch isolation. All 32 switches on, data intact. Committed (`1d16e36`, `7274500`) and pushed on feature/d2-archive-restore.
+
+- 2026-10-31 Housekeeping: branch report (remote has no main), docs drift fixed (NEXT_TASK, PROGRESS, AI_HANDOFF, CLAUDE.md rewritten under 60 lines, ROLE_PERMISSIONS naming), hero image diagnosis (not reproducible locally), test-data list, live-test checklist. No code changed.

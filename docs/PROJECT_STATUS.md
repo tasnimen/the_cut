@@ -10,7 +10,7 @@ Written 2026-10-31 from the project docs, git history and the route list. No sou
 | Branch | `feature/d2-archive-restore` (tracks `origin/feature/d2-archive-restore`) |
 | Last 5 commits | `7274500` docs: archive and restore; `1d16e36` feat: archive and restore for services, packages and barbers; `a70a4b2` docs: default-deny, site images switch and real 404; `a54d697` feat: default-deny Admin switches, site images switch fix and real 404; `e8a4297` fix: barber status badge shows No hours |
 | Uncommitted files | None before this file; `docs/PROJECT_STATUS.md` is new |
-| Pushed | Yes, 0 ahead and 0 behind its remote branch. Whether the feature branches are merged into `main`: unknown (not checked) |
+| Pushed | Yes, 0 ahead and 0 behind its remote branch. The remote has only `fix/claude-cleanup` (GitHub default) and `feature/d2-archive-restore`; there is no `main` on GitHub. A local `master` (7 old commits, never pushed) is an ancestor of both (checked 2026-10-31) |
 | Tests | 747 passed in 89 files (Vitest, mocked databases and auth; no browser end-to-end suite) |
 | Lint / build | Lint clean; `next build` compiled, both last run when D2a was finished |
 | Stack | Next.js 16.4.3 App Router, React 19.3.0, JavaScript and JSX only, Tailwind 4 |
@@ -154,7 +154,7 @@ Verification: U = unit tests only; L = live-tested by the owner or me; N = not v
 | Legal text | Privacy, terms, cancellation policy |
 | Decide D2b, offers rules, content manager scope | Waiting for the owner's "ok" and answers |
 | Home hero image problem on the live site | Needs the live address and the failing request |
-| Test records to remove or keep | Barber `kjwfwoifwl` ("wfoijwfnwfe"), package `jjjjj` ("cut"), 2 gallery images, test accounts |
+| Test records to remove or keep | Barber `kjwfwoifwl` ("wfoijwfnwfe"), package `jjjjj` ("cut"), gallery items "Best Haircut" and "Smart haircut", 2 test bookings; no customer accounts remain (the 2 accounts are the owner's) |
 
 ## 8. Known issues and risks
 
@@ -164,13 +164,13 @@ Verification: U = unit tests only; L = live-tested by the owner or me; N = not v
 | Security checklist still PARTIAL: Atlas session invalidation tests, production cookie and origin checks, step-up on sensitive actions, attack suite not run | High |
 | No deployment, production database or email DNS | High |
 | Booking race tests on Atlas not run; barber schedules missing | Medium |
-| Home hero image missing on the live site, cause unknown | Medium |
+| Home hero image missing on the live site; not reproducible locally (file tracked since 2026-10-29, no slot override, 200 at all widths, CSP allows it); needs the live address and the failing request | Medium |
 | Super Admin overview and Admin overview are placeholders | Medium |
 | Email delivery never confirmed in an inbox; verification, reset and booking mail not run live | Medium |
 | Denied admin pages send a real 404 only on full loads; after in-app navigation the page check applies (user still sees 404) | Low |
 | Archived packages: a catalog with only archived packages shows an empty list | Low |
 | Archiving a package clears its Popular badge; restore does not bring it back | Low |
-| Docs drift: `NEXT_TASK.md` header says 642 tests; `PROGRESS.md` has older "not committed" lines; `CLAUDE.md` says the D2a branch is uncommitted; `docs/PERMISSIONS.md` does not exist (use `ROLE_PERMISSIONS.md`) | Low |
+| Docs drift (NEXT_TASK test count, PROGRESS and CLAUDE.md uncommitted lines, PERMISSIONS naming): fixed 2026-10-31; older history entries in PROGRESS.md and AI_HANDOFF.md still describe past states | Low |
 | `tests` are mocked; no end-to-end browser suite | Medium |
 | Console shows CSP inline-style blocks on the home page (cause not traced) | Low |
 | No QR code for authenticator setup (key shown as text) | Low |

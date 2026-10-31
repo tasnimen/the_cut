@@ -65,7 +65,7 @@
 
 | Unit | What | Cost |
 |---|---|---|
-| I-28 | Role-specific DTOs (Admin never sees Super Admin accounts, login/IP history or revenue totals), IDOR and role-matrix tests, `docs/PERMISSIONS.md` and `docs/SECURITY.md` | M |
+| I-28 | Role-specific DTOs (Admin never sees Super Admin accounts, login/IP history or revenue totals), IDOR and role-matrix tests, `docs/ROLE_PERMISSIONS.md` (the role matrix; there is no `docs/PERMISSIONS.md`) and `docs/SECURITY.md` | M |
 | I-29 | Live media tests with real USER and ADMIN sessions (allowed and denied) and a live ImgBB upload | M |
 | I-30 | Barber schedules entered by the owner, then Atlas booking race tests from `docs/TESTING.md` | M (needs owner data) |
 

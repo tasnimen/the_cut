@@ -1,14 +1,15 @@
 # Next task
 
-**Status (2026-10-30):** Phase I units I-1 to I-17, I-19, I-20, I-22, the Cloudinary switch (C1, C2) and D1 (pictures) are built and tested (642 tests). The admin screens have not been tried live as an admin. See `docs/PROGRESS.md`.
+**Status (2026-10-31):** 747 tests, lint and build clean at the last run. D2a (archive and restore) is built, live-verified, committed and pushed on `feature/d2-archive-restore`. Full status: `docs/PROJECT_STATUS.md`.
 
 Pending, in this order:
-0. **Owner, barber pictures:** the pending portrait was attached to Daniel Carter on 2026-10-30 (owner's decision; seen on the public site). The other four barbers (James Miller, Robert Wilson, Michael Brown, wfoijwfnwfe) still have no picture: open Admin > Barbers > Edit for each, choose the picture, press "Use this picture and save". Check the Admin > Barbers Picture column as ADMIN (not yet verified in a browser). See `docs/TESTING.md`, "Barber picture fix".
-1. **Owner:** set the correct `CLOUDINARY_CLOUD_NAME` in `.env` (the check with the name `swthle87` printed SUCCESS), restart, rebuild, run `npm run check:cloudinary`.
-2. **Owner:** live-test the admin side (checklist given in chat; steps also in `docs/TESTING.md`) and report results. Nothing new is built on untested admin screens until then, unless the owner says so.
-3. **Owner:** live-test the permission screen (checklist in `docs/TESTING.md`, "Admin permission screen (P2)") together with the admin checklist; report what you see.
-4. Unit D2: **D2a (services, packages, barbers) is built and live-verified on branch `feature/d2-archive-restore`; pending the owner's commit and push.** D2b (gallery photos and messages archive/restore, Super Admin permanent delete, removal of the Admin `gallery.delete` and `messages.delete` switches) needs the owner's ok.
-5. Super Admin units I-23 (admin accounts), I-24 (audit viewer), I-25 (security settings), I-26 (revenue, CSV), I-27 (image slot screen); then hardening I-28 to I-30.
-6. Diagnose the home hero image on the live site (needs the live address, the host and the network status of the `banner1` request).
+1. **Owner:** merge the work into a `main` branch (the remote has no `main` yet; steps in the housekeeping report), then continue.
+2. **Owner:** set the correct `CLOUDINARY_CLOUD_NAME` in `.env` (the name `swthle87` printed SUCCESS), restart, rebuild, run `npm run check:cloudinary`.
+3. **Owner:** live-test the admin actions not yet tried (checklist in the housekeeping report and `docs/TESTING.md`): booking status changes, walk-in, customers, messages, gallery, settings, reports, avatar, reschedule and cancel emails.
+4. **Owner:** pictures for the other four barbers (Admin > Barbers > Edit > "Use this picture and save"); remove the test records (list in the housekeeping report).
+5. Unit D2b (gallery photos and messages archive and restore, Super Admin permanent delete, removal of the Admin `gallery.delete` and `messages.delete` switches) needs the owner's ok.
+6. Super Admin units I-23 (admin accounts), I-24 (audit viewer), I-25 (security settings), I-26 (revenue, CSV), I-27 (image slot screen); then hardening I-28 to I-30.
+7. Wish list, none started: offers, content manager, dashboard redesign, shop, real reviews (see `docs/PROJECT_STATUS.md`, section 5).
+8. Home hero image on the live site: not reproducible locally (see `docs/AI_HANDOFF.md`); needs the live address and the failing request.
 
 Rules for every task: one unit per owner "ok"; commit blocks with explicit `git add <paths>`; update the documentation (see CLAUDE.md "Documentation").

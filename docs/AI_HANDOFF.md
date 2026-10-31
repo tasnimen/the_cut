@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped:** P2 complete (permission screen; not live-verified). **Next step:** owner live test, then D2 or I-23 on the owner's ok.
+**Where I stopped (2026-10-31):** D2a is committed and pushed; a status document (`docs/PROJECT_STATUS.md`) and a housekeeping pass are done. **Next step:** the owner merges into a `main` branch, runs the live-test checklist and removes test data; then D2b or I-23 on the owner's ok. (Older "Where I stopped" lines further down are history.)
 
 ## Navbar session, design audit and preflight (2026-10-29)
 
@@ -496,4 +496,9 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 
 - **D2a (2026-10-31), branch feature/d2-archive-restore:** archive and restore for services, packages, barbers. Core: `src/lib/catalog/archive.js` (archiveRecord, restoreRecord, hideArchived, NOT_ARCHIVED filters); repositories take `{ archived }` in their list functions and refuse writes to archived records (`archived` error); actions `archive<Kind>Action` / `restore<Kind>Action`; UI `ArchiveButton`, `ArchiveViewTabs`, `ArchivedNotice`; 6 new switches (32 total, default deny: the saved record has the old 26 on and the new 6 off, so the Super Admin must switch them on in the real screen before an Admin can use them); seed script skips archived records. 747 tests, lint, build pass. **Where I stopped:** code and docs done, nothing committed; next is the live test (Super Admin switches the archive/restore switches on, Admin archives and restores, barber with an upcoming booking is refused, public site hides archived) and the owner's commit. Permanent delete is not built (D2b).
 
-- **D2a live test passed (2026-10-30):** see docs/TESTING.md. Left as found: James Miller on, package "cut" hidden and Popular, Hair Treatment shown. All 32 switches on (change 12). **Where I stopped:** D2a code, tests and docs are uncommitted on feature/d2-archive-restore, waiting for the owner's commit and push approval. Next on the owner's ok: D2b.
+- **D2a live test passed (2026-10-30):** see docs/TESTING.md. Left as found: James Miller on, package "cut" hidden and Popular, Hair Treatment shown. All 32 switches on (change 12). **Where I stopped:** D2a was then committed (`1d16e36`, `7274500`) and pushed by the owner; see the 2026-10-31 housekeeping entry. Next on the owner's ok: D2b.
+
+## Housekeeping (2026-10-31)
+- **Git:** the remote `origin` has only `fix/claude-cleanup` (GitHub default) and `feature/d2-archive-restore`. A local `master` (7 old commits, never pushed) is an ancestor of both. There is no `main` on GitHub yet.
+- **Hero image:** the home hero uses slot `hero` with the local fallback `/images/banner1.webp` (tracked in git since commit `04ca120`, 2026-10-29; earlier commits used `banner1.png`). No `imageSlot` override exists in the database. Locally the file and `/_next/image` return 200 at every configured width on the dev server and on a production build, the CSP allows same-origin images, and `ImageWithFallback` shows a placeholder only if the request fails. The live-site failure cannot be reproduced here. Candidates to check on the live site (network tab for `/_next/image?url=%2Fimages%2Fbanner1.webp`): a build older than `04ca120`, a host where the image optimizer cannot run (status 500, 502 or 400), or the file not deployed (404).
+- **Test data left in the dev database:** barber `kjwfwoifwl`, package `jjjjj`, gallery items "Best Haircut" and "Smart haircut", two bookings (one cancelled, one confirmed for Daniel Carter on 2026-11-01). The two accounts are the owner's real Super Admin and Admin; no customer accounts remain.
