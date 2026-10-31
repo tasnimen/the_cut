@@ -130,3 +130,6 @@ See `docs/TEST_DATA_CLEANUP.md`. Created by the audit: a cancelled walk-in, thre
 
 ### Low items (listed for the owner, not fixed)
 P14 no skip link; P15 plain 404 page; P16 small touch targets on the booking page; P17 guest booking choices lost after sign-in; P18 SMS opt-in without SMS; P19 missing canonical and social tags on some pages; P21 focus and Escape on the menus (recheck with a real keyboard); U14 no confirmation page; U15 reschedule panel defaults; U16 "30 min" for a 20-minute service; U17 header avatar; U18 confirmation-mail promise; A17 "email the customer" wording for walk-ins; A18 stale "Not saved yet" notice after saving a picture.
+
+## Stage C status (2026-10-31)
+E4 (missing booking emails, mail log, idempotency, retry, templates): built, see docs/EMAIL.md. Still open there: delivery to customers needs a verified sender domain (owner task, E5).

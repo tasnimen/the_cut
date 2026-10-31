@@ -112,3 +112,5 @@ Admin switches are default deny (2026-10-30): until the Super Admin saves, the A
 Archive and restore (services, packages, barbers) are Admin switches `<group>.archive` / `<group>.restore`, default off; permanent delete stays Super Admin only (D2b). See ADMIN_PERMISSIONS.md.
 
 The reminder job route (`/api/jobs/booking-reminders`) has no role: it is a machine endpoint secured by `REMINDER_JOB_SECRET` (see REMINDERS.md). It is not an admin route and not covered by the Admin switches.
+
+`mailLogManageAll` (ADMIN ALL, SUPER_ADMIN ALL): the Email log page and the Resend action; an Admin additionally needs the switches `emailLog.view` and `emailLog.resend` (default off).

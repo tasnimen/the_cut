@@ -520,3 +520,8 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - Merged `feature/live-fixes` (walk-in hardening) into this branch. Added: reminder job route `/api/jobs/booking-reminders` (secret `REMINDER_JOB_SECRET`, see `docs/REMINDERS.md`), booking refusal messages (`lib/booking/error-messages.js`), CSP hashes for sonner (`SONNER_STYLE_HASHES` in `src/proxy.js`, recomputed by `src/proxy.test.js`; if sonner is updated that test fails: copy the new hashes it prints).
 - Results and open items: `docs/QA_REPORT.md` ("Stage B status"). The walk-in error was never captured; if the panel shows up again look for `[walk-in] unexpected error` in the dev terminal.
 - **Where I stopped:** Stage B done on the branch; waiting for the owner's "start" for Stage C (booking emails).
+
+## Stage C: booking emails (2026-10-31, feature/booking-emails)
+- Mail layer: `lib/mail/templates/{layout,booking}.js` (12 events), `lib/mail/ics.js`, `lib/mail/delivery.js` (log, idempotency, retry), `lib/mail/booking-mail.js` (operations to events, retry job, Resend), `lib/booking/notify.js` (entry point), `lib/mail/admin-mail-log.js`, `/admin/email-log`, `/dev/email-preview`. Details and the sender-domain note: `docs/EMAIL.md`. The old booking mailer in `mailer-core.js` was removed.
+- Not verified live: walk-in confirmation to a real address; a delivered customer email; the look in a real mail client. The owner can switch the Email log on for the Admin in the permission screen (two new default-off switches).
+- **Where I stopped:** Stage C done on the branch; waiting for the owner's "start" for Stage D (availability control).

@@ -8,7 +8,7 @@ A reminder email goes to the customer about 24 hours before a confirmed booking.
 | Secret | `REMINDER_JOB_SECRET` in the environment (at least 32 random characters). Generate one: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` |
 | Off by default | No secret set means the route answers 404 and does nothing |
 | Calling it | `Authorization: Bearer <secret>`; a missing or wrong value gets 401 (constant-time comparison) |
-| Answer | `{ "ok": true, "sent": n, "failed": n }` only; no booking or customer data; `Cache-Control: no-store` |
+| Answer | `{ "ok": true, "sent": n, "failed": n, "retried": { "sent": n, "failed": n, "skipped": n } }` (reminders, then the retry of earlier failed emails; see EMAIL.md) only; no booking or customer data; `Cache-Control: no-store` |
 | Safe to repeat | The worker claims each booking before sending and marks it sent, so overlapping or repeated calls do not send twice |
 | Failures | A failed send is audited (`booking.reminder.delivery_failed`) and retried on the next call; a failed job logs one line without personal data |
 | By hand (development) | `npm run run:reminders` (reads the secret from `.env`, never prints it; start `npm run dev` first) |

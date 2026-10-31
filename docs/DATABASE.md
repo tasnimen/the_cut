@@ -121,3 +121,6 @@ The only picture field is `image` on the `barber` document (also `service`, `pri
 
 ## Archive fields (D2a, 2026-10-31)
 `service`, `pricingPackage` and `barber` documents gain optional `archivedAt` (Date) and `archivedBy` (user id). A document that was never archived has no `archivedAt` field at all (queries use `{ archivedAt: { $exists: false } }`). Archiving also sets `active: false` (and `featured: false` for a package); restoring removes both fields and keeps `active: false`. No new collection or index; the unique slug index keeps an archived slug reserved. Bookings are untouched (they hold snapshots; `barberId` stays valid).
+
+## mailLog (Stage C, 2026-10-31)
+One document per booking email: `key` (unique: `event:bookingId:role:version`), `event`, `bookingId`, `role` (customer or shop), `recipientMasked`, `recipientHash` (keyed hash), `status` (queued, sent, failed, skipped), `attempts`, `lastErrorCode` (code only), `nextAttemptAt`, `createdAt`, `updatedAt`, `sentAt`, `context` (customer id, previous start, reason). Indexes: unique `key`, `status + nextAttemptAt`, `createdAt`. No message text or provider text is stored. Walk-in bookings may carry `customerEmail` (lower case), only when entered.

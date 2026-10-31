@@ -81,3 +81,6 @@ Saving (`saveAdminPermissionsAction`): Super Admin only, rate limited (20 per mi
 - **Public data:** the public readers treat an archived record as inactive (`hideArchived`), the booking engine already filters `active: true`, and the seed script skips archived records (a test proves it cannot bring one back).
 - **Package badge:** archiving a package clears its Popular badge and restoring does not bring it back (tick it again in the edit form if wanted).
 - **Limits:** no auto-purge; restore returns hidden by design; a package list with only archived packages shows an empty list, not the built-in packages notice.
+
+## Email log switches (Stage C, 2026-10-31)
+`emailLog.view` (the page `/admin/email-log`) and `emailLog.resend` (the Resend button), both default off like every new switch; the catalog now has 34 switches. Permission `mailLogManageAll` (ADMIN and SUPER_ADMIN, still gated by the switches). See EMAIL.md.
