@@ -31,6 +31,7 @@ export const ADMIN_CAPABILITY_GROUPS = Object.freeze([
       cap("services.view", "View services", "The services list."),
       cap("services.create", "Create services", "Add a service, including its picture."),
       cap("services.edit", "Edit and show or hide services", "Change details, price, picture, and turn a service on or off."),
+      cap("services.bookable", "Turn booking on or off for a service", "Keep a service on the site but stop NEW bookings for it. Existing appointments are never changed."),
       cap("services.archive", "Archive services", "Take a service out of use: hidden from the site and from booking, history and pictures kept."),
       cap("services.restore", "Restore archived services", "Bring an archived service back. It returns hidden; turn it on from the list."),
     ]),
@@ -53,6 +54,15 @@ export const ADMIN_CAPABILITY_GROUPS = Object.freeze([
       cap("barbers.edit", "Edit and show or hide barbers", "Change hours, services, picture, and turn a barber on or off."),
       cap("barbers.archive", "Archive barbers", "Take a barber out of use: hidden from the site and from booking, history and pictures kept (not while the barber has upcoming bookings)."),
       cap("barbers.restore", "Restore archived barbers", "Bring an archived barber back. It returns hidden; turn it on from the list."),
+    ]),
+  }),
+  Object.freeze({
+    key: "availability", label: "Schedule and availability", routes: Object.freeze(["/admin/schedule"]),
+    capabilities: Object.freeze([
+      cap("availability.view", "View the schedule", "The day and week schedule, the list of blocked times and each barber's booking status."),
+      cap("availability.block", "Block time", "Block a time, a day or a range for one barber or the whole shop. Refused while a booking is in that time; no booking is ever changed."),
+      cap("availability.unblock", "Unblock time", "Remove a block so the time can be booked again."),
+      cap("availability.barberToggle", "Stop or resume a barber's bookings", "Turn \"accepting bookings\" off (optionally until a date) or on. Existing appointments are never changed."),
     ]),
   }),
   Object.freeze({
@@ -115,6 +125,7 @@ export const ADMIN_ROUTE_CAPABILITIES = Object.freeze({
   "/admin/packages": "packages.view",
   "/admin/packages/new": "packages.create",
   "/admin/packages/[slug]": "packages.edit",
+  "/admin/schedule": "availability.view",
   "/admin/barbers": "barbers.view",
   "/admin/barbers/new": "barbers.create",
   "/admin/barbers/[slug]": "barbers.edit",

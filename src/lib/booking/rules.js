@@ -16,31 +16,40 @@ export function reservationSlotStarts(startsAt, durationMinutes, config = BOOKIN
   return Array.from({ length: slotCount }, (_, index) => new Date(startsAt.getTime() + index * config.slotMinutes * 60_000));
 }
 
-function hasScheduleConflict(barber, startsAt, durationMinutes, config) {
+// Why a barber cannot take a booking at a time: "unavailable" (day off, no hours that day, outside the barber's hours, or
+// not long enough before closing) or "break". Returns null when the schedule allows it.
+function scheduleConflictReason(barber, startsAt, durationMinutes, config) {
   const localDate = businessDate(startsAt, config.timeZone);
-  if ((barber.daysOff || []).includes(localDate)) return true;
+  if ((barber.daysOff || []).includes(localDate)) return "unavailable";
   const localTime = toLocalWallTime(startsAt, config.timeZone).slice(11, 16);
   const [startHour, startMinutePart] = localTime.split(":").map(Number);
   const startMinute = startHour * 60 + startMinutePart;
   const endMinute = startMinute + durationMinutes + config.cleanupBufferMinutes;
   const day = new Intl.DateTimeFormat("en-US", { timeZone: config.timeZone, weekday: "long" }).format(startsAt).toLowerCase();
   const schedule = barber.weeklySchedule?.[day];
-  if (!schedule) return true;
+  if (!schedule) return "unavailable";
   const [openHour, openMinute] = schedule.open.split(":").map(Number);
   const [closeHour, closeMinute] = schedule.close.split(":").map(Number);
-  if (startMinute < openHour * 60 + openMinute || endMinute > closeHour * 60 + closeMinute) return true;
+  if (startMinute < openHour * 60 + openMinute || endMinute > closeHour * 60 + closeMinute) return "unavailable";
   const breakRange = barber.breaks?.[day];
   if (breakRange) {
     const [breakStartHour, breakStartMinute] = breakRange.open.split(":").map(Number);
     const [breakEndHour, breakEndMinute] = breakRange.close.split(":").map(Number);
     const breakStart = breakStartHour * 60 + breakStartMinute;
     const breakEnd = breakEndHour * 60 + breakEndMinute;
-    if (startMinute < breakEnd && endMinute > breakStart) return true;
+    if (startMinute < breakEnd && endMinute > breakStart) return "break";
   }
-  return false;
+  return null;
 }
 
-export function generateCandidateSlots({ localDate, services, barber, busySlotKeys = new Set(), now = new Date(), config = BOOKING_CONFIG }) {
+// A block (barberId null = every barber) stops bookings whose time (including the cleanup buffer) overlaps it.
+const blockedByTimeBlock = (blocks, barberId, startsAt, endsAt) => blocks.some((block) => (block.barberId == null || String(block.barberId) === String(barberId)) && new Date(block.startsAt) < endsAt && new Date(block.endsAt) > startsAt);
+
+// Every start time of the shop's day for one barber, each with whether it can be booked and, if not, why:
+// past, booked, blocked, break or unavailable. This is the only place that decides it: the public booking page, the
+// booking itself (re-checked inside the transaction), rescheduling, walk-ins and the schedule view all use it.
+// `paused` (the barber is not taking bookings that day) makes every future time unavailable.
+export function evaluateSlots({ localDate, services, barber, busySlotKeys = new Set(), blocks = [], paused = false, now = new Date(), config = BOOKING_CONFIG }) {
   const hours = getBusinessHours(localDate, config);
   if (!hours) return [];
   const durationMinutes = calculateBookingDuration(services);
@@ -51,28 +60,30 @@ export function generateCandidateSlots({ localDate, services, barber, busySlotKe
   const maxLocalDate = addLocalCalendarDays(businessDate(now, config.timeZone), config.maximumAdvanceDays);
   if (localDate > maxLocalDate) return [];
   const earliest = new Date(now.getTime() + config.minimumLeadMinutes * 60 * 1000);
+  const closingInstant = possibleInstantsForLocalTime(getLocalDateTime(localDate, closeMinutes), config.timeZone).at(-1);
   const results = [];
 
   for (let minute = openMinutes; minute < closeMinutes; minute += config.slotMinutes) {
-    const localWallTime = getLocalDateTime(localDate, minute);
-    const instants = possibleInstantsForLocalTime(localWallTime, config.timeZone);
-    const closingInstants = possibleInstantsForLocalTime(getLocalDateTime(localDate, closeMinutes), config.timeZone);
-    const closingInstant = closingInstants.at(-1);
+    const instants = possibleInstantsForLocalTime(getLocalDateTime(localDate, minute), config.timeZone);
     for (const startsAt of instants) {
       const finishesAndCleansAt = new Date(startsAt.getTime() + (durationMinutes + config.cleanupBufferMinutes) * 60_000);
-      if (startsAt < earliest || finishesAndCleansAt > closingInstant) continue;
-      if (hasScheduleConflict(barber, startsAt, durationMinutes, config)) continue;
-      const reservationSlots = reservationSlotStarts(startsAt, durationMinutes, config);
-      if (reservationSlots.some((slot) => busySlotKeys.has(`${barber.id}:${slot.toISOString()}`))) continue;
-      results.push(Object.freeze({
-        startsAt: startsAt.toISOString(),
-        label: formatBookingTime(startsAt, config.timeZone),
-        durationMinutes,
-        barberId: barber.id,
-      }));
+      let reason = null;
+      if (startsAt < earliest) reason = "past";
+      else if (paused || finishesAndCleansAt > closingInstant) reason = "unavailable";
+      else {
+        reason = scheduleConflictReason(barber, startsAt, durationMinutes, config);
+        if (!reason && reservationSlotStarts(startsAt, durationMinutes, config).some((slot) => busySlotKeys.has(`${barber.id}:${slot.toISOString()}`))) reason = "booked";
+        if (!reason && blockedByTimeBlock(blocks, barber.id, startsAt, finishesAndCleansAt)) reason = "blocked";
+      }
+      results.push(Object.freeze({ startsAt: startsAt.toISOString(), label: formatBookingTime(startsAt, config.timeZone), durationMinutes, barberId: barber.id, available: reason === null, reason }));
     }
   }
   return results.sort((a, b) => a.startsAt.localeCompare(b.startsAt));
+}
+
+// The times that can be booked (see evaluateSlots).
+export function generateCandidateSlots(input) {
+  return evaluateSlots(input).filter((slot) => slot.available).map(({ startsAt, label, durationMinutes, barberId }) => Object.freeze({ startsAt, label, durationMinutes, barberId }));
 }
 
 export function isOnBookingGrid(startsAt, timeZone = BOOKING_CONFIG.timeZone) {

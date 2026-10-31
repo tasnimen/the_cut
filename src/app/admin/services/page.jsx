@@ -4,6 +4,7 @@ import { ArchiveViewTabs, isArchivedView } from "@/features/dashboard/components
 import { archiveServiceAction, restoreServiceAction } from "@/app/admin/services/actions";
 import { CatalogThumb } from "@/features/dashboard/components/CatalogThumb";
 import { DataTable, PageHeader, Panel, StatCard } from "@/features/dashboard/components/primitives";
+import { ServiceBookableToggle } from "@/features/dashboard/services/ServiceBookableToggle";
 import { ServiceActiveToggle } from "@/features/dashboard/services/ServiceActiveToggle";
 import { listAdminServices } from "@/lib/catalog/admin-services";
 import { effectiveCapabilities } from "@/lib/auth/capabilities";
@@ -31,9 +32,10 @@ export default async function AdminServicesPage({ searchParams }) {
       price: service.priceMinorUnits === null ? "Not set" : formatMoney(service.priceMinorUnits),
       duration: `${service.durationMinutes} min`,
       status: <span className={`dash-badge${service.active ? "" : " is-off"}`}>{service.archived ? "Archived" : service.active ? "Shown" : "Hidden"}</span>,
+      booking: service.archived ? "" : <span className={`dash-badge${service.bookable ? "" : " is-off"}`}>{service.bookable ? "Bookable" : "Not bookable"}</span>,
       actions: service.archived ? (
         can["services.restore"] ? <ArchiveButton action={restoreServiceAction} slug={service.slug} name={service.name} restoring /> : <span className="dash-muted">View only</span>
-      ) : can["services.edit"] || can["services.archive"] ? (
+      ) : can["services.edit"] || can["services.archive"] || can["services.bookable"] ? (
         <span className="dash-row-actions">
           {can["services.edit"] ? (
             <>
@@ -41,6 +43,7 @@ export default async function AdminServicesPage({ searchParams }) {
       <ServiceActiveToggle slug={service.slug} name={service.name} active={service.active} />
             </>
           ) : null}
+          {can["services.bookable"] ? <ServiceBookableToggle slug={service.slug} name={service.name} bookable={service.bookable} /> : null}
           {can["services.archive"] ? <ArchiveButton action={archiveServiceAction} slug={service.slug} name={service.name} /> : null}
         </span>
       ) : <span className="dash-muted">View only</span>,
@@ -73,6 +76,7 @@ export default async function AdminServicesPage({ searchParams }) {
             { key: "price", label: "Price" },
             { key: "duration", label: "Duration" },
             { key: "status", label: "Status" },
+            { key: "booking", label: "Booking" },
             { key: "actions", label: "Actions" },
           ]}
           rows={rows}

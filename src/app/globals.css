@@ -919,3 +919,54 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 4; pointer-event
 .dash-thumb-image { width: 100%; height: 100%; object-fit: cover; }
 .dash-thumb-empty { display: inline-grid; place-items: center; color: var(--gold-light); font-family: var(--font-display); font-size: 20px; }
 .dash-image-pending { margin: 0; padding: 10px 12px; border: 1px solid var(--gold); border-radius: 6px; background: var(--surface-muted); color: var(--text); font-size: 13px; line-height: 1.5; }
+
+/* Schedule screen (Stage D): colours come from the tokens; only opacity and colour change on hover/focus. */
+.dash-notice { margin: 12px 0 0; padding: 12px 16px; border: 1px solid var(--border-warm); border-left-width: 3px; border-radius: 6px; background: var(--surface-muted); color: var(--text-soft); font-size: 13px; }
+.dash-notice ul { margin: 8px 0 0; padding-left: 18px; }
+.dash-schedule-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+.dash-schedule-col { min-width: 0; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
+.dash-schedule-col h3 { margin: 0 0 4px; font-size: 15px; color: var(--text); }
+.dash-schedule-list { display: grid; gap: 6px; margin: 10px 0 0; padding: 0; list-style: none; }
+.dash-schedule-item { display: block; padding: 8px 10px; border: 1px solid var(--border-soft); border-left-width: 3px; border-radius: 6px; background: var(--surface-muted); color: var(--text-soft); font-size: 13px; line-height: 1.4; text-decoration: none; }
+a.dash-schedule-item:hover, a.dash-schedule-item:focus-visible { background: var(--surface-highlight); }
+a.dash-schedule-item:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 2px; }
+.dash-schedule-item strong { display: block; color: var(--text); font-weight: 600; }
+.dash-schedule-item--confirmed { border-left-color: var(--gold-light); }
+.dash-schedule-item--pending { border-left-color: var(--border-warm); }
+.dash-schedule-item--completed { border-left-color: var(--muted); opacity: .8; }
+.dash-schedule-item--no_show { border-left-color: var(--error-soft); }
+.dash-schedule-item--block { border-left-color: var(--error-soft); background: repeating-linear-gradient(135deg, var(--surface-muted), var(--surface-muted) 8px, var(--surface-raised) 8px, var(--surface-raised) 16px); }
+.dash-schedule-item--break { border-left-color: var(--muted-dark); color: var(--muted); }
+.dash-schedule-item--free { border-style: dashed; color: var(--muted); }
+.dash-schedule-links { display: inline-flex; gap: 14px; margin-top: 4px; }
+.dash-schedule-legend { display: flex; flex-wrap: wrap; gap: 8px 16px; margin: 0 0 16px; padding: 0; list-style: none; color: var(--muted); font-size: 12px; }
+.dash-schedule-legend li::before { content: ""; display: inline-block; width: 10px; height: 10px; margin-right: 6px; border-left: 3px solid var(--border); border-radius: 2px; background: var(--surface-raised); }
+.dash-schedule-legend .is-confirmed::before { border-left-color: var(--gold-light); }
+.dash-schedule-legend .is-block::before { border-left-color: var(--error-soft); }
+.dash-schedule-legend .is-break::before { border-left-color: var(--muted-dark); }
+
+/* Stage D: disabled states on the booking page. Muted colour, a line through, a lock icon and a text reason (never colour alone). */
+.booking-calendar-day[aria-disabled="true"] { color: var(--muted-calendar); text-decoration: line-through; cursor: not-allowed; }
+.booking-calendar-day.is-full[aria-disabled="true"] { border-color: var(--border-soft); }
+.booking-calendar-day.is-open:not(.is-selected) { border-color: var(--border-soft); }
+.booking-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 8px 0 0; padding: 0; list-style: none; color: var(--muted); font-size: 11px; }
+.booking-legend li::before { content: ""; display: inline-block; width: 9px; height: 9px; margin-right: 5px; border: 1px solid var(--border); border-radius: 2px; }
+.booking-legend .is-open::before { border-color: var(--gold-light); background: var(--surface-highlight); }
+.booking-legend .is-full::before, .booking-legend .is-closed::before { background: var(--surface-muted); }
+.booking-time-group { margin-top: 12px; }
+.booking-time-group h4 { margin: 0 0 6px; color: var(--gold-light); font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; }
+.booking-time-chip[aria-disabled="true"] { color: var(--muted-calendar); background: var(--surface); border-style: dashed; cursor: not-allowed; }
+.booking-time-chip[aria-disabled="true"] > span:first-child { text-decoration: line-through; }
+.booking-time-chip[aria-disabled="true"]:hover { border-color: var(--border-soft); }
+.booking-time-chip .booking-chip-lock { display: inline-flex; align-items: center; justify-content: center; gap: 3px; color: var(--muted); font-size: 9px; }
+.booking-time-skeleton { min-height: 44px; border-radius: 4px; background: var(--surface-raised); animation: booking-skeleton 1.2s ease-in-out infinite; }
+@keyframes booking-skeleton { 0%, 100% { opacity: .45; } 50% { opacity: .9; } }
+.booking-time-grid, .booking-time-group { min-height: 0; }
+.booking-next-available { margin: 8px 0 0; }
+.booking-preference-option.is-disabled, .booking-service-option.is-disabled { opacity: .6; cursor: not-allowed; }
+.booking-preference-option.is-disabled strong, .booking-service-option.is-disabled .booking-service-copy > span { text-decoration: line-through; }
+.booking-reason { display: block; color: var(--muted); font-size: 10px; }
+.booking-retry { margin-top: 8px; }
+@media (prefers-reduced-motion: reduce) { .booking-time-skeleton { animation: none; } }
+.booking-link-button { min-height: 44px; padding: 0; border: 0; background: none; color: var(--gold-light); font: inherit; font-size: 12px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.booking-link-button:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 2px; }

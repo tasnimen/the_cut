@@ -11,7 +11,7 @@ import { appendAuditEvent } from "@/lib/security/audit-log";
 // assignments are deactivated or archived (lib/catalog/archive.js) instead, which keeps history intact.
 // An archived service is read-only here until it is restored.
 
-const ADMIN_PROJECTION = { _id: 0, slug: 1, name: 1, description: 1, durationMinutes: 1, priceMinorUnits: 1, active: 1, displayOrder: 1, category: 1, icon: 1, image: 1, updatedAt: 1, archivedAt: 1 };
+const ADMIN_PROJECTION = { _id: 0, slug: 1, name: 1, description: 1, durationMinutes: 1, priceMinorUnits: 1, active: 1, displayOrder: 1, category: 1, icon: 1, image: 1, updatedAt: 1, archivedAt: 1, bookable: 1 };
 const fileBySlug = new Map(BOOKING_SERVICES.map((service, index) => [service.slug, { ...service, order: index + 1 }]));
 
 function toAdminDto(doc) {
@@ -23,6 +23,7 @@ function toAdminDto(doc) {
     durationMinutes: Number.isInteger(doc.durationMinutes) ? doc.durationMinutes : 30,
     priceMinorUnits: Number.isInteger(doc.priceMinorUnits) ? doc.priceMinorUnits : null,
     active: doc.active !== false,
+    bookable: doc.bookable !== false,
     displayOrder: Number.isFinite(doc.displayOrder) ? doc.displayOrder : base?.order ?? 999,
     category: SERVICE_CATEGORIES.includes(doc.category) ? doc.category : base?.category ?? "haircut",
     icon: SERVICE_ICONS.includes(doc.icon) ? doc.icon : base?.icon ?? "scissors",

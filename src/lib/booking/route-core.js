@@ -5,7 +5,7 @@ import { ensureApplicationIndexes, getMongo } from "@/lib/db/mongo";
 import { consumePublicRateLimit } from "@/lib/security/public-rate-limit";
 import { getBookingConfig } from "@/lib/catalog/source";
 import { BookingAvailabilityQuerySchema, BookingIdSchema, CreateBookingSchema, RescheduleBookingSchema } from "@/lib/booking/booking-model";
-import { BookingError, loadBookingOptions } from "@/lib/booking/availability";
+import { BookingError, loadBookingOptions, loadDateStates } from "@/lib/booking/availability";
 import { createBookingRepository } from "@/lib/booking/repository";
 import { notifyBookingChange } from "@/lib/booking/notify";
 
@@ -40,6 +40,19 @@ export async function getAvailability(request) {
     if (!query.success) return json({ error: "invalid_query" }, 400);
     const { db, config } = await connect();
     return json(await loadBookingOptions(db, { localDate: query.data.date, serviceSlugs: query.data.services, barber: query.data.barber, config }));
+  } catch (error) { return failure(error); }
+}
+
+// The state of every date in the booking window (open, full, closed, past) for the calendar. Same rules as the times.
+export async function getAvailabilityDates(request) {
+  try {
+    const rate = await consumePublicRateLimit(request, { bucket: "booking-availability-dates", ...RATE });
+    if (!rate.allowed) return json({ error: "rate_limited" }, 429);
+    const url = new URL(request.url);
+    const query = BookingAvailabilityQuerySchema.omit({ date: true }).safeParse({ services: url.searchParams.getAll("service"), barber: url.searchParams.get("barber") || "any" });
+    if (!query.success) return json({ error: "invalid_query" }, 400);
+    const { db, config } = await connect();
+    return json({ timeZone: config.timeZone, dates: await loadDateStates(db, { serviceSlugs: query.data.services, barber: query.data.barber, config }) });
   } catch (error) { return failure(error); }
 }
 

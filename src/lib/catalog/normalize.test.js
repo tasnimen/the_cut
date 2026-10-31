@@ -35,7 +35,7 @@ describe("normalizeServices", () => {
   it("never invents a price and never leaks internal fields", () => {
     const [service] = normalizeServices([doc({ priceMinorUnits: null }), doc({ slug: "x", priceMinorUnits: 12.5 })].slice(0, 1), BOOKING_SERVICES);
     expect(service.priceMinorUnits).toBeNull();
-    expect(Object.keys(service).sort()).toEqual(["category", "currency", "detail", "durationMinutes", "icon", "image", "name", "number", "priceMinorUnits", "slug"]);
+    expect(Object.keys(service).sort()).toEqual(["bookable", "category", "currency", "detail", "durationMinutes", "icon", "image", "name", "number", "priceMinorUnits", "slug"]);
     expect(service._id).toBeUndefined();
   });
 

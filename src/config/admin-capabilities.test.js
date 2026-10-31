@@ -145,7 +145,7 @@ describe("archive and restore switches (D2a)", () => {
       expect(capabilityAllowed(resolveGrants(undefined), `${kind}.${action}`)).toBe(false);
       expect(capabilityAllowed(resolveGrants({ ...allGrants(), [`${kind}.${action}`]: false }), `${kind}.${action}`)).toBe(false);
     }
-    expect(ADMIN_CAPABILITIES).toHaveLength(34);
+    expect(ADMIN_CAPABILITIES).toHaveLength(39);
   });
   it("are independent of each other and of edit, but still need the page (view) switch", () => {
     for (const kind of KINDS) {

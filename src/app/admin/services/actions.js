@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { AuthorizationError, requirePrincipal } from "@/lib/auth/authorization";
 import { createAdminService, setAdminServiceActive, updateAdminService } from "@/lib/catalog/admin-services";
+import { setServiceBookable } from "@/lib/booking/accepting";
 import { archiveMessage, archiveRecord, restoreRecord } from "@/lib/catalog/archive";
 import { PICTURE_FAILED_MESSAGE, readPicture, savePicture } from "@/lib/catalog/image-action";
 import { revalidateCatalog } from "@/lib/catalog/revalidate";
@@ -87,6 +88,20 @@ export async function setServiceActiveAction(slug, active) {
 
   revalidateCatalog(["services"]);
   return { status: "success", code: active ? "activated" : "deactivated", message: active ? "Service is now shown on the site." : "Service is now hidden from the site." };
+}
+
+// Stop or allow NEW bookings for a service without hiding or archiving it (Stage D). Existing appointments are untouched.
+export async function setServiceBookableAction(slug, bookable) {
+  const auth = await authorize("services.bookable");
+  if (auth.error) return auth.error;
+  if (typeof slug !== "string" || !SERVICE_SLUG_PATTERN.test(slug) || typeof bookable !== "boolean") return { status: "error", code: "invalid", message: "That request was not valid." };
+
+  const { db } = await getMongo();
+  const result = await setServiceBookable(db, { slug, bookable, actorId: auth.principal.id });
+  if (!result.ok) return { status: "error", code: "not_found", message: "That service was not found." };
+
+  revalidateCatalog(["services"]);
+  return { status: "success", code: bookable ? "bookable" : "not_bookable", message: bookable ? "Service can be booked again." : "New bookings for this service are off. Existing appointments are unchanged." };
 }
 
 // Archive and restore (unit D2a). Each call re-checks the session, role, TOTP and its own Super Admin switch

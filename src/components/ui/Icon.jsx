@@ -81,6 +81,12 @@ const iconPaths = {
       <path d="m4 18 5-5 4 4 3-3 4.5 4" />
     </>
   ),
+  lock: (
+    <>
+      <rect x="5" y="11" width="14" height="9" rx="1.5" />
+      <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+    </>
+  ),
   shield: <path d="M12 3 5 6v5c0 4.6 3 8.2 7 10 4-1.8 7-5.4 7-10V6z" />,
   tag: (
     <>

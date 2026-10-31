@@ -50,6 +50,7 @@ export function normalizeServices(documents, fileServices) {
           durationMinutes: doc.durationMinutes,
           priceMinorUnits: isPositiveInt(doc.priceMinorUnits) ? doc.priceMinorUnits : null,
           currency: "USD",
+          bookable: doc.bookable !== false,
           icon: SERVICE_ICONS.includes(doc.icon) ? doc.icon : base?.icon ?? "scissors",
           category: SERVICE_CATEGORIES.includes(doc.category) ? doc.category : base?.category ?? "haircut",
           image: publicImage(doc.image),
