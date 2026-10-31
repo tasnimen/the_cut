@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createWalkInAction, walkInAvailabilityAction } from "@/app/admin/bookings/walk-in/actions";
 import { formatMoney } from "@/lib/format/money";
@@ -21,6 +21,10 @@ export function WalkInForm({ services, today }) {
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState("");
   const [pending, start] = useTransition();
+  const [reload, setReload] = useState(0);
+  const [loadFailed, setLoadFailed] = useState(false);
+  // Set the moment Save is pressed, before React re-renders, so a double click cannot send two requests.
+  const submitting = useRef(false);
 
   const selected = useMemo(() => services.filter((service) => chosen.includes(service.slug)), [services, chosen]);
   const minutes = selected.reduce((sum, service) => sum + service.durationMinutes, 0);
@@ -36,13 +40,21 @@ export function WalkInForm({ services, today }) {
     walkInAvailabilityAction({ date, serviceSlugs: chosen, barber }).then((result) => {
       if (cancelled) return;
       setSlot("");
+      setLoadFailed(false);
       if (result.status === "success") { setOptions({ ...result, key }); setMessage(""); }
       else { setOptions({ slots: [], barbers: [], key }); setMessage(result.message); }
+    }).catch(() => {
+      // The server was slow, restarting, or this page is older than the server code: say so and offer a retry.
+      if (cancelled) return;
+      setSlot("");
+      setOptions({ slots: [], barbers: [], key });
+      setLoadFailed(true);
+      setMessage("The free times could not be loaded. The server may be slow or restarting.");
     });
     return () => { cancelled = true; };
     // `chosen` is represented by `key` so the effect runs when the selection changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key]);
+  }, [key, reload]);
 
   function toggle(slug) {
     setChosen((current) => (current.includes(slug) ? current.filter((item) => item !== slug) : current.length >= MAX_SERVICES ? current : [...current, slug]));
@@ -51,18 +63,28 @@ export function WalkInForm({ services, today }) {
 
   function submit(event) {
     event.preventDefault();
+    if (submitting.current) return;
+    submitting.current = true;
     setErrors({});
     start(async () => {
-      const result = await createWalkInAction({ customerName: name, phone, serviceSlugs: chosen, startsAt: slot, barber });
-      if (result.status === "success") {
-        notify("walkInBooked");
-        router.push("/admin/bookings");
-        router.refresh();
-        return;
+      try {
+        const result = await createWalkInAction({ customerName: name, phone, serviceSlugs: chosen, startsAt: slot, barber });
+        if (result.status === "success") {
+          notify("walkInBooked");
+          router.push("/admin/bookings");
+          router.refresh();
+          return;
+        }
+        setErrors(result.fieldErrors ?? {});
+        setMessage(result.message);
+        notify(result.code === "denied" ? "adminDenied" : result.code === "rate" ? "rateLimited" : result.code === "unexpected" ? "adminUnreachable" : "adminFailed");
+      } catch {
+        // No answer from the server (slow, restarting, or an older page): the walk-in may or may not have been saved.
+        setMessage("The server did not answer. The walk-in may or may not have been saved: check Today's bookings first, then press Book walk-in again.");
+        notify("adminUnreachable");
+      } finally {
+        submitting.current = false;
       }
-      setErrors(result.fieldErrors ?? {});
-      setMessage(result.message);
-      notify(result.code === "denied" ? "adminDenied" : result.code === "rate" ? "rateLimited" : "adminFailed");
     });
   }
 
@@ -121,6 +143,7 @@ export function WalkInForm({ services, today }) {
       </div>
 
       {message ? <p className="auth-error" role="alert">{message}</p> : null}
+      {loadFailed ? <div className="dash-form-actions"><button className="button button-small button-outline" type="button" onClick={() => setReload((count) => count + 1)}><span>Try again</span></button></div> : null}
       <div className="dash-form-actions">
         <button className="button button-small" type="submit" disabled={pending || !slotValid}><span>{pending ? "Booking…" : "Book walk-in"}</span></button>
       </div>

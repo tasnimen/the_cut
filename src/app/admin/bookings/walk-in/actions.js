@@ -6,12 +6,14 @@ import { BookingError } from "@/lib/booking/availability";
 import { openBookingRepository } from "@/lib/booking/service";
 import { walkInFieldErrors, WalkInAvailabilitySchema, WalkInBookingSchema } from "@/lib/booking/walk-in";
 import { consumeUserRateLimit } from "@/lib/security/public-rate-limit";
+import { logServerError } from "@/lib/utils/log-error";
 
 // Every export is a public HTTP endpoint: each call re-checks session, role, TOTP and bookingsManageAll.
 // The client sends only names, service slugs, a time and a barber slug; prices, durations and the end
 // time come from the database, and the repository re-checks the slot inside a transaction.
 
 const DENIED = { status: "error", code: "denied", message: "You are not allowed to do that." };
+const UNEXPECTED = { status: "error", code: "unexpected", message: "Something went wrong on the server. The walk-in may not have been saved: check Today's bookings, then try again." };
 
 async function authorize(bucket, limit) {
   try {
@@ -21,16 +23,18 @@ async function authorize(bucket, limit) {
     return { principal };
   } catch (error) {
     if (error instanceof AuthorizationError) return { error: DENIED };
-    throw error;
+    logServerError("walk-in", error);
+    return { error: UNEXPECTED };
   }
 }
 
 function failure(error) {
   if (error instanceof BookingError) {
-    const message = error.code === "slot_unavailable" || error.code === "slot_just_taken" ? "That time was just taken. Pick another time." : error.code === "invalid_phone" ? "Enter a valid US phone number, or leave it blank." : adminErrorMessage(error.code);
+    const message = error.code === "slot_unavailable" || error.code === "slot_just_taken" ? "That time was just taken. Pick another time." : error.code === "duplicate_request" ? "This walk-in was just booked. Check Today's bookings." : error.code === "invalid_phone" ? "Enter a valid US phone number, or leave it blank." : adminErrorMessage(error.code);
     return { status: "error", code: error.code, message };
   }
-  throw error;
+  logServerError("walk-in", error);
+  return UNEXPECTED;
 }
 
 export async function walkInAvailabilityAction(input) {

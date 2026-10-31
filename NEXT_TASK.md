@@ -5,7 +5,7 @@
 Pending, in this order:
 1. **Owner:** merge the work into a `main` branch (the remote has no `main` yet; steps in the housekeeping report), then continue.
 2. **Owner:** set the correct `CLOUDINARY_CLOUD_NAME` in `.env` (the name `swthle87` printed SUCCESS), restart, rebuild, run `npm run check:cloudinary`.
-3. **Owner:** live-test the admin actions not yet tried (checklist in the housekeeping report and `docs/TESTING.md`): booking status changes, walk-in, customers, messages, gallery, settings, reports, avatar, reschedule and cancel emails.
+3. **Owner:** live-test the admin actions not yet tried (walk-in booking now done) (checklist in the housekeeping report and `docs/TESTING.md`): booking status changes, walk-in, customers, messages, gallery, settings, reports, avatar, reschedule and cancel emails.
 4. **Owner:** pictures for the other four barbers (Admin > Barbers > Edit > "Use this picture and save"); remove the test records (list in the housekeeping report).
 5. Unit D2b (gallery photos and messages archive and restore, Super Admin permanent delete, removal of the Admin `gallery.delete` and `messages.delete` switches) needs the owner's ok.
 6. Super Admin units I-23 (admin accounts), I-24 (audit viewer), I-25 (security settings), I-26 (revenue, CSV), I-27 (image slot screen); then hardening I-28 to I-30.

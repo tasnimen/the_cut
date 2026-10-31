@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({ requirePrincipal: vi.fn(), rate: vi.fn(), create: vi.fn(), availability: vi.fn() }));
 class AuthorizationError extends Error {}
@@ -11,6 +11,8 @@ vi.mock("@/lib/security/public-rate-limit", () => ({ consumeUserRateLimit: mocks
 
 const { createWalkInAction, walkInAvailabilityAction } = await import("./actions");
 const input = { customerName: "Sam Carter", phone: "", serviceSlugs: ["haircut"], startsAt: "2027-04-05T14:00:00.000Z", barber: "any" };
+
+afterEach(() => vi.restoreAllMocks());
 
 beforeEach(() => {
   Object.values(mocks).forEach((fn) => fn.mockReset());
@@ -47,10 +49,47 @@ describe("walk-in actions", () => {
     expect(JSON.stringify(options)).not.toMatch(/secret/);
   });
 
-  it("show friendly text for a taken slot and rethrow unexpected errors", async () => {
+  it("show friendly text for a taken slot and for a repeated click", async () => {
     mocks.create.mockRejectedValue(new BookingError("slot_just_taken"));
     expect((await createWalkInAction(input)).message).toMatch(/just taken/);
-    mocks.create.mockRejectedValue(new Error("db down"));
-    await expect(createWalkInAction(input)).rejects.toThrow("db down");
+    mocks.create.mockRejectedValue(new BookingError("duplicate_request"));
+    expect(await createWalkInAction(input)).toMatchObject({ status: "error", code: "duplicate_request", message: expect.stringMatching(/just booked/) });
+  });
+
+  it("turns an unexpected error into a safe message and logs one line without personal data", async () => {
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    mocks.create.mockRejectedValue(new Error("db down for sam@example.com +1 212 555 0100"));
+    const result = await createWalkInAction({ ...input, phone: "+1 212 555 0100" });
+    expect(result).toMatchObject({ status: "error", code: "unexpected" });
+    expect(result.message).toMatch(/may not have been saved/);
+    expect(log).toHaveBeenCalledTimes(1);
+    expect(JSON.stringify(log.mock.calls)).not.toMatch(/sam@example|555 0100|Sam Carter/);
+    expect(JSON.stringify(log.mock.calls)).toMatch(/db down/);
+    mocks.availability.mockRejectedValue(new Error("db down"));
+    expect((await walkInAvailabilityAction({ date: "2027-04-05", serviceSlugs: ["haircut"] })).code).toBe("unexpected");
+  });
+
+  it("a failure while checking the session or rate limit is also safe", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    mocks.rate.mockRejectedValue(new Error("mongo timeout"));
+    expect(await createWalkInAction(input)).toMatchObject({ status: "error", code: "unexpected" });
+    expect(mocks.create).not.toHaveBeenCalled();
+  });
+
+  it("asks for the walk-in switch on every call, and treats a missing or switched-off permission as denied", async () => {
+    await createWalkInAction(input);
+    await walkInAvailabilityAction({ date: "2027-04-05", serviceSlugs: ["haircut"] });
+    for (const call of mocks.requirePrincipal.mock.calls) expect(call).toEqual(["bookingsManageAll", { capability: "bookings.walkIn" }]);
+    mocks.requirePrincipal.mockRejectedValue(new AuthorizationError());
+    expect(await createWalkInAction(input)).toMatchObject({ status: "error", code: "denied" });
+    expect(mocks.create).toHaveBeenCalledTimes(1);
+  });
+
+  it("accepts a booking with no phone number and refuses a bad one before touching the database", async () => {
+    expect((await createWalkInAction({ ...input, phone: "" })).status).toBe("success");
+    const bad = await createWalkInAction({ ...input, phone: "12" });
+    expect(bad).toMatchObject({ status: "error", code: "invalid" });
+    expect(bad.fieldErrors.phone).toBeTruthy();
+    expect(mocks.create).toHaveBeenCalledTimes(1);
   });
 });

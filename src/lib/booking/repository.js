@@ -273,6 +273,9 @@ export function createBookingRepository({ client, db, config = BOOKING_CONFIG, c
       if (phone && !normalizedPhone) throw new BookingError("invalid_phone", 400);
       return transaction(async (session) => {
         const nowDate = clock();
+        // The same admin booking the same name at the same time within a minute is a double click or a retry, not a second customer.
+        const repeated = await db.collection(BOOKING_COLLECTION).countDocuments({ source: "walk-in", createdBy: principal.id, customerName: String(customerName).trim().slice(0, 100), startsAt: start, status: { $in: ACTIVE_STATUSES }, createdAt: { $gte: new Date(nowDate.getTime() - 60_000) } }, { session });
+        if (repeated > 0) throw new BookingError("duplicate_request", 409);
         const { barberRecord, services, durationMinutes } = await chooseSlot(session, { serviceSlugs, startsAt: start, barber, now: walkInClock(nowDate, config.minimumLeadMinutes) });
         const bookingId = new ObjectId();
         const serviceSnapshots = services.map((service) => ({ slug: service.slug, name: service.name, durationMinutes: service.durationMinutes, priceMinorUnits: service.priceMinorUnits, currency: "USD" }));

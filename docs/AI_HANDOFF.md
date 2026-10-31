@@ -510,3 +510,8 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 
 ## Execution plan (2026-10-31)
 - `docs/EXECUTION_PLAN.md` lists stages A (QA audit, no code), B (fixes), C (booking emails), D (availability control), E (complete the booking experience). **Where I stopped:** the plan is written and merged; waiting for the owner's "start" (Stage A). `feature/live-fixes` (walk-in hardening, 2 commits) is pushed but not merged into `main`; Stage B continues it.
+
+## Walk-in fix (2026-10-31, feature/live-fixes)
+- Walk-in Save showed the error panel once; not reproducible (saved fine on retry; booking code also fine against a copy of real data). Hardened instead: form catches failed requests (no panel, clear message, Try again for the free times), Save is locked on press, server refuses a repeat of the same admin, name and time within 60 seconds (`duplicate_request`), walk-in actions return a safe `unexpected` result and log one redacted line (`lib/utils/log-error.js`), `DashboardError` logs name, message and digest in the browser console and says the server may have been slow. All three `error.jsx` pass the error on.
+- If the panel shows up again, look in the dev terminal for `[walk-in] unexpected error` and in the browser console for `[dashboard error]`.
+- Test booking "Test Walkin" (2026-10-31, 3:00 PM) was created and cancelled; it stays in the database as Cancelled.
