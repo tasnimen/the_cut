@@ -216,7 +216,7 @@ export function BookingForm({ today, services = [], initialServiceSlugs = [] }) 
             <div className="booking-time-grid" aria-hidden="true">{Array.from({ length: 8 }, (_, index) => <div className="booking-time-skeleton" key={index} />)}</div>
           ) : (
             GROUPS.map((group) => {
-              const items = availability.grid.filter((item) => groupOf(item.label) === group.key);
+              const items = availability.grid.filter((item) => item.reason !== "past" && groupOf(item.label) === group.key);
               if (!items.length) return null;
               return (
                 <div className="booking-time-group" key={group.key} role="group" aria-label={group.label}>
@@ -247,6 +247,7 @@ export function BookingForm({ today, services = [], initialServiceSlugs = [] }) 
               );
             })
           )}
+          {availability?.grid?.some((item) => item.reason === "past") ? <p className="booking-field-note">Earlier times today have already passed.</p> : null}
           <p className="booking-field-note"><Icon name="lock" size={10} /> Muted times are not available. Booked, blocked, breaks and times outside working hours stay visible so you can see why.</p>
         </fieldset>
       </div>

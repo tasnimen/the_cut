@@ -938,7 +938,7 @@ a.dash-schedule-item:focus-visible { outline: 2px solid var(--gold-light); outli
 .dash-schedule-item--block { border-left-color: var(--error-soft); background: repeating-linear-gradient(135deg, var(--surface-muted), var(--surface-muted) 8px, var(--surface-raised) 8px, var(--surface-raised) 16px); }
 .dash-schedule-item--break { border-left-color: var(--muted-dark); color: var(--muted); }
 .dash-schedule-item--free { border-style: dashed; color: var(--muted); }
-.dash-schedule-links { display: inline-flex; gap: 14px; margin-top: 4px; }
+.dash-schedule-links { display: flex; gap: 14px; margin-top: 4px; }
 .dash-schedule-legend { display: flex; flex-wrap: wrap; gap: 8px 16px; margin: 0 0 16px; padding: 0; list-style: none; color: var(--muted); font-size: 12px; }
 .dash-schedule-legend li::before { content: ""; display: inline-block; width: 10px; height: 10px; margin-right: 6px; border-left: 3px solid var(--border); border-radius: 2px; background: var(--surface-raised); }
 .dash-schedule-legend .is-confirmed::before { border-left-color: var(--gold-light); }

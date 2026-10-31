@@ -89,6 +89,12 @@ export const BookingAvailabilityQuerySchema = z.object({
   barber: z.string().regex(/^(any|[a-z0-9]+(?:-[a-z0-9]+)*)$/).default("any"),
 }).strict().refine((value) => new Set(value.services).size === value.services.length, { message: "Services must be unique" });
 
+// The calendar's query: the same services and barber rules, without a date.
+export const BookingDatesQuerySchema = z.object({
+  services: z.array(z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(100)).min(1).max(3),
+  barber: z.string().regex(/^(any|[a-z0-9]+(?:-[a-z0-9]+)*)$/).default("any"),
+}).strict().refine((value) => new Set(value.services).size === value.services.length, { message: "Services must be unique" });
+
 export const CreateBookingSchema = z.object({
   serviceSlugs: z.array(z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(100)).min(1).max(3),
   startsAt: z.string().datetime({ offset: true }),

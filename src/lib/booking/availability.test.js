@@ -185,3 +185,32 @@ describe("block intervals and DST", () => {
     expect((await removeTimeBlock(db, { blockId: made.block.id, actorId: "a" })).error).toBe("not_found");
   });
 });
+
+describe("calendar query", () => {
+  it("accepts services and a barber, with no date, and refuses duplicates or junk", async () => {
+    const { BookingDatesQuerySchema } = await import("./booking-model.js");
+    expect(BookingDatesQuerySchema.safeParse({ services: ["haircut"], barber: "any" }).success).toBe(true);
+    expect(BookingDatesQuerySchema.safeParse({ services: ["haircut"] }).data.barber).toBe("any");
+    expect(BookingDatesQuerySchema.safeParse({ services: ["haircut", "haircut"], barber: "any" }).success).toBe(false);
+    expect(BookingDatesQuerySchema.safeParse({ services: [], barber: "any" }).success).toBe(false);
+    expect(BookingDatesQuerySchema.safeParse({ services: ["haircut"], barber: "../x" }).success).toBe(false);
+    expect(BookingDatesQuerySchema.safeParse({ services: ["haircut"], barber: "any", extra: 1 }).success).toBe(false);
+  });
+});
+
+describe("updating a block", () => {
+  it("moves a block, refuses a move onto a booking, and never changes the booking", async () => {
+    const ann = barber("ann");
+    const booking = { _id: new ObjectId(), barberId: String(ann._id), barberName: "Ann", customerName: "Test Customer", status: "confirmed", startsAt: new Date("2027-04-05T18:00:00Z"), endsAt: new Date("2027-04-05T18:30:00Z"), services: [{ name: "Haircut" }] };
+    const before = JSON.stringify(booking);
+    const db = fakeDb({ barber: [ann], booking: [booking] });
+    const { updateTimeBlock } = await import("./blocks.js");
+    const made = await createTimeBlock(db, { barberId: String(ann._id), startsAt: new Date("2027-04-05T14:00:00Z"), endsAt: new Date("2027-04-05T15:00:00Z"), reason: "a", actorId: "x" });
+    expect((await updateTimeBlock(db, { blockId: made.block.id, startsAt: new Date("2027-04-05T15:00:00Z"), endsAt: new Date("2027-04-05T16:00:00Z"), reason: "b", actorId: "x" })).ok).toBe(true);
+    expect(db.data.timeBlock[0]).toMatchObject({ reason: "b", startsAt: new Date("2027-04-05T15:00:00Z") });
+    expect(await updateTimeBlock(db, { blockId: made.block.id, startsAt: new Date("2027-04-05T17:30:00Z"), endsAt: new Date("2027-04-05T19:00:00Z"), actorId: "x" })).toMatchObject({ ok: false, error: "conflicts" });
+    expect(db.data.timeBlock[0].startsAt).toEqual(new Date("2027-04-05T15:00:00Z"));
+    expect(JSON.stringify(db.data.booking[0])).toBe(before);
+    expect((await updateTimeBlock(db, { blockId: made.block.id, startsAt: new Date("2027-04-05T16:00:00Z"), endsAt: new Date("2027-04-05T15:00:00Z"), actorId: "x" })).error).toBe("invalid_times");
+  });
+});
