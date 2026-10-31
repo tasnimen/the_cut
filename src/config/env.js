@@ -23,6 +23,7 @@ const envSchema = z.object({
   SMTP_USER: z.preprocess((value) => value === "" ? undefined : value, z.string().min(1).optional()),
   SMTP_PASS: z.preprocess((value) => value === "" ? undefined : value, z.string().min(1).optional()),
   MAIL_FROM: z.preprocess((value) => value === "" ? undefined : value, z.string().trim().min(1).max(320).optional()),
+  REMINDER_JOB_SECRET: z.preprocess((value) => value === "" ? undefined : value, z.string().min(32, "must be at least 32 characters").max(200).optional()),
   MAIL_TO: z.preprocess((value) => value === "" ? undefined : value, z.string().trim().min(1).max(320).optional()),
 }).refine((values) => Boolean(values.TURNSTILE_SECRET_KEY) === Boolean(values.NEXT_PUBLIC_TURNSTILE_SITE_KEY), {
   message: "TURNSTILE_SECRET_KEY and NEXT_PUBLIC_TURNSTILE_SITE_KEY must be configured together",

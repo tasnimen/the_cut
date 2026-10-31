@@ -37,6 +37,7 @@ export const TOAST_MESSAGES = Object.freeze({
   bookingCancelled: { type: "success", text: "Your appointment was cancelled." },
   bookingRescheduled: { type: "success", text: "Your appointment was rescheduled." },
   slotTaken: { type: "error", text: "That time was just taken. Choose another available time." },
+  bookingLimit: { type: "error", text: "You already have the most upcoming appointments you can hold. Cancel or move one first." },
   bookingFailure: { type: "error", text: "Your booking could not be completed. Please retry." },
   signInRequired: { type: "info", text: "Sign in to continue." },
   contactSent: { type: "success", text: "Message sent. We'll be in touch." },

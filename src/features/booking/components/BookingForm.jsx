@@ -9,7 +9,7 @@ import { ROUTES } from "@/config/routes";
 import { useRouter } from "next/navigation";
 import { signInUrlFor } from "@/lib/auth/callback";
 import { notify } from "@/lib/toast/notify";
-import { toastKeyForStatus } from "@/lib/toast/messages";
+import { bookingFailureMessage, bookingFailureToast } from "@/lib/booking/error-messages";
 import { formatMoney } from "@/lib/format/money";
 
 
@@ -74,10 +74,8 @@ export function BookingForm({ today, services = [], initialServiceSlugs = [] }) 
         setStatus("Prices are being finalized. Please check back soon.");
         notify("bookingFailure");
       } else if (!response.ok) {
-        notify(result.error === "slot_just_taken" || result.error === "slot_unavailable" ? "slotTaken" : toastKeyForStatus(response.status, "bookingFailure"));
-        setStatus(result.error === "slot_just_taken" || result.error === "slot_unavailable"
-          ? "That time was just taken. Choose another available time."
-          : "Your booking could not be completed. Please retry.");
+        notify(bookingFailureToast(result.error, response.status));
+        setStatus(bookingFailureMessage(result.error, response.status));
       } else {
         setStatus("Your appointment is confirmed. A confirmation email is on its way.");
         setSlot("");
