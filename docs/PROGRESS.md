@@ -133,3 +133,5 @@ Not built yet: archive, restore and hard delete (D2); the Super Admin permission
 - 2026-10-30 D2a live-verified with the real Super Admin and Admin (docs/TESTING.md): archive, restore, barber block, read-only archived records, public hiding, per-switch isolation. All 32 switches on, data intact. Committed (`1d16e36`, `7274500`) and pushed on feature/d2-archive-restore.
 
 - 2026-10-31 Housekeeping: branch report (remote has no main), docs drift fixed (NEXT_TASK, PROGRESS, AI_HANDOFF, CLAUDE.md rewritten under 60 lines, ROLE_PERMISSIONS naming), hero image diagnosis (not reproducible locally), test-data list, live-test checklist. No code changed.
+
+- 2026-10-31 Walk-in fix on feature/live-fixes: error handling, double-submit protection, safe server-error logging. 756 tests, lint, build pass. Walk-in saves and shows in Today's bookings (live, real Admin).
