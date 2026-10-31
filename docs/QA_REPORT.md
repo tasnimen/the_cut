@@ -32,7 +32,7 @@ Scope: everything that exists, tested in the browser pane against a production b
 | P8 | Sign-in, contact validation (native field messages) | PASS | | |
 | P9 | `/admin`, `/super-admin` return 404; `/design-system` 404 in production; unknown route 404 | PASS | | |
 | P10 | `robots.txt` present with private paths disallowed | PASS | | Lists the private paths (Low) |
-| P11 | Console errors: inline style blocked by CSP, about 69 per page | FAIL | Medium | Repro: open any page in production, read console. Expected none. Likely a library injecting an un-nonced `<style>` (hashes of an empty style and another small sheet). Not traced |
+| P11 | Console errors: inline style blocked by CSP, about 69 per page | FIXED in Stage B | Medium | Repro: open any page in production, read console. Expected none. Likely a library injecting an un-nonced `<style>` (hashes of an empty style and another small sheet). Not traced |
 | P12 | Gallery photos "Best Haircut" and "Smart haircut" have the upload form's hint sentence as their description | FAIL | Medium | Data created by the owner while testing; shows on the public gallery and to screen readers |
 | P13 | Public booking offers only the test barber "wfoijwfnwfe" | FAIL | Medium | Test data; real barbers have no hours or the other test data |
 | P14 | No "skip to content" link | FAIL | Low | |
@@ -60,7 +60,7 @@ Scope: everything that exists, tested in the browser pane against a production b
 | U9 | Avatar upload shows, remove works | PASS | | Storage cleaned (no leftover media) |
 | U10 | Sessions list shows "this device" | PASS | | |
 | U11 | Cancel a missing or malformed booking id: 404 | PASS | | |
-| U12 | Booking cap (2) and booking rate limit give the generic "could not be completed, retry" | FAIL | Medium | Repro: book 3 times quickly. Expected a clear reason (cap, or wait N minutes). Cause: `BookingForm.jsx` maps every non-409-price error to one message |
+| U12 | Booking cap (2) and booking rate limit give the generic "could not be completed, retry" | FIXED in Stage B | Medium | Repro: book 3 times quickly. Expected a clear reason (cap, or wait N minutes). Cause: `BookingForm.jsx` maps every non-409-price error to one message |
 | U13 | Change password | BLOCKED | | The assistant does not type passwords |
 | U14 | After booking there is no confirmation page, only a one-line message on the form | FAIL | Low | Stage E |
 | U15 | Reschedule panel opens on today's date and offers barbers with no hours | FAIL | Low | |
@@ -74,7 +74,7 @@ Scope: everything that exists, tested in the browser pane against a production b
 |---|---|---|---|---|
 | A1 | All admin pages 200; `/super-admin` 404; sidebar has 10 entries | PASS | | |
 | A2 | Walk-in booking saves; appears in Today's list as WALK-IN | PASS | | |
-| A3 | Walk-in "Something went wrong" (reported) | FAIL | High | Not reproduced on the production build; server log empty; original error not captured. Hardening exists on `feature/live-fixes` |
+| A3 | Walk-in "Something went wrong" (reported) | HARDENED in Stage B, cause still not captured | High | Not reproduced on the production build; server log empty; original error not captured. Hardening exists on `feature/live-fixes` |
 | A4 | All bookings: search, status filter, unsafe input escaped, odd query values safe | PASS | | |
 | A5 | All bookings pagination | BLOCKED | | Fewer rows than one page |
 | A6 | Cancel a booking: asks Yes/No, No keeps it, Yes cancels | PASS | | |
@@ -106,9 +106,27 @@ Scope: everything that exists, tested in the browser pane against a production b
 |---|---|---|---|---|
 | E1 | Confirmation (on booking), cancellation (customer or shop), reschedule: sent in the background, failures audited | PASS | | In this audit all three failed to deliver to `example.com` and were audited as `delivery_failed`; the bookings were not affected |
 | E2 | Contact notice to the shop and auto-reply; auth mails (verification, reset, failed-sign-in alert) | BLOCKED | | Not exercised: would mail real addresses |
-| E3 | Booking reminders | FAIL | High | Worker exists; no endpoint, script or scheduler calls it |
+| E3 | Booking reminders | FIXED in Stage B (job route added; scheduling is the owner's) | High | Worker exists; no endpoint, script or scheduler calls it |
 | E4 | Missing: shop notice for new, cancelled or rescheduled bookings; completed and no-show mails; cancel reason; manage-booking link; calendar file; mail log, idempotency, retry; one plain template for every event | FAIL | Medium | Stage C |
 | E5 | Mail to customers cannot be delivered until the sender domain is verified (SPF, DKIM, DMARC) | BLOCKED | | Owner task |
 
 ## Test records
 See `docs/TEST_DATA_CLEANUP.md`. Created by the audit: a cancelled walk-in, three archived test records, two customer bookings and one cancelled by the Admin, the customer account the owner created. Through-the-app clean-up done: gallery photo deleted, service pictures and avatar removed, closed date restored, permission switches restored (32 on).
+
+## Stage B status (2026-10-31, branch feature/qa-fixes)
+| Item | Root cause (one line) | Change | Check |
+|---|---|---|---|
+| E3 reminders never run (High) | The worker had no caller | `/api/jobs/booking-reminders` (POST or GET, Bearer `REMINDER_JOB_SECRET`, 404 when unset, 401 when wrong, counts only), `npm run run:reminders`, `docs/REMINDERS.md` with two scheduling options | route.test.js; live: no header 401, wrong secret 401, right secret 200 `{ok, sent:0, failed:0}` on the production build |
+| A3 walk-in panel (High) | A failed request was not caught, so the error boundary replaced the section; unexpected server errors had no log | Form catches failures, double-submit lock and server duplicate guard, safe log line, useful panel | Tests (actions, repository, panel); live on the production build. Original error not captured: keep open until it appears again |
+| U12 booking refusals (Medium) | One generic message for every refusal | `lib/booking/error-messages.js` (cap, rate limit, phone, service, time) used by the booking form; new toast `bookingLimit` | error-messages.test.js; live: the rate-limit refusal now says "Too many booking attempts... wait a while" |
+| P11 CSP console errors (Medium) | sonner inserts its own `<style>` from JavaScript without a nonce; the browser blocked its stylesheet on every page | `style-src-elem` allows exactly the two content hashes sonner inserts (no `unsafe-inline`); `src/proxy.test.js` recomputes both hashes from the installed sonner and fails when it is updated | Live: the sonner style now has a sheet, no new console errors, toast looks right |
+
+### Medium items not fixed in this stage (with reason)
+| Item | Why | Where it goes |
+|---|---|---|
+| A16, S4 Admin and Super Admin overview pages are placeholders | Real overview numbers belong to the booking and dashboard work | Stage E (booking widgets), I-23 to I-27 (Super Admin) |
+| E4 missing booking emails, mail log, templates | Whole feature | Stage C |
+| P12 gallery photos with the hint sentence as description; P13 the test barber is the only bookable barber | Owner's data, not code | Owner: edit the two photos in Admin > Gallery; give the real barbers working hours and archive or hide the test barber |
+
+### Low items (listed for the owner, not fixed)
+P14 no skip link; P15 plain 404 page; P16 small touch targets on the booking page; P17 guest booking choices lost after sign-in; P18 SMS opt-in without SMS; P19 missing canonical and social tags on some pages; P21 focus and Escape on the menus (recheck with a real keyboard); U14 no confirmation page; U15 reschedule panel defaults; U16 "30 min" for a 20-minute service; U17 header avatar; U18 confirmation-mail promise; A17 "email the customer" wording for walk-ins; A18 stale "Not saved yet" notice after saving a picture.

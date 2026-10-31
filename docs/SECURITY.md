@@ -209,3 +209,8 @@ The admin layout refuses a revoked page before streaming (proxy header `x-pathna
 
 ## Archive and restore (D2a, 2026-10-31)
 Every archive or restore is a Server Action that re-checks session, role, TOTP and its own default-deny switch (`<kind>.archive` / `<kind>.restore`), rate limits, validates the slug and writes an audit event with the actor. No Admin can delete records permanently (no such action exists for these kinds; permanent delete is Super Admin only and arrives with D2b). An archived record cannot be edited or shown by an Admin until restored. The public readers and the seed script cannot bring an archived record back. A barber with upcoming pending or confirmed bookings cannot be archived. Live-verified with the real accounts on 2026-10-30.
+
+## Stage B additions (2026-10-31)
+- **Reminder job:** `/api/jobs/booking-reminders` has no session; it is protected only by `Authorization: Bearer <REMINDER_JOB_SECRET>` (32+ characters, constant-time comparison, 404 when the secret is unset, 401 when wrong, no data in answers, no-store). It sends nothing twice (the worker claims bookings first).
+- **CSP:** `style-src-elem` still has no `unsafe-inline`; it additionally allows exactly two content hashes (the empty `<style>` and the stylesheet text that the toast library inserts). A test recomputes them from the installed library.
+- **Errors:** the walk-in actions and the reminder job log one redacted line (`lib/utils/log-error.js`) and return generic answers.

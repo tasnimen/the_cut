@@ -110,3 +110,5 @@ On top of the static matrix above, a Super Admin can switch individual Admin cap
 Admin switches are default deny (2026-10-30): until the Super Admin saves, the Admin has the dashboard overview only. See ADMIN_PERMISSIONS.md.
 
 Archive and restore (services, packages, barbers) are Admin switches `<group>.archive` / `<group>.restore`, default off; permanent delete stays Super Admin only (D2b). See ADMIN_PERMISSIONS.md.
+
+The reminder job route (`/api/jobs/booking-reminders`) has no role: it is a machine endpoint secured by `REMINDER_JOB_SECRET` (see REMINDERS.md). It is not an admin route and not covered by the Admin switches.

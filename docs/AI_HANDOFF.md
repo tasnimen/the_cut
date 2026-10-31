@@ -515,3 +515,8 @@ Historical Phase G blocker note superseded by the latest handoff at the top of t
 - Walk-in Save showed the error panel once; not reproducible (saved fine on retry; booking code also fine against a copy of real data). Hardened instead: form catches failed requests (no panel, clear message, Try again for the free times), Save is locked on press, server refuses a repeat of the same admin, name and time within 60 seconds (`duplicate_request`), walk-in actions return a safe `unexpected` result and log one redacted line (`lib/utils/log-error.js`), `DashboardError` logs name, message and digest in the browser console and says the server may have been slow. All three `error.jsx` pass the error on.
 - If the panel shows up again, look in the dev terminal for `[walk-in] unexpected error` and in the browser console for `[dashboard error]`.
 - Test booking "Test Walkin" (2026-10-31, 3:00 PM) was created and cancelled; it stays in the database as Cancelled.
+
+## Stage B: QA fixes (2026-10-31, feature/qa-fixes)
+- Merged `feature/live-fixes` (walk-in hardening) into this branch. Added: reminder job route `/api/jobs/booking-reminders` (secret `REMINDER_JOB_SECRET`, see `docs/REMINDERS.md`), booking refusal messages (`lib/booking/error-messages.js`), CSP hashes for sonner (`SONNER_STYLE_HASHES` in `src/proxy.js`, recomputed by `src/proxy.test.js`; if sonner is updated that test fails: copy the new hashes it prints).
+- Results and open items: `docs/QA_REPORT.md` ("Stage B status"). The walk-in error was never captured; if the panel shows up again look for `[walk-in] unexpected error` in the dev terminal.
+- **Where I stopped:** Stage B done on the branch; waiting for the owner's "start" for Stage C (booking emails).

@@ -135,3 +135,5 @@ Not built yet: archive, restore and hard delete (D2); the Super Admin permission
 - 2026-10-31 Housekeeping: branch report (remote has no main), docs drift fixed (NEXT_TASK, PROGRESS, AI_HANDOFF, CLAUDE.md rewritten under 60 lines, ROLE_PERMISSIONS naming), hero image diagnosis (not reproducible locally), test-data list, live-test checklist. No code changed.
 
 - 2026-10-31 Walk-in fix on feature/live-fixes: error handling, double-submit protection, safe server-error logging. 756 tests, lint, build pass. Walk-in saves and shows in Today's bookings (live, real Admin).
+
+- 2026-10-31 Stage B (QA fixes) on feature/qa-fixes: reminder job route, booking refusal messages, CSP hashes for the toast library, walk-in hardening merged. 767 tests, lint, build pass. See docs/QA_REPORT.md.

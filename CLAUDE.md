@@ -23,6 +23,7 @@ Next.js 16.4.3 App Router (breaking changes: read node_modules/next/dist/docs be
 - Admin switches (`config/admin-capabilities.js`, grants in Mongo, one shared set): default deny (nothing saved means the overview only). Every new admin Server Action, API route and page MUST pass a capability: `requirePrincipal(permission, { capability })` and `requireDashboardAccess("admin", { capability })`, and it must be in the catalog (a test fails otherwise). Hide its buttons and menu entry with `effectiveCapabilities` and `filterNavByCapabilities`; hiding is only a convenience. SUPER_ADMIN is never limited. Sign-in and TOTP are not touched by this system.
 - Archive and restore (services, packages, barbers): `lib/catalog/archive.js`; `archivedAt` and `archivedBy` fields; archived records are read-only and hidden everywhere; slugs stay reserved. Permanent delete is Super Admin only and not built yet (D2b).
 - Booking: America/New_York, USD, 15-minute grid, 5-minute buffer, 60-minute lead, 30-day window, max 3 services, max 2 active bookings, 24-hour cancel cutoff, pay at the shop. Prices come from Mongo service records, never the client.
+- Reminder job: `/api/jobs/booking-reminders` (secret `REMINDER_JOB_SECRET`, `docs/REMINDERS.md`); toast CSS is allowed by two content hashes in `src/proxy.js` (a test recomputes them).
 - Env variable NAMES only in `.env.example`; never open or print `.env`.
 
 ## Status (details in docs/PROJECT_STATUS.md)
