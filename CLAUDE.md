@@ -31,6 +31,9 @@ Next.js 16.4.3 App Router (breaking changes: read node_modules/next/dist/docs be
 ## Documentation (strict, every task)
 Update docs/PROGRESS.md, root NEXT_TASK.md, docs/AI_HANDOFF.md ("Where I stopped"), this file and AGENTS.md when rules change, and the technical docs touched (SECURITY, ROLE_PERMISSIONS, ADMIN_PERMISSIONS, DATABASE, TESTING, DECISIONS, IMAGE_SLOTS). Document every new permission, route restriction and security rule. Say "not verified live" until it is. Report which docs changed.
 
+## Git workflow (the owner does not use git; the assistant runs it)
+- New work goes on a branch per round or unit (`feature/<name>`), created from an up-to-date `main` (clean tree, `git pull --ff-only`). After every unit: tests, lint, build, `git status`, `git diff --stat`, no secret-like file staged, separate commits with explicit `git add <paths>` and conventional messages, then push (`-u` the first time). At the end of a round, if checks pass: switch to main, `git pull --ff-only`, merge with `--ff-only` (or a merge commit if fast-forward is impossible and there is no conflict), push main, keep the old branch. Before any merge, tell the owner the commit id `main` is at now. After each git step report in 3 plain lines: what was saved, which branch, whether it is on GitHub. Never ask the owner to run git.
+
 ## Do not
-- Run git state-changing commands unless the owner asks in that message (the owner commits; give explicit `git add <paths>` blocks, never `git add .`).
+- NEVER (git): force-push, reset --hard, clean, rebase, rewrite history, delete a branch or tag without asking, use `git add .` or `-A`, stage `.env`, secrets, `.claude`, `node_modules` or `.next`, push straight to main except by the merge step, or discard uncommitted work (checkout --, restore, stash drop). If a task needs one of these, stop and explain in plain words.
 - Print secrets, drop or reset databases, add TypeScript, add parallel auth, start a unit without the owner's "ok", hardcode prices or colors in components, or use one-off CSS instead of tokens and shared components.
