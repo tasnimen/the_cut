@@ -241,12 +241,26 @@ describe("walk-in bookings", () => {
     expect(JSON.stringify(booking)).not.toMatch(/walkin:/);
   });
 
+  it("does not book the same walk-in twice when Save is pressed twice (same admin, name and time within a minute)", async () => {
+    const { db, client, data } = bookingDb();
+    let now = new Date("2027-04-05T13:55:00Z");
+    const repository = createBookingRepository({ client, db, clock: () => now });
+    const args = { principal: admin, customerName: "Walk In", serviceSlugs: ["haircut"], startsAt: noon().toISOString(), barber: "any" };
+    await repository.createWalkIn(args);
+    await expect(repository.createWalkIn(args)).rejects.toMatchObject({ code: "duplicate_request" });
+    expect(data.booking).toHaveLength(1);
+    // another admin, or a request two minutes later, is judged on the slot alone
+    await expect(repository.createWalkIn({ ...args, principal: { id: "admin-2" } })).rejects.toMatchObject({ code: expect.stringMatching(/slot_just_taken|slot_unavailable/) });
+    now = new Date("2027-04-05T13:57:00Z");
+    await expect(repository.createWalkIn(args)).rejects.toMatchObject({ code: expect.stringMatching(/slot_just_taken|slot_unavailable/) });
+  });
+
   it("still refuses a taken slot and a bad phone number", async () => {
     const { db, client, data } = bookingDb();
     const repository = createBookingRepository({ client, db, clock: () => new Date("2027-04-05T13:55:00Z") });
     const args = { principal: admin, customerName: "Walk In", serviceSlugs: ["haircut"], startsAt: noon().toISOString() };
     await repository.createWalkIn(args);
-    await expect(repository.createWalkIn(args)).rejects.toMatchObject({ code: expect.stringMatching(/slot_just_taken|slot_unavailable/) });
+    await expect(repository.createWalkIn({ ...args, customerName: "Someone Else" })).rejects.toMatchObject({ code: expect.stringMatching(/slot_just_taken|slot_unavailable/) });
     await expect(repository.createWalkIn({ ...args, phone: "12" })).rejects.toMatchObject({ code: "invalid_phone" });
     expect(data.booking).toHaveLength(1);
   });
