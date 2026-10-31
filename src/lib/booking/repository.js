@@ -4,6 +4,7 @@ import { ObjectId } from "mongodb";
 import { BOOKING_CONFIG } from "@/config/booking";
 import { BOOKING_COLLECTION, BOOKING_SLOT_COLLECTION, ACTIVE_BOOKING_STATUSES } from "@/lib/booking/booking-model";
 import { BookingError, loadBookingOptions } from "@/lib/booking/availability";
+import { rescheduleSnapshot } from "@/lib/booking/snapshot";
 import { normalizeUsPhone } from "@/lib/booking/input";
 import { reservationSlotStarts, calculateBookingDuration } from "@/lib/booking/rules";
 import { adminAllowedActions, buildBookingQuery, SEARCH_PAGE_SIZE } from "@/lib/booking/admin-bookings";
@@ -216,11 +217,10 @@ export function createBookingRepository({ client, db, config = BOOKING_CONFIG, c
           ...booking,
           barberId: String(barberRecord._id),
           barberName: barberRecord.name,
-          services: services.map((service) => ({ slug: service.slug, name: service.name, durationMinutes: service.durationMinutes, priceMinorUnits: service.priceMinorUnits, currency: "USD" })),
+          ...rescheduleSnapshot(booking),
           startsAt: start,
           endsAt: new Date(start.getTime() + durationMinutes * 60_000),
           durationMinutes,
-          totalPriceMinorUnits: services.reduce((sum, service) => sum + service.priceMinorUnits, 0),
           reminderDueAt: start.getTime() - nowDate.getTime() >= REMINDER_WINDOW_MS ? new Date(start.getTime() - REMINDER_WINDOW_MS) : null,
           reminderSentAt: null,
           reminderClaimedAt: null,

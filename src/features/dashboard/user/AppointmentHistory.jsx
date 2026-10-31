@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { bookAgainHref } from "@/lib/booking/snapshot";
 import { DataTable } from "@/features/dashboard/components/primitives";
 import { STATUS_LABELS } from "@/lib/booking/user-bookings";
 import { formatMoney } from "@/lib/format/money";
@@ -12,6 +14,7 @@ export function AppointmentHistory({ history, limit }) {
       services: booking.services.map((service) => service.name).join(" + "),
       barber: booking.barber.name,
       total: formatMoney(booking.totalPriceMinorUnits, booking.currency),
+      again: <Link className="dash-link-button" href={bookAgainHref(booking)} aria-label={`Book again: ${booking.services.map((service) => service.name).join(" and ")}`}>Book again</Link>,
       status: <span className={`dash-badge${booking.status === "completed" ? "" : " is-off"}`}>{STATUS_LABELS[booking.status] ?? booking.status}</span>,
     },
   }));
@@ -24,6 +27,7 @@ export function AppointmentHistory({ history, limit }) {
         { key: "barber", label: "Barber" },
         { key: "total", label: "Total" },
         { key: "status", label: "Status" },
+        { key: "again", label: "" },
       ]}
       rows={rows}
       emptyTitle="No past visits yet"
