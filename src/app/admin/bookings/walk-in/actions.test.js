@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const mocks = vi.hoisted(() => ({ requirePrincipal: vi.fn(), rate: vi.fn(), create: vi.fn(), availability: vi.fn() }));
+const mocks = vi.hoisted(() => ({ requirePrincipal: vi.fn(), rate: vi.fn(), create: vi.fn(), availability: vi.fn(), notify: vi.fn() }));
 class AuthorizationError extends Error {}
 class BookingError extends Error { constructor(code) { super(code); this.code = code; } }
 
@@ -8,6 +8,8 @@ vi.mock("@/lib/auth/authorization", () => ({ AuthorizationError, requirePrincipa
 vi.mock("@/lib/booking/availability", () => ({ BookingError }));
 vi.mock("@/lib/booking/service", () => ({ openBookingRepository: async () => ({ repository: { createWalkIn: mocks.create, adminAvailability: mocks.availability } }) }));
 vi.mock("@/lib/security/public-rate-limit", () => ({ consumeUserRateLimit: mocks.rate }));
+vi.mock("@/lib/booking/notify", () => ({ notifyBookingChange: mocks.notify }));
+vi.mock("next/server", () => ({ after: (callback) => callback() }));
 
 const { createWalkInAction, walkInAvailabilityAction } = await import("./actions");
 const input = { customerName: "Sam Carter", phone: "", serviceSlugs: ["haircut"], startsAt: "2027-04-05T14:00:00.000Z", barber: "any" };
@@ -91,5 +93,18 @@ describe("walk-in actions", () => {
     expect(bad).toMatchObject({ status: "error", code: "invalid" });
     expect(bad.fieldErrors.phone).toBeTruthy();
     expect(mocks.create).toHaveBeenCalledTimes(1);
+  });
+
+  it("sends a confirmation only when an email address was entered, and refuses a bad address", async () => {
+    await createWalkInAction({ ...input, email: "" });
+    expect(mocks.notify).not.toHaveBeenCalled();
+    await createWalkInAction({ ...input, email: " Walkin@Example.COM " });
+    expect(mocks.create.mock.calls.at(-1)[0]).toMatchObject({ email: "walkin@example.com" });
+    expect(mocks.notify).toHaveBeenCalledWith(expect.objectContaining({ operation: "walk_in", customerUserId: "walkin:b1" }));
+    mocks.notify.mockClear();
+    const bad = await createWalkInAction({ ...input, email: "not-an-email" });
+    expect(bad).toMatchObject({ status: "error", code: "invalid" });
+    expect(bad.fieldErrors.email).toBeTruthy();
+    expect(mocks.notify).not.toHaveBeenCalled();
   });
 });

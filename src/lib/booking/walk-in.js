@@ -19,6 +19,7 @@ export const WalkInAvailabilitySchema = z.strictObject({
 export const WalkInBookingSchema = z.strictObject({
   customerName: z.string().trim().min(2, "Enter the customer's name.").max(100, "Use 100 characters or fewer.").refine(noMarkup, "Remove special characters from the name."),
   phone: z.string().trim().max(40).default("").refine((value) => value === "" || normalizeUsPhone(value) !== null, { message: "Enter a valid US phone number, or leave it blank." }),
+  email: z.string().trim().toLowerCase().max(254).default("").refine((value) => value === "" || /^[^s@<>]+@[^s@<>]+.[^s@<>]+$/.test(value), { message: "Enter a valid email address, or leave it blank." }),
   serviceSlugs: z.array(slug).min(1, "Choose at least one service.").max(3, "Choose up to 3 services."),
   startsAt: z.string().datetime({ offset: true }),
   barber: z.string().regex(/^(any|[a-z0-9]+(?:-[a-z0-9]+)*)$/).default("any"),

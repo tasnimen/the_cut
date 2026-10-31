@@ -1,11 +1,8 @@
-import { userIdFilter } from "@/lib/db/user-filter";
 import "server-only";
 import { after } from "next/server";
 import { AuthorizationError, requirePrincipal } from "@/lib/auth/authorization";
 import { ensureApplicationIndexes, getMongo } from "@/lib/db/mongo";
 import { consumePublicRateLimit } from "@/lib/security/public-rate-limit";
-import { appendAuditEvent } from "@/lib/security/audit-log";
-import { sendBookingConfirmation } from "@/lib/mail/mailer";
 import { getBookingConfig } from "@/lib/catalog/source";
 import { BookingAvailabilityQuerySchema, BookingIdSchema, CreateBookingSchema, RescheduleBookingSchema } from "@/lib/booking/booking-model";
 import { BookingError, loadBookingOptions } from "@/lib/booking/availability";
@@ -56,15 +53,7 @@ export async function createBooking(request) {
     if (!parsed.success) return json({ error: "invalid_booking" }, 400);
     const { client, db, repository } = await connect();
     const booking = await repository.create({ principal, serviceSlugs: parsed.data.serviceSlugs, startsAt: parsed.data.startsAt, barber: parsed.data.barber, phone: parsed.data.phone, smsConsent: parsed.data.smsConsent });
-    after(async () => {
-      try {
-        const user = await db.collection("user").findOne(userIdFilter(principal.id), { projection: { email: 1 } });
-        if (!user?.email) throw new Error("recipient unavailable");
-        await sendBookingConfirmation({ to: user.email, name: booking.customerName, booking });
-      } catch {
-        try { await appendAuditEvent(db, { actorId: principal.id, action: "booking.confirmation.delivery_failed", targetType: "Booking", targetId: booking.id, outcome: "failure" }); } catch { /* Keep delivery/provider details out of logs. */ }
-      }
-    });
+    after(() => notifyBookingChange({ db, operation: "created", booking, customerUserId: principal.id }));
     void client;
     return json({ booking }, 201);
   } catch (error) { return failure(error); }

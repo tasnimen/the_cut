@@ -255,6 +255,15 @@ describe("walk-in bookings", () => {
     await expect(repository.createWalkIn(args)).rejects.toMatchObject({ code: expect.stringMatching(/slot_just_taken|slot_unavailable/) });
   });
 
+  it("keeps a walk-in email address (lower case) only when one is given", async () => {
+    const { db, client, data } = bookingDb();
+    const repository = createBookingRepository({ client, db, clock: () => new Date("2027-04-05T13:55:00Z") });
+    await repository.createWalkIn({ principal: admin, customerName: "With Mail", email: " Walk@Example.COM ", serviceSlugs: ["haircut"], startsAt: noon().toISOString() });
+    await repository.createWalkIn({ principal: admin, customerName: "No Mail", serviceSlugs: ["haircut"], startsAt: new Date("2027-04-05T15:00:00Z").toISOString() });
+    expect(data.booking[0].customerEmail).toBe("walk@example.com");
+    expect("customerEmail" in data.booking[1]).toBe(false);
+  });
+
   it("still refuses a taken slot and a bad phone number", async () => {
     const { db, client, data } = bookingDb();
     const repository = createBookingRepository({ client, db, clock: () => new Date("2027-04-05T13:55:00Z") });

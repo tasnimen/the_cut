@@ -145,7 +145,7 @@ describe("archive and restore switches (D2a)", () => {
       expect(capabilityAllowed(resolveGrants(undefined), `${kind}.${action}`)).toBe(false);
       expect(capabilityAllowed(resolveGrants({ ...allGrants(), [`${kind}.${action}`]: false }), `${kind}.${action}`)).toBe(false);
     }
-    expect(ADMIN_CAPABILITIES).toHaveLength(32);
+    expect(ADMIN_CAPABILITIES).toHaveLength(34);
   });
   it("are independent of each other and of edit, but still need the page (view) switch", () => {
     for (const kind of KINDS) {
@@ -162,5 +162,19 @@ describe("archive and restore switches (D2a)", () => {
     const old = resolveGrants(Object.fromEntries(ADMIN_CAPABILITIES.filter((id) => !/.(archive|restore)$/.test(id)).map((id) => [id, true])));
     expect(capabilityAllowed(old, "services.edit")).toBe(true);
     expect(capabilityAllowed(old, "services.archive")).toBe(false);
+  });
+});
+
+describe("email log switches", () => {
+  it("are known, default deny, need the page switch for Resend, and the page is mapped", () => {
+    for (const id of ["emailLog.view", "emailLog.resend"]) {
+      expect(isKnownCapability(id)).toBe(true);
+      expect(capabilityAllowed(resolveGrants(undefined), id)).toBe(false);
+    }
+    expect(ADMIN_ROUTE_CAPABILITIES["/admin/email-log"]).toBe("emailLog.view");
+    expect(capabilityForAdminPath("/admin/email-log")).toBe("emailLog.view");
+    expect(capabilityAllowed(resolveGrants({ "emailLog.view": true, "emailLog.resend": true }), "emailLog.resend")).toBe(true);
+    expect(capabilityAllowed(resolveGrants({ "emailLog.resend": true }), "emailLog.resend")).toBe(false);
+    expect(capabilityAllowed(resolveGrants({ "emailLog.view": true }), "emailLog.resend")).toBe(false);
   });
 });

@@ -74,6 +74,13 @@ export const ADMIN_CAPABILITY_GROUPS = Object.freeze([
     ]),
   }),
   Object.freeze({
+    key: "emailLog", label: "Email log", routes: Object.freeze(["/admin/email-log"]),
+    capabilities: Object.freeze([
+      cap("emailLog.view", "View the email log", "The list of booking emails with status, event, time and a masked address (never the text of an email)."),
+      cap("emailLog.resend", "Resend failed emails", "Send an email again that could not be delivered. An email that was delivered is never sent twice."),
+    ]),
+  }),
+  Object.freeze({
     key: "reports", label: "Reports", routes: Object.freeze(["/admin/reports"]),
     capabilities: Object.freeze([cap("reports.view", "View operational reports", "Counts and rates for bookings, barbers and services (no money).")]),
   }),
@@ -114,6 +121,7 @@ export const ADMIN_ROUTE_CAPABILITIES = Object.freeze({
   "/admin/gallery": "gallery.view",
   "/admin/messages": "messages.view",
   "/admin/messages/[id]": "messages.view",
+  "/admin/email-log": "emailLog.view",
   "/admin/reports": "reports.view",
   "/admin/settings": "settings.view",
 });

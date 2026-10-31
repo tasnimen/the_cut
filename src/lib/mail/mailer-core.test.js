@@ -1,20 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
-import { createAuthMailer, createBookingMailer, createContactMailer, scheduleMailDelivery } from "./mailer-core.js";
+import { createAuthMailer, createContactMailer, scheduleMailDelivery } from "./mailer-core.js";
 import { scheduleContactDelivery } from "../contact/contact-core.js";
 
 describe("server auth mail behavior", () => {
-  it("sends a branded booking confirmation using a mock transport", async () => {
-    const sent = [];
-    const mailer = createBookingMailer({ transport: { sendMail: async (message) => sent.push(message) }, from: "hello@example.test" });
-    await mailer.sendConfirmation({ to: "customer@example.test", name: "<img src=x>", booking: {
-      services: [{ name: "The Cut" }], barber: { name: "Alex" }, localStart: "Monday at 10:00 AM EDT", totalPriceMinorUnits: 3000,
-    } });
-    expect(sent).toHaveLength(1);
-    expect(sent[0].to).toBe("customer@example.test");
-    expect(sent[0].text).toContain("$30.00");
-    expect(sent[0].html).toContain("&lt;img src=x&gt;");
-    expect(sent[0].html).not.toContain("<img src=x>");
-  });
   it("uses a mock transport and escapes user-controlled verification content", async () => {
     const sent = [];
     const mailer = createAuthMailer({

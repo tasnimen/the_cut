@@ -1,8 +1,10 @@
 "use server";
 
+import { after } from "next/server";
 import { AuthorizationError, requirePrincipal } from "@/lib/auth/authorization";
 import { adminErrorMessage } from "@/lib/booking/admin-bookings";
 import { BookingError } from "@/lib/booking/availability";
+import { notifyBookingChange } from "@/lib/booking/notify";
 import { openBookingRepository } from "@/lib/booking/service";
 import { walkInFieldErrors, WalkInAvailabilitySchema, WalkInBookingSchema } from "@/lib/booking/walk-in";
 import { consumeUserRateLimit } from "@/lib/security/public-rate-limit";
@@ -63,8 +65,10 @@ export async function createWalkInAction(input) {
   if (!parsed.success) return { status: "error", code: "invalid", message: "Check the highlighted fields.", fieldErrors: walkInFieldErrors(parsed.error) };
 
   try {
-    const { repository } = await openBookingRepository();
+    const { db, repository } = await openBookingRepository();
     const booking = await repository.createWalkIn({ principal: auth.principal, ...parsed.data });
+    // A confirmation goes out only when an email address was entered (a walk-in has no account).
+    if (parsed.data.email) after(() => notifyBookingChange({ db, operation: "walk_in", booking, customerUserId: `walkin:${booking.id}` }));
     return { status: "success", code: "created", message: "Walk-in booked.", bookingId: booking.id, when: booking.localStart };
   } catch (error) {
     return failure(error);

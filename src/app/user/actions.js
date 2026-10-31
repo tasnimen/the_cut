@@ -41,7 +41,7 @@ export async function cancelBookingAction(bookingId) {
   try {
     const { db, repository } = await openBookingRepository();
     const booking = await repository.cancel({ principal: auth.principal, bookingId });
-    after(() => notifyBookingChange({ db, principal: auth.principal, operation: "cancel", booking }));
+    after(() => notifyBookingChange({ db, operation: "cancel_by_customer", booking, customerUserId: auth.principal.id }));
     return { status: "success", code: "cancelled", message: "Your appointment was cancelled." };
   } catch (error) {
     return failure(error);
@@ -58,7 +58,7 @@ export async function rescheduleBookingAction(bookingId, startsAt, barber = "any
   try {
     const { db, repository } = await openBookingRepository();
     const booking = await repository.reschedule({ principal: auth.principal, bookingId, ...parsed.data });
-    after(() => notifyBookingChange({ db, principal: auth.principal, operation: "reschedule", booking }));
+    after(() => notifyBookingChange({ db, operation: "reschedule", booking, customerUserId: auth.principal.id }));
     return { status: "success", code: "rescheduled", message: "Your appointment was rescheduled." };
   } catch (error) {
     return failure(error);

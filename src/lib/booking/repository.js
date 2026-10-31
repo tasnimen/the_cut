@@ -231,7 +231,7 @@ export function createBookingRepository({ client, db, config = BOOKING_CONFIG, c
           $set: { barberId: updated.barberId, barberName: updated.barberName, services: updated.services, startsAt: updated.startsAt, endsAt: updated.endsAt, durationMinutes: updated.durationMinutes, totalPriceMinorUnits: updated.totalPriceMinorUnits, reminderDueAt: updated.reminderDueAt, reminderSentAt: null, reminderClaimedAt: null, updatedAt: updated.updatedAt },
         }, { session });
         await appendAuditEvent(db, bookingAudit({ actorId: principal.id, bookingId: id, action: "booking.rescheduled" }), { session });
-        return publicBooking(updated);
+        return { ...publicBooking(updated), previousStartsAt: booking.startsAt.toISOString() };
       });
     },
 
@@ -266,7 +266,7 @@ export function createBookingRepository({ client, db, config = BOOKING_CONFIG, c
 
     // Admin: books a customer who is in the shop. There is no account, so the booking carries a synthetic
     // `walkin:<id>` owner (never matches a signed-in user), source "walk-in" and who created it.
-    async createWalkIn({ principal, customerName, phone = "", serviceSlugs, startsAt, barber = "any" }) {
+    async createWalkIn({ principal, customerName, phone = "", email = "", serviceSlugs, startsAt, barber = "any" }) {
       const start = new Date(startsAt);
       if (!Number.isFinite(start.getTime())) throw new BookingError("invalid_start_time", 400);
       const normalizedPhone = phone ? normalizeUsPhone(phone) : null;
@@ -286,6 +286,7 @@ export function createBookingRepository({ client, db, config = BOOKING_CONFIG, c
           createdBy: principal.id,
           customerName: String(customerName).trim().slice(0, 100),
           phoneE164: normalizedPhone,
+          ...(email ? { customerEmail: String(email).trim().toLowerCase().slice(0, 254) } : {}),
           smsConsent: false,
           smsConsentAt: null,
           services: serviceSnapshots,

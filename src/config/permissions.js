@@ -41,6 +41,7 @@ export const PERMISSIONS = Object.freeze({
   ordersRefundAll: Object.freeze({ SUPER_ADMIN: "ALL" }),
   bookingsDeleteAll: Object.freeze({ SUPER_ADMIN: "ALL" }),
   contactManageAll: Object.freeze({ ADMIN: "ALL", SUPER_ADMIN: "ALL" }),
+  mailLogManageAll: Object.freeze({ ADMIN: "ALL", SUPER_ADMIN: "ALL" }),
   contactDeleteAll: Object.freeze({ ADMIN: "ALL", SUPER_ADMIN: "ALL" }),
   operationalReportsAll: Object.freeze({ ADMIN: "ALL", SUPER_ADMIN: "ALL" }),
   financialReportsAll: Object.freeze({ SUPER_ADMIN: "ALL" }),

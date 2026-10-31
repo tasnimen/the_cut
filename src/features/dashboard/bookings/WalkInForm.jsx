@@ -13,6 +13,7 @@ export function WalkInForm({ services, today }) {
   const router = useRouter();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [chosen, setChosen] = useState([]);
   const [date, setDate] = useState(today);
   const [barber, setBarber] = useState("any");
@@ -68,7 +69,7 @@ export function WalkInForm({ services, today }) {
     setErrors({});
     start(async () => {
       try {
-        const result = await createWalkInAction({ customerName: name, phone, serviceSlugs: chosen, startsAt: slot, barber });
+        const result = await createWalkInAction({ customerName: name, phone, email, serviceSlugs: chosen, startsAt: slot, barber });
         if (result.status === "success") {
           notify("walkInBooked");
           router.push("/admin/bookings");
@@ -100,6 +101,11 @@ export function WalkInForm({ services, today }) {
           <label htmlFor="wi-phone">Phone (optional)</label>
           <input id="wi-phone" type="tel" value={phone} onChange={(event) => setPhone(event.target.value)} maxLength={40} autoComplete="off" aria-invalid={errors.phone ? "true" : undefined} />
           {errors.phone ? <small className="dash-field-error" role="alert">{errors.phone}</small> : <small>No text messages are sent to walk-ins.</small>}
+        </div>
+        <div className="dash-field">
+          <label htmlFor="wi-email">Email (optional)</label>
+          <input id="wi-email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} maxLength={254} autoComplete="off" aria-invalid={errors.email ? "true" : undefined} />
+          {errors.email ? <small className="dash-field-error" role="alert">{errors.email}</small> : <small>If you enter one, a confirmation with a calendar file is sent.</small>}
         </div>
       </div>
 

@@ -38,18 +38,18 @@ describe("changeBookingStatusAction", () => {
     expect(mocks.change).not.toHaveBeenCalled();
   });
 
-  it("emails the customer (not the admin) after a cancellation only", async () => {
-    await changeBookingStatusAction(ID, "cancelled");
-    expect(mocks.notify.mock.calls[0][0]).toMatchObject({ operation: "cancel", recipientUserId: "customer-1" });
-    mocks.notify.mockReset();
-    await changeBookingStatusAction(ID, "completed");
-    expect(mocks.notify).not.toHaveBeenCalled();
+  it("emails the customer (never the admin) about every status change the shop makes", async () => {
+    for (const [to, operation] of [["cancelled", "cancel_by_shop"], ["completed", "completed"], ["no_show", "no_show"], ["confirmed", "confirmed"]]) {
+      mocks.notify.mockReset();
+      await changeBookingStatusAction(ID, to);
+      expect(mocks.notify.mock.calls[0][0], to).toMatchObject({ operation, customerUserId: "customer-1" });
+    }
   });
 
-  it("does not try to email a walk-in customer", async () => {
+  it("asks the mail layer about a walk-in too (it sends only when an email address was entered)", async () => {
     mocks.change.mockResolvedValue({ booking: { id: ID }, customerId: "walkin:" + ID });
     expect((await changeBookingStatusAction(ID, "cancelled")).status).toBe("success");
-    expect(mocks.notify).not.toHaveBeenCalled();
+    expect(mocks.notify.mock.calls[0][0]).toMatchObject({ operation: "cancel_by_shop", customerUserId: "walkin:" + ID });
   });
 
   it("returns friendly text for rule failures and rethrows unexpected errors", async () => {

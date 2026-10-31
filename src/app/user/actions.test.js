@@ -57,9 +57,10 @@ describe("customer booking actions: ownership and validation", () => {
   it("passes the signed-in principal (never a client-supplied user) to the repository", async () => {
     expect(await cancelBookingAction(ID)).toMatchObject({ status: "success", code: "cancelled" });
     expect(mocks.cancel).toHaveBeenCalledWith({ principal, bookingId: ID });
-    expect(mocks.notify).toHaveBeenCalledWith(expect.objectContaining({ operation: "cancel", principal }));
+    expect(mocks.notify).toHaveBeenCalledWith(expect.objectContaining({ operation: "cancel_by_customer", customerUserId: principal.id }));
     expect(await rescheduleBookingAction(ID, "2027-04-05T14:00:00.000Z", "daniel-carter")).toMatchObject({ status: "success", code: "rescheduled" });
     expect(mocks.reschedule).toHaveBeenCalledWith({ principal, bookingId: ID, startsAt: "2027-04-05T14:00:00.000Z", barber: "daniel-carter" });
+    expect(mocks.notify).toHaveBeenCalledWith(expect.objectContaining({ operation: "reschedule", customerUserId: principal.id }));
   });
 
   it("rejects malformed ids and times before any database work", async () => {

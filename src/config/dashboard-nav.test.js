@@ -6,7 +6,7 @@ import { DASHBOARD_NAV, breadcrumbsFor, greetingFor, isNavItemActive, visibleNav
 describe("dashboard navigation", () => {
   it("lists only enabled entries", () => {
     expect(visibleNav("user").map((entry) => entry.label)).toEqual(["Overview", "Appointments", "Profile"]);
-    expect(visibleNav("admin").map((entry) => entry.label)).toEqual(["Overview", "Bookings", "Customers", "Services", "Packages", "Barbers", "Gallery", "Messages", "Reports", "Settings"]);
+    expect(visibleNav("admin").map((entry) => entry.label)).toEqual(["Overview", "Bookings", "Customers", "Services", "Packages", "Barbers", "Gallery", "Messages", "Email log", "Reports", "Settings"]);
     expect(visibleNav("superAdmin").map((entry) => entry.href)).toEqual(["/super-admin", "/admin", "/super-admin/permissions"]);
     expect(visibleNav("nope")).toEqual([]);
   });
@@ -49,12 +49,13 @@ import { filterNavByCapabilities as filterByCapabilities } from "./dashboard-nav
 
 describe("admin menu follows the Super Admin switches", () => {
   const entries = visibleNav("admin");
-  const allOn = Object.fromEntries(["bookings.view", "customers.view", "services.view", "packages.view", "barbers.view", "gallery.view", "messages.view", "reports.view", "settings.view"].map((id) => [id, true]));
+  const allOn = Object.fromEntries(["bookings.view", "customers.view", "services.view", "packages.view", "barbers.view", "gallery.view", "messages.view", "emailLog.view", "reports.view", "settings.view"].map((id) => [id, true]));
   it("hides entries whose page is switched off, and keeps the overview", () => {
     const labels = (can) => filterByCapabilities(entries, can).map((entry) => entry.label);
     expect(labels(allOn)).toEqual(entries.map((entry) => entry.label));
     expect(labels({ ...allOn, "reports.view": false, "gallery.view": false })).not.toContain("Reports");
     expect(labels({ ...allOn, "reports.view": false, "gallery.view": false })).not.toContain("Gallery");
+    expect(labels({ ...allOn, "emailLog.view": false })).not.toContain("Email log");
     expect(labels({})).toEqual(["Overview"]);
   });
   it("does not filter for a Super Admin (no switches given)", () => {

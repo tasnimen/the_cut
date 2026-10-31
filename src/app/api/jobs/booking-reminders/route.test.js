@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const mocks = vi.hoisted(() => ({ env: {}, run: vi.fn(), send: vi.fn(), mongo: vi.fn() }));
+const mocks = vi.hoisted(() => ({ env: {}, run: vi.fn(), send: vi.fn(), retry: vi.fn(), mongo: vi.fn() }));
 vi.mock("@/config/env", () => ({ env: mocks.env }));
 vi.mock("@/lib/booking/reminders", () => ({ runDueBookingReminders: mocks.run }));
-vi.mock("@/lib/mail/mailer", () => ({ sendBookingReminder: mocks.send }));
+vi.mock("@/lib/mail/booking-mail", () => ({ sendReminderMail: mocks.send, retryDueMail: mocks.retry }));
 vi.mock("@/lib/db/mongo", () => ({ getMongo: mocks.mongo }));
 
 const { GET, POST } = await import("./route.js");
@@ -14,6 +14,7 @@ const call = (handler, header) => handler(new Request("http://localhost/api/jobs
 beforeEach(() => {
   mocks.env.REMINDER_JOB_SECRET = SECRET;
   mocks.run.mockReset().mockResolvedValue({ sent: 2, failed: 1 });
+  mocks.retry.mockReset().mockResolvedValue({ sent: 1, failed: 0, skipped: 0 });
   mocks.mongo.mockReset().mockResolvedValue({ db: { name: "db" } });
 });
 afterEach(() => vi.restoreAllMocks());
@@ -42,10 +43,13 @@ describe("booking reminder job", () => {
       const response = await call(handler, `Bearer ${SECRET}`);
       expect(response.status).toBe(200);
       expect(response.headers.get("cache-control")).toBe("no-store");
-      expect(await response.json()).toEqual({ ok: true, sent: 2, failed: 1 });
+      expect(await response.json()).toEqual({ ok: true, sent: 2, failed: 1, retried: { sent: 1, failed: 0, skipped: 0 } });
     }
     expect(mocks.run).toHaveBeenCalledTimes(2);
-    expect(mocks.run.mock.calls[0][0]).toMatchObject({ db: { name: "db" }, sendReminder: mocks.send });
+    expect(mocks.run.mock.calls[0][0]).toMatchObject({ db: { name: "db" } });
+    await mocks.run.mock.calls[0][0].sendReminder({ to: "x@example.test", name: "A", booking: { id: "b1" } });
+    expect(mocks.send).toHaveBeenCalledWith({ db: { name: "db" }, to: "x@example.test", name: "A", booking: { id: "b1" } });
+    expect(mocks.retry).toHaveBeenCalledWith({ db: { name: "db" } });
   });
 
   it("answers a generic 500 and logs one line without the secret when the job fails", async () => {

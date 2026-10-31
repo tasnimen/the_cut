@@ -6,7 +6,6 @@ import { ADMIN_TARGETS, adminErrorMessage } from "@/lib/booking/admin-bookings";
 import { BookingError } from "@/lib/booking/availability";
 import { BookingIdSchema } from "@/lib/booking/booking-model";
 import { notifyBookingChange } from "@/lib/booking/notify";
-import { isWalkInUserId } from "@/lib/booking/walk-in";
 import { openBookingRepository } from "@/lib/booking/service";
 import { consumeUserRateLimit } from "@/lib/security/public-rate-limit";
 
@@ -33,8 +32,9 @@ export async function changeBookingStatusAction(bookingId, to) {
   try {
     const { db, repository } = await openBookingRepository();
     const { booking, customerId } = await repository.adminChangeStatus({ principal, bookingId, to });
-    // Walk-ins have no account or email address, so there is nobody to notify.
-    if (to === "cancelled" && !isWalkInUserId(customerId)) after(() => notifyBookingChange({ db, principal, operation: "cancel", booking, recipientUserId: customerId }));
+    // The customer is told about every change the shop makes; a walk-in only if an email address was entered.
+    const operation = { cancelled: "cancel_by_shop", completed: "completed", no_show: "no_show", confirmed: "confirmed" }[to];
+    if (operation) after(() => notifyBookingChange({ db, operation, booking, customerUserId: customerId }));
     return { status: "success", code: to, message: "Booking updated." };
   } catch (error) {
     if (error instanceof BookingError) return { status: "error", code: error.code, message: adminErrorMessage(error.code) };

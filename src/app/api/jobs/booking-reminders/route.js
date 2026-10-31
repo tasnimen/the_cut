@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { env } from "@/config/env";
 import { runDueBookingReminders } from "@/lib/booking/reminders";
 import { getMongo } from "@/lib/db/mongo";
-import { sendBookingReminder } from "@/lib/mail/mailer";
+import { retryDueMail, sendReminderMail } from "@/lib/mail/booking-mail";
 import { logServerError } from "@/lib/utils/log-error";
 
 // Reminder job: a scheduler (hourly) calls this with `Authorization: Bearer <REMINDER_JOB_SECRET>`; it sends the
@@ -29,8 +29,10 @@ async function run(request) {
   if (!decision) return NextResponse.json({ error: "unauthorized" }, { status: 401, headers: { ...HEADERS, "WWW-Authenticate": "Bearer" } });
   try {
     const { db } = await getMongo();
-    const result = await runDueBookingReminders({ db, sendReminder: sendBookingReminder });
-    return NextResponse.json({ ok: true, sent: result.sent, failed: result.failed }, { headers: HEADERS });
+    const result = await runDueBookingReminders({ db, sendReminder: (message) => sendReminderMail({ db, ...message }) });
+    // Then give the emails that failed earlier their next attempt (backoff 5 minutes, 30 minutes, 2 hours; four attempts).
+    const retried = await retryDueMail({ db });
+    return NextResponse.json({ ok: true, sent: result.sent, failed: result.failed, retried }, { headers: HEADERS });
   } catch (error) {
     logServerError("booking-reminders", error);
     return NextResponse.json({ error: "job_failed" }, { status: 500, headers: HEADERS });

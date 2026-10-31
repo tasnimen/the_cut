@@ -19,6 +19,7 @@ export const TOAST_MESSAGES = Object.freeze({
   adminFailed: { type: "error", text: "We could not save that. Check the fields and try again." },
   adminArchived: { type: "success", text: "Archived. It is hidden everywhere and can be restored." },
   adminRestored: { type: "success", text: "Restored. It is hidden until you show it." },
+  mailResent: { type: "success", text: "The email was sent again." },
   adminBlocked: { type: "error", text: "That was not done. See the note next to the button." },
   adminUnreachable: { type: "error", text: "The server did not answer properly. Check Today's bookings before trying again." },
   adminDuplicate: { type: "error", text: "That identifier is already in use." },
