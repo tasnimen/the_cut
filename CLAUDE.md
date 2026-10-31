@@ -1,6 +1,6 @@
 # CLAUDE.md — The Cut barbershop (read AGENTS.md too)
 
-Resume: read this file, then docs/PROJECT_STATUS.md (full status) and docs/AI_HANDOFF.md ("Where I stopped"), then root NEXT_TASK.md.
+Resume: read this file, then docs/PROJECT_STATUS.md (full status) and docs/AI_HANDOFF.md ("Where I stopped"), then root NEXT_TASK.md. Work follows docs/EXECUTION_PLAN.md (stages A to E): finish a stage, report in at most 12 lines, then STOP until the owner writes "start".
 
 ## Stack
 Next.js 16.4.3 App Router (breaking changes: read node_modules/next/dist/docs before Next code), React 19.3, JS/JSX only (no TypeScript), Tailwind 4, Better Auth (database sessions, TOTP), MongoDB driver 7 (Atlas, dev database `the_cut`), Nodemailer (SMTP), Cloudinary media (server-signed uploads; ImgBB only for old images), Zod, Vitest, ESLint.
