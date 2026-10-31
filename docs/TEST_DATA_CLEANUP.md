@@ -26,3 +26,8 @@ Every record the QA audit created is listed here. Rule: removed through the app 
 The audit also tried a contact message: none was received (0 in `contactMessage`), so no message record exists.
 
 The audit made no changes to permissions, services, barbers or settings other than the test records above.
+
+## Stage D live check (2026-10-31)
+- One `timeBlock` record (Daniel Carter, 3 Nov 2026 10:00 to 11:00, reason "Test block (Stage D)") was created and unblocked through the app; it remains as status "removed" (blocks are never deleted). No hard-delete exists; leave it or remove it by hand.
+- Barber James Miller and service Shave were switched off and on again through the app; their records now carry `acceptingBookings: true` / `bookable: true`, the same as the default.
+- The race test (opt-in, `RACE_TEST=1`) creates and removes its own "race-test-..." fixtures in `the_cut_test` only.

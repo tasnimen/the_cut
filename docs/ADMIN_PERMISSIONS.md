@@ -84,3 +84,6 @@ Saving (`saveAdminPermissionsAction`): Super Admin only, rate limited (20 per mi
 
 ## Email log switches (Stage C, 2026-10-31)
 `emailLog.view` (the page `/admin/email-log`) and `emailLog.resend` (the Resend button), both default off like every new switch; the catalog now has 34 switches. Permission `mailLogManageAll` (ADMIN and SUPER_ADMIN, still gated by the switches). See EMAIL.md.
+
+## Stage D switches (2026-10-31)
+Five new switches, all default off: `availability.view` (page `/admin/schedule`), `availability.block`, `availability.unblock`, `availability.barberToggle`, and `services.bookable` (in the Services group). The catalog now has 39 switches. They use the existing permission `bookingsManageAll` (ADMIN and SUPER_ADMIN, still gated by the switches). A revoked `/admin/schedule` is a real 404 and its menu entry "Schedule" is hidden. None of them can change an existing booking. See AVAILABILITY.md.

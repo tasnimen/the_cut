@@ -90,3 +90,5 @@ Branch: `feature/booking-complete`. First `docs/BOOKING_GAPS.md` (S, M or L per 
 | Merge `feature/live-fixes` into `main` | At the start of Stage B (tests, lint and build already passed on it) |
 | Who sees the Email log | Super Admin only until a new switch is turned on |
 | Reminder scheduler | Two options will be documented in Stage C; none is assumed |
+
+**Stage D status (2026-10-31):** built and live-verified as Super Admin; see docs/AVAILABILITY.md for what was built and what was deliberately not (block edit screen, separate release buttons).

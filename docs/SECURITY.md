@@ -217,3 +217,9 @@ Every archive or restore is a Server Action that re-checks session, role, TOTP a
 
 ## Booking emails (Stage C, 2026-10-31)
 Booking mail never blocks or rolls back a booking (it runs in `after()`, every error is caught). Idempotency keys make a repeat send impossible; the log keeps masked and hashed addresses, error codes only, no message text. Customer text is HTML-escaped, links are http or https only, header injection is stripped (control characters removed, recipient and reply-to validated). The Email log and Resend are default-off Admin switches (`emailLog.view`, `emailLog.resend`), Resend re-checks session, TOTP, permission, switch, rate limit and id, only sends a failed email, and is audited. The preview page is development only (404 elsewhere).
+
+## Availability control (Stage D, 2026-10-31)
+- No availability change (block, pause, service switch) can cancel, move or edit a booking: the code only reads bookings to list conflicts. A block over a pending or confirmed booking is refused; the list shows customer name, barber, time, status and services to staff who already have the switch.
+- The public endpoints return a reason code per time and a state per barber, never a block's reason text, a customer name or a booking id. The dates endpoint takes only services and a barber, validated by a strict schema, rate limited, `no-store`.
+- The booking itself re-runs the same availability function inside its transaction, so a time blocked, paused or switched off after the page loaded is refused ("slot_unavailable" or "service_unavailable"); the unique slot index still stops double booking (live race test: 1 of 8 won).
+- New actions: capability switch, rate limit, id and slug validation, audit entry per change.

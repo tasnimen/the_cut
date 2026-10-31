@@ -124,3 +124,9 @@ The only picture field is `image` on the `barber` document (also `service`, `pri
 
 ## mailLog (Stage C, 2026-10-31)
 One document per booking email: `key` (unique: `event:bookingId:role:version`), `event`, `bookingId`, `role` (customer or shop), `recipientMasked`, `recipientHash` (keyed hash), `status` (queued, sent, failed, skipped), `attempts`, `lastErrorCode` (code only), `nextAttemptAt`, `createdAt`, `updatedAt`, `sentAt`, `context` (customer id, previous start, reason). Indexes: unique `key`, `status + nextAttemptAt`, `createdAt`. No message text or provider text is stored. Walk-in bookings may carry `customerEmail` (lower case), only when entered.
+
+## Availability (Stage D)
+- `timeBlock`: `{ barberId (string, or null for the whole shop), startsAt, endsAt (UTC), reason (max 200, dashboard only), status "active" | "removed", createdBy, createdAt, removedAt, removedBy }`. Indexes `time_block_range` (status, startsAt, endsAt) and `time_block_barber_start` (barberId, startsAt). Unblocking sets status "removed"; nothing is deleted.
+- `barber`: optional `acceptingBookings` (missing means true), `pausedUntil` (local date or null), `pauseNote`.
+- `service`: optional `bookable` (missing means true).
+- Existing `booking` and `bookingSlot` documents are never touched by blocks or switches.

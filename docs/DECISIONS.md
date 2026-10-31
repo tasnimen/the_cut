@@ -36,3 +36,9 @@ Before adding a dependency, confirm it serves a current requirement and its peer
 
 ## D2a archive and restore (2026-10-31)
 Owner decisions: only the Super Admin may permanently delete; an Admin cannot archive a barber with upcoming pending or confirmed bookings; restored records return hidden; D2a (services, packages, barbers) and D2b (gallery, messages, permanent delete) are separate; no automatic purge. Archived slugs stay reserved. Permanent delete is deferred to D2b because it needs its own confirmation screen and the stored-picture clean-up.
+
+## Stage D availability (2026-10-31)
+- One function computes every time's state; the page shows reasons instead of hiding times (earlier times today are collapsed into one note, since a wall of "Past" is noise).
+- A conflict with an existing booking refuses the block and lists the bookings; it never offers to cancel them. Staff handle bookings with the normal booking actions.
+- "Accepting bookings" (barber) and "bookable" (service) are separate from hidden and archived, and are read as true when missing, so existing data needs no migration.
+- No separate "Complete early / Release / Reopen" buttons: cancel, complete and no-show already free the time. Block editing has a tested library function but no screen yet (unblock and create again).

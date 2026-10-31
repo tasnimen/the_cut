@@ -2,7 +2,7 @@
 
 Read CLAUDE.md and docs/AI_HANDOFF.md, then continue from "Where I stopped".
 
-**Where I stopped (2026-10-31):** D2a is committed and pushed; a status document (`docs/PROJECT_STATUS.md`) and a housekeeping pass are done. **Next step:** the owner merges into a `main` branch, runs the live-test checklist and removes test data; then D2b or I-23 on the owner's ok. (Older "Where I stopped" lines further down are history.)
+**Where I stopped (2026-10-31):** Stage D (availability control) is built, live-verified as Super Admin, committed and merged (see docs/AVAILABILITY.md). Stages A to D are done. **Next step:** wait for the owner's "start" for Stage E (booking gaps). Open owner tasks: verify the sender domain and change `MAIL_FROM`, choose a scheduler for the hourly reminder job, check /admin/schedule as the real Admin after turning the five availability switches on, set pictures for the other barbers, remove test data (docs/TEST_DATA_CLEANUP.md). (Older "Where I stopped" lines further down are history.)
 
 ## Navbar session, design audit and preflight (2026-10-29)
 

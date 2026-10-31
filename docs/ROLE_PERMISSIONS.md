@@ -114,3 +114,6 @@ Archive and restore (services, packages, barbers) are Admin switches `<group>.ar
 The reminder job route (`/api/jobs/booking-reminders`) has no role: it is a machine endpoint secured by `REMINDER_JOB_SECRET` (see REMINDERS.md). It is not an admin route and not covered by the Admin switches.
 
 `mailLogManageAll` (ADMIN ALL, SUPER_ADMIN ALL): the Email log page and the Resend action; an Admin additionally needs the switches `emailLog.view` and `emailLog.resend` (default off).
+
+## Stage D availability (2026-10-31)
+`/admin/schedule` and its three Server Actions (block, unblock, accepting bookings) use permission `bookingsManageAll` plus the switches `availability.view`, `availability.block`, `availability.unblock`, `availability.barberToggle` (default off); the service "bookable" action uses `servicesManageAll` plus `services.bookable`. GUEST and USER: no access (404 on pages, refused on actions). SUPER_ADMIN is never limited. The public availability and dates endpoints are open to everyone, rate limited, and return only reasons such as Booked or Unavailable, never a block's reason text or any customer detail.
